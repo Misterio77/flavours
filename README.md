@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://raw.githubusercontent.com/Misterio77/flavours/master/flavours_transparent.png" alt="flavours logo"/>
+  <img  height=120 src="https://raw.githubusercontent.com/Misterio77/flavours/master/flavours_transparent.png" alt="flavours logo"/>
 </p>
 
 ---
