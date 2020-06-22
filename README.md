@@ -4,7 +4,7 @@
 
 ---
 
-A (WIP) manager/builder for base16. Written in Rust.
+A (WIP) manager/builder for [Base16](https://github.com/chriskempson/base16). Written in Rust.
 
 I'm developing the starting version right now, so all changes are quickly being pushed to master. Once it's stable, there will be a dev branch just for that. So don't mind the huge amount of small commits for now.
 

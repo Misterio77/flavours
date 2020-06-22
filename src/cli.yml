@@ -1,7 +1,5 @@
 name: flavours
-version: 0.1.0
-author: Misterio77 (Gabriel Fontes) <eu@misterio.me>
-about: "A simple way to manage and use the base16 standard"
+about: "A simple way to and use base16 standard schemes and templates"
 settings:
     - ArgRequiredElseHelp
     - UnifiedHelpMessage
