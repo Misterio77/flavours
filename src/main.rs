@@ -10,4 +10,17 @@ fn main() {
         .author(crate_authors!())
         .version(crate_version!())
         .get_matches();
+
+    match m.subcommand() {
+        ("apply",  Some(sub_m)) => {
+            println!("apply");
+        },
+        ("query",  Some(sub_m)) => {
+            println!("query");
+        },
+        ("update", Some(sub_m)) => {
+            println!("update");
+        },
+        _ => {},
+    }
 }
