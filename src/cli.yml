@@ -54,4 +54,10 @@ subcommands:
                     - schemes
                     - templates
                     - all
+            - config:
+                short: c
+                long: config
+                value_name: FILE
+                help: Specifies a custom configuration
+                takes_value: true
 
