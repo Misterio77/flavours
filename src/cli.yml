@@ -1,0 +1,57 @@
+name: flavours
+version: 0.1.0
+author: Misterio77 (Gabriel Fontes) <eu@misterio.me>
+about: "A simple way to manage and use the base16 standard"
+settings:
+    - ArgRequiredElseHelp
+    - UnifiedHelpMessage
+    - DisableHelpSubcommand
+subcommands:
+    - apply:
+        about: Applies scheme that best matches pattern
+        settings:
+            - UnifiedHelpMessage
+            - DisableHelpSubcommand
+            - DisableVersion
+        args:
+            - pattern:
+                help: Pattern to match, supports regex. If not specified, defaults to last applied scheme, or all available schemes (if ran with '--multiple')
+            - multiple:
+                short: m
+                long: multiple
+                help: Instead of best match, chooses randomly among all schemes that match the pattern
+            - config:
+                short: c
+                long: config
+                value_name: FILE
+                help: Specifies a custom configuration
+                takes_value: true
+    - query:
+        about: Queries scheme that best matches pattern.
+        settings:
+            - UnifiedHelpMessage
+            - DisableHelpSubcommand
+            - DisableVersion
+        args:
+            - pattern:
+                help: Pattern to match, supports regex. If not specified, defaults to last applied scheme, or all available schemes (if ran with '--multiple')
+            - multiple:
+                short: m
+                long: multiple
+                help: Instead of the single best match, show all schemes that match the pattern
+    - update:
+        about: Updates schemes/templates lists or (re)downloads them
+        settings:
+            - UnifiedHelpMessage
+            - DisableHelpSubcommand
+            - DisableVersion
+        args:
+            - operation:
+                help: Grabs lists of schemes and templates from configured repository (defaults to chriskempson source github repos), or (re)downloads schemes/templates (as specified in the lists), or all of the above
+                required: true
+                possible_values:
+                    - lists
+                    - schemes
+                    - templates
+                    - all
+
