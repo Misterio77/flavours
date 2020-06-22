@@ -12,6 +12,7 @@ args:
 subcommands:
     - apply:
         about: Applies scheme that best matches pattern
+        visible_alias: a
         settings:
             - UnifiedHelpMessage
             - DisableHelpSubcommand
@@ -31,6 +32,7 @@ subcommands:
                 takes_value: true
     - query:
         about: Queries scheme that best matches pattern.
+        visible_alias: q
         settings:
             - UnifiedHelpMessage
             - DisableHelpSubcommand
@@ -44,6 +46,7 @@ subcommands:
                 help: Instead of the single best match, show all schemes that match the pattern
     - update:
         about: Updates schemes/templates lists or (re)downloads them
+        visible_alias: u
         settings:
             - UnifiedHelpMessage
             - DisableHelpSubcommand
