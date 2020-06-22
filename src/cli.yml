@@ -4,6 +4,11 @@ settings:
     - ArgRequiredElseHelp
     - UnifiedHelpMessage
     - DisableHelpSubcommand
+args:
+    - verbose:
+        short: v
+        long: verbose
+        help: Be more verbose
 subcommands:
     - apply:
         about: Applies scheme that best matches pattern
@@ -13,7 +18,7 @@ subcommands:
             - DisableVersion
         args:
             - pattern:
-                help: Pattern to match, supports regex. If not specified, defaults to last applied scheme, or all available schemes (if ran with '--multiple')
+                help: Pattern to match. If not specified, defaults to last applied scheme, or all available schemes (if ran with '--multiple')
             - multiple:
                 short: m
                 long: multiple
@@ -32,7 +37,7 @@ subcommands:
             - DisableVersion
         args:
             - pattern:
-                help: Pattern to match, supports regex. If not specified, defaults to last applied scheme, or all available schemes (if ran with '--multiple')
+                help: Pattern to match. If not specified, defaults to last applied scheme, or all available schemes (if ran with '--multiple')
             - multiple:
                 short: m
                 long: multiple
@@ -45,17 +50,17 @@ subcommands:
             - DisableVersion
         args:
             - operation:
-                help: Grabs lists of schemes and templates from configured repository (defaults to chriskempson source github repos), or (re)downloads schemes/templates (as specified in the lists), or all of the above
+                help: Grabs lists of schemes and templates from official base16 repo (alternatively, specify another one with '--repo'), or (re)downloads schemes/templates (as specified in the lists), or all of the above
                 required: true
                 possible_values:
                     - lists
                     - schemes
                     - templates
                     - all
-            - config:
-                short: c
-                long: config
-                value_name: FILE
-                help: Specifies a custom configuration
+            - repo:
+                short: r
+                long: repo
+                value_name: URL
+                help: Specifies a custom (git) repository
                 takes_value: true
 
