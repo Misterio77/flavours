@@ -28,7 +28,7 @@ subcommands:
                 short: c
                 long: config
                 value_name: FILE
-                help: Specifies a custom configuration
+                help: Specifies a custom configuration location. (Defaults to ~/.config/flavours/config.toml)
                 takes_value: true
     - query:
         about: Queries scheme that best matches pattern.
@@ -44,6 +44,12 @@ subcommands:
                 short: m
                 long: multiple
                 help: Instead of the single best match, show all schemes that match the pattern
+            - config:
+                short: c
+                long: config
+                value_name: FILE
+                help: Specifies a custom configuration location. (Defaults to ~/.config/flavours/config.toml)
+                takes_value: true
     - update:
         about: Updates schemes/templates lists or (re)downloads them
         visible_alias: u
@@ -53,7 +59,7 @@ subcommands:
             - DisableVersion
         args:
             - operation:
-                help: Grabs lists of schemes and templates from official base16 repo (alternatively, specify another one with '--repo'), or (re)downloads schemes/templates (as specified in the lists), or all of the above
+                help: Update sources lists from repositories or re(download) schemes/templates specified in the lists. Default repositories and download directory can be changed in configuration file.
                 required: true
                 possible_values:
                     - lists
@@ -66,4 +72,10 @@ subcommands:
                 value_name: URL
                 help: Specifies a custom (git) repository
                 takes_value: true
-
+            - config:
+                short: c
+                long: config
+                value_name: FILE
+                help: Specifies a custom configuration location. (Defaults to ~/.config/flavours/config.toml)
+                takes_value: true
+ 

@@ -1,8 +1,9 @@
 #[macro_use]
 extern crate clap;
 
-
 use clap::App;
+
+mod update;
 
 fn main() {
     //Load yml file
@@ -13,39 +14,12 @@ fn main() {
         .version(crate_version!())
         .get_matches();
 
-
     //Check which subcommand was used
     match matches.subcommand() {
-        //Apply subcommand
-        ("apply",  Some(sub_matches)) => {
-            //If pattern isn't specified, grab last applied scheme
-            let pattern = sub_matches.value_of("pattern")
-                          .unwrap_or_else(|| "placeholder");
-            println!("{}", pattern);
-        },
-        //Query subcommand
-        ("query",  Some(sub_matches)) => {
-            //If pattern isn't specified, grab last applied scheme
-            let pattern = sub_matches.value_of("pattern")
-                          .unwrap_or_else(|| "placeholder");
-            println!("{}", pattern);
-        },
-        //Update subcommand
-        ("update", Some(sub_matches)) => {
-            //Check which update operation was used
-            //(We can safely unwrap, clap handles errors or missing arguments)
-            match sub_matches.value_of("operation").unwrap() {
-                //All operation
-                "all" => {},
-                //Lists operation
-                "lists" => {},
-                //Schemes
-                "schemes" => {},
-                //Template
-                "templates" => {},
-                _ => {},
-            }
-        },
+//        ("apply",  Some(sub_matches)) => apply(sub_matches),
+//        ("query",  Some(sub_matches)) => query(sub_matches),
+        ("update", Some(sub_matches)) => update::update(sub_matches),
+
         _ => {},
     }
 }
