@@ -1,0 +1,15 @@
+[files]
+path = ~/.local/share
+
+[hooks]
+pre =
+post =
+
+[sources]
+templates = 
+schemes =
+
+[template/i3/colors]
+hook = i3-msg reload
+file = ~/.i3/colors
+mode = rewrite

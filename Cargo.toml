@@ -14,3 +14,4 @@ clap = {version = "2.33", features = ["yaml", "wrap_help", "suggestions", "color
 toml = "0.5"
 url = "2.1"
 dirs = "2.0"
+anyhow = "1.0.31"

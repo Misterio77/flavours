@@ -1,3 +1,6 @@
+extern crate anyhow;
+use anyhow::Result;
+
 #[macro_use]
 extern crate clap;
 
@@ -5,7 +8,7 @@ use clap::App;
 
 mod update;
 
-fn main() {
+fn main() -> Result<()> {
     //Load yml file
     let yaml = load_yaml!("cli.yml");
     //Instanciate clap app from yml and add author and version info
@@ -20,6 +23,6 @@ fn main() {
 //        ("query",  Some(sub_matches)) => query(sub_matches),
         ("update", Some(sub_matches)) => update::update(sub_matches),
 
-        _ => {},
+        _ => {Ok(())},
     }
 }
