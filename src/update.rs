@@ -4,22 +4,10 @@ use std::process;
 use std::io::{self, BufRead};
 
 extern crate anyhow;
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Result, Context};
 
 extern crate dirs;
 extern crate clap;
-
-///Writes schemes and templates repos information 
-///
-///# Arguments
-///* `s_repo` - String slice containing Schemes repository link
-///* `t_repo` - String slice containing Schemes repository link
-///* `file` - Path to sources file
-fn write_repos(s_repo: &str, t_repo: &str, file: &path::Path) -> Result<()> {
-    let text = format!("schemes: {}\ntemplates: {}", s_repo, t_repo);
-    fs::write(file, text)?;
-    Ok(())
-}
 
 ///Parses yml line containing name and repository link
 ///
@@ -32,11 +20,24 @@ fn parse_yml_line(line: String) -> Result<(String, String)> {
     return Ok((name, repo));
 }
 
+///Writes schemes and templates repos information 
+///
+///# Arguments
+///* `s_repo` - String slice containing Schemes repository link
+///* `t_repo` - String slice containing Schemes repository link
+///* `file` - Path to sources file
+fn write_sources(s_repo: &str, t_repo: &str, file: &path::Path) -> Result<()> {
+    let text = format!("schemes: {}\ntemplates: {}", s_repo, t_repo);
+    fs::write(file, text)
+        .with_context(|| format!("Couldn't write {:?}", file))?;
+    Ok(())
+}
+
 ///Gets schemes and repository links from file, falls back to default repos
 ///
 ///# Arguments
 ///* `file` - Path to sources file
-fn  get_repos(file: &path::Path) -> Result<(String, String)> {
+fn get_sources(file: &path::Path) -> Result<(String, String)> {
     //Default repos
     let default_s_repo = "https://github.com/chriskempson/base16-schemes-source.git";
     let default_t_repo = "https://github.com/chriskempson/base16-templates-source.git";
@@ -48,9 +49,10 @@ fn  get_repos(file: &path::Path) -> Result<(String, String)> {
         //Handle error once, so if file is not found it can be created
         Err(_) => {
             //Try to write default repos to file
-            write_repos(default_s_repo, default_t_repo, file)?;
+            write_sources(default_s_repo, default_t_repo, file)?;
             //Try to open it again, returns errors if unsucessful again
-            fs::File::open(file)?
+            fs::File::open(file)
+                .with_context(||format!("Couldn't access {:?}", file))?
         },
     };
     //Variable to store repos, start with defaults (in case the file was read but didn't contain one or both repos
@@ -72,10 +74,29 @@ fn  get_repos(file: &path::Path) -> Result<(String, String)> {
     }
 
     //Rewrite file using found repository, this is done to clean up errors on the file or insert default values
-    write_repos(&s_repo, &t_repo, file)?;
+    write_sources(&s_repo, &t_repo, file)?;
 
     //Return repos
     Ok((s_repo, t_repo))
+}
+
+fn get_repo_list(file: &path::Path) -> Result<Vec<(String, String)>> {
+    let sources_file = fs::File::open(file)
+        .with_context(|| format!("Failed to read repository list {:?}. Try 'update lists' first?", file))?;
+    let mut result = Vec::new();
+
+    let reader = io::BufReader::new(sources_file);
+
+    for line in reader.lines() {
+        let (name, repo) = parse_yml_line(line?)?;
+        let first = name.chars().next();
+        if first != Some('#') && first != None {
+            result.push((name, repo));
+        }
+    }
+
+    return Ok(result);
+
 }
 
 ///Uses git to clone a repository
@@ -83,19 +104,30 @@ fn  get_repos(file: &path::Path) -> Result<(String, String)> {
 ///# Arguments
 ///* `path` - File path where repository should be cloned
 ///* `repo` - String slice containing link to repository
-fn git_clone(path: &path::Path, repo: &str) -> Result<()> {
+///* `verbose` - Boolean, tell git to be quiet if false
+fn git_clone(path: &path::Path, repo: &str, verbose: bool) -> Result<()> {
     //Remove directory, ignores errors
     let _ = fs::remove_dir_all(path);
     //Try to clone into directory
-    let status = process::Command::new("git")
-                                  .arg("clone")
-                                  .arg("--quiet")
-                                  .arg(repo)
-                                  .arg(path)
-                                  .status()?;
+    let command;
+    if verbose {
+        command = process::Command::new("git")
+                                       .arg("clone")
+                                       .arg(repo)
+                                       .arg(path)
+                                       .status()?;
+    } else {
+        command = process::Command::new("git")
+                                       .arg("clone")
+                                       .arg("--quiet")
+                                       .arg(repo)
+                                       .arg(path)
+                                       .status()?;
+    }
 
+    
     //Exit status code
-    match status.code() {
+    match command.code() {
         //If okay
         Some(0) => Ok(()),
         //If git returned an error
@@ -109,34 +141,60 @@ fn git_clone(path: &path::Path, repo: &str) -> Result<()> {
 ///
 ///# Arguments
 ///* `arguments` - A clap argmatches instance, for the update subcommand
-pub fn update(arguments: &clap::ArgMatches) -> Result<()> {
+///* `verbose` - Boolean, be verbose if true
+pub fn update(arguments: &clap::ArgMatches, verbose: bool) -> Result<()> {
     extern crate dirs;
     
     //Unwrap user data directory, join flavours and base16 directories to path
     let dir = dirs::data_dir().unwrap().join("flavours").join("base16");
+    if verbose { println!("Using directory: {:?}", dir) }
 
     //Check which update operation was used
     //(We can safely unwrap, clap handles errors or missing arguments)
     let operation = arguments.value_of("operation").unwrap();
 
+    let sources_dir = &dir.join("sources");
     //Operation update lists
     if operation == "lists"    || operation == "all" {
+        if verbose { println!("Updating sources list from sources.yaml") }
         //Get schemes and templates repository from file
-        let (schemes_source, templates_source) = get_repos(&dir.join("sources.yaml"))?; 
+        let (schemes_source, templates_source) = get_sources(&dir.join("sources.yaml"))?; 
+        if verbose {
+            println!("Schemes source: {}", schemes_source);
+            println!("Templates source: {}", templates_source);
+        }
         //Sources directory
-        let sources_dir = &dir.join("sources");
 
         //Clone schemes and templates repositories
-        git_clone(&sources_dir.join("schemes"), &schemes_source)?;
-        git_clone(&sources_dir.join("templates"), &templates_source)?;
+        git_clone(&sources_dir.join("schemes"), &schemes_source, verbose)?;
+        git_clone(&sources_dir.join("templates"), &templates_source, verbose)?;
+
     }
     //Operation update schemes
     if operation == "schemes"  || operation == "all" {
-        println!("schemes");
+        let schemes_dir = &dir.join("schemes");
+
+        if verbose { println!("Updating schemes from source") }
+        let schemes = get_repo_list(&sources_dir.join("schemes").join("list.yaml"))?;
+
+        for scheme in schemes.into_iter() {
+            let (name, repo) = scheme;
+            if verbose{ println!("Downloading scheme {}", name) }
+            git_clone(&schemes_dir.join(name), &repo, verbose)?;
+        }
     }
     //Operation update templates
     if operation == "templates" || operation == "all" {
-        println!("templates");
+        let templates_dir = &dir.join("templates");
+
+        if verbose { println!("Updating templates from source") }
+        let templates = get_repo_list(&sources_dir.join("templates").join("list.yaml"))?;
+
+        for template in templates.into_iter() {
+            let (name, repo) = template;
+            if verbose{ println!("Downloading templatee {}", name) }
+            git_clone(&templates_dir.join(name), &repo, verbose)?;
+        }
     }
     //When done
     return Ok(());

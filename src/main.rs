@@ -17,11 +17,14 @@ fn main() -> Result<()> {
         .version(crate_version!())
         .get_matches();
 
+    //Should we be verbose?
+    let verbose = matches.is_present("verbose");
+
     //Check which subcommand was used
     match matches.subcommand() {
 //        ("apply",  Some(sub_matches)) => apply(sub_matches),
 //        ("query",  Some(sub_matches)) => query(sub_matches),
-        ("update", Some(sub_matches)) => update::update(sub_matches),
+        ("update", Some(sub_matches)) => update::update(sub_matches, verbose),
 
         _ => {Ok(())},
     }
