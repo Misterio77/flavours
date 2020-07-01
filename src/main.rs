@@ -1,31 +1,38 @@
-extern crate anyhow;
-use anyhow::Result;
+use anyhow::{Result, anyhow};
 
-#[macro_use]
-extern crate clap;
-
-use clap::App;
-
+mod cli;
 mod update;
+mod completions;
+mod query;
 
 fn main() -> Result<()> {
-    //Load yml file
-    let yaml = load_yaml!("cli.yml");
-    //Instanciate clap app from yml and add author and version info
-    let matches = App::from_yaml(yaml)
-        .author(crate_authors!())
-        .version(crate_version!())
-        .get_matches();
+    let matches = cli::build_cli().get_matches();
 
     //Should we be verbose?
     let verbose = matches.is_present("verbose");
 
+    //Data directory
+    let data_dir = match dirs::data_dir() {
+        Some(value) => value,
+        None => return Err(anyhow!("Error getting data directory")),
+    };
+    let flavours_dir = &data_dir.join("flavours");
+
+    if verbose { println!("Using directory: {:?}", flavours_dir) }
+    //Config file
+    //TODO
+
+
     //Check which subcommand was used
     match matches.subcommand() {
 //        ("apply",  Some(sub_matches)) => apply(sub_matches),
-//        ("query",  Some(sub_matches)) => query(sub_matches),
-        ("update", Some(sub_matches)) => update::update(sub_matches, verbose),
+        ("query",  Some(sub_matches)) => 
+            query::query(sub_matches, &flavours_dir, verbose),
+        ("update", Some(sub_matches)) => 
+            update::update(sub_matches, &flavours_dir, verbose),
+        ("completions", Some(sub_matches)) => 
+            completions::completions(sub_matches),
 
-        _ => {Ok(())},
+        _ => Err(anyhow!("No valid subcommand specified")),
     }
 }

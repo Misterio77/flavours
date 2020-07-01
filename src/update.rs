@@ -3,11 +3,7 @@ use std::fs;
 use std::process;
 use std::io::{self, BufRead};
 
-extern crate anyhow;
 use anyhow::{anyhow, Result, Context};
-
-extern crate dirs;
-extern crate clap;
 
 ///Parses yml line containing name and repository link
 ///
@@ -137,66 +133,71 @@ fn git_clone(path: &path::Path, repo: &str, verbose: bool) -> Result<()> {
 }
 
 
+fn update_lists(dir: &path::Path, verbose:bool) -> Result<()> {
+    let sources_dir = &dir.join("sources");
+    if verbose { println!("Updating sources list from sources.yaml") }
+
+    //Get schemes and templates repository from file
+    let (schemes_source, templates_source) = get_sources(&dir.join("sources.yaml"))?; 
+    if verbose {
+        println!("Schemes source: {}", schemes_source);
+        println!("Templates source: {}", templates_source);
+    }
+
+    //Clone schemes and templates repositories
+    git_clone(&sources_dir.join("schemes"), &schemes_source, verbose)?;
+    git_clone(&sources_dir.join("templates"), &templates_source, verbose)?;
+    Ok(())
+}
+
+fn update_schemes(dir: &path::Path, verbose:bool) -> Result<()> {
+    let schemes_dir = &dir.join("schemes");
+    let scheme_list = &dir.join("sources").join("schemes").join("list.yaml");
+
+    if verbose { println!("Updating schemes from source") }
+    let schemes = get_repo_list(scheme_list)?;
+
+    for scheme in schemes {
+        let (name, repo) = scheme;
+        if verbose{ println!("Downloading scheme {}", name) }
+        git_clone(&schemes_dir.join(name), &repo, verbose)?;
+    }
+    Ok(())
+}
+
+fn update_templates(dir: &path::Path, verbose:bool) -> Result<()> {
+    let templates_dir = &dir.join("templates");
+    let template_list = &dir.join("sources").join("templates").join("list.yaml");
+
+    if verbose { println!("Updating templates from source") }
+    let templates = get_repo_list(template_list)?;
+
+    for template in templates {
+        let (name, repo) = template;
+        if verbose{ println!("Downloading template {}", name) }
+        git_clone(&templates_dir.join(name), &repo, verbose)?;
+    }
+    Ok(())
+}
+
 ///Implementation of update operation
 ///
 ///# Arguments
 ///* `arguments` - A clap argmatches instance, for the update subcommand
+///* `dir` - The base16 path to be used
 ///* `verbose` - Boolean, be verbose if true
-pub fn update(arguments: &clap::ArgMatches, verbose: bool) -> Result<()> {
-    extern crate dirs;
-    
-    //Unwrap user data directory, join flavours and base16 directories to path
-    let dir = dirs::data_dir().unwrap().join("flavours").join("base16");
-    if verbose { println!("Using directory: {:?}", dir) }
-
-    //Check which update operation was used
-    //(We can safely unwrap, clap handles errors or missing arguments)
-    let operation = arguments.value_of("operation").unwrap();
-
-    let sources_dir = &dir.join("sources");
-    //Operation update lists
-    if operation == "lists"    || operation == "all" {
-        if verbose { println!("Updating sources list from sources.yaml") }
-        //Get schemes and templates repository from file
-        let (schemes_source, templates_source) = get_sources(&dir.join("sources.yaml"))?; 
-        if verbose {
-            println!("Schemes source: {}", schemes_source);
-            println!("Templates source: {}", templates_source);
+pub fn update(arguments: &clap::ArgMatches, dir: &path::Path, verbose: bool) -> Result<()> {
+    let base16_dir = &dir.join("base16");
+    match arguments.value_of("operation") {
+        Some("lists") => update_lists(base16_dir, verbose),
+        Some("schemes") => update_schemes(base16_dir, verbose),
+        Some("templates") => update_templates(base16_dir, verbose),
+        Some("all") => {
+            update_lists(base16_dir, verbose)?;
+            update_schemes(base16_dir, verbose)?;
+            update_templates(base16_dir, verbose)
         }
-        //Sources directory
-
-        //Clone schemes and templates repositories
-        git_clone(&sources_dir.join("schemes"), &schemes_source, verbose)?;
-        git_clone(&sources_dir.join("templates"), &templates_source, verbose)?;
-
+        Some(_) | None => Err(anyhow!("Invalid operation"))
     }
-    //Operation update schemes
-    if operation == "schemes"  || operation == "all" {
-        let schemes_dir = &dir.join("schemes");
-
-        if verbose { println!("Updating schemes from source") }
-        let schemes = get_repo_list(&sources_dir.join("schemes").join("list.yaml"))?;
-
-        for scheme in schemes.into_iter() {
-            let (name, repo) = scheme;
-            if verbose{ println!("Downloading scheme {}", name) }
-            git_clone(&schemes_dir.join(name), &repo, verbose)?;
-        }
-    }
-    //Operation update templates
-    if operation == "templates" || operation == "all" {
-        let templates_dir = &dir.join("templates");
-
-        if verbose { println!("Updating templates from source") }
-        let templates = get_repo_list(&sources_dir.join("templates").join("list.yaml"))?;
-
-        for template in templates.into_iter() {
-            let (name, repo) = template;
-            if verbose{ println!("Downloading templatee {}", name) }
-            git_clone(&templates_dir.join(name), &repo, verbose)?;
-        }
-    }
-    //When done
-    return Ok(());
 }
 
