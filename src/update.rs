@@ -1,6 +1,8 @@
 use std::path;
 use std::fs;
 use std::process;
+use std::thread;
+use std::env;
 use std::io::{self, BufRead};
 
 use anyhow::{anyhow, Result, Context};
@@ -75,7 +77,10 @@ fn get_sources(file: &path::Path) -> Result<(String, String)> {
     //Return repos
     Ok((s_repo, t_repo))
 }
-
+///Get name and repository vector from given list
+///
+///# Arguments
+///* `file` - File with list
 fn get_repo_list(file: &path::Path) -> Result<Vec<(String, String)>> {
     let sources_file = fs::File::open(file)
         .with_context(|| format!("Failed to read repository list {:?}. Try 'update lists' first?", file))?;
@@ -101,24 +106,26 @@ fn get_repo_list(file: &path::Path) -> Result<Vec<(String, String)>> {
 ///* `path` - File path where repository should be cloned
 ///* `repo` - String slice containing link to repository
 ///* `verbose` - Boolean, tell git to be quiet if false
-fn git_clone(path: &path::Path, repo: &str, verbose: bool) -> Result<()> {
+fn git_clone(path: &path::Path, repo: String, verbose: bool) -> Result<()> {
     //Remove directory, ignores errors
     let _ = fs::remove_dir_all(path);
+    env::set_var("GIT_TERMINAL_PROMPT", "0");
+
     //Try to clone into directory
     let command;
     if verbose {
         command = process::Command::new("git")
                                        .arg("clone")
-                                       .arg(repo)
+                                       .arg(&repo)
                                        .arg(path)
-                                       .status()?;
+                                       .status().with_context(|| format!("Failed to run git, is it installed?"))?;
     } else {
         command = process::Command::new("git")
                                        .arg("clone")
                                        .arg("--quiet")
-                                       .arg(repo)
+                                       .arg(&repo)
                                        .arg(path)
-                                       .status()?;
+                                       .status().with_context(|| format!("Failed to run git, is it installed?"))?;
     }
 
     
@@ -127,7 +134,7 @@ fn git_clone(path: &path::Path, repo: &str, verbose: bool) -> Result<()> {
         //If okay
         Some(0) => Ok(()),
         //If git returned an error
-        Some(code) => Err(anyhow!("{}", code)),
+        Some(code) => Err(anyhow!("Git clone failed on repo '{}', check if your repository lists are correct. Code: {}", &repo, code)),
         None => Err(anyhow!("Interrupted")),
     }
 }
@@ -144,9 +151,20 @@ fn update_lists(dir: &path::Path, verbose:bool) -> Result<()> {
         println!("Templates source: {}", templates_source);
     }
 
-    //Clone schemes and templates repositories
-    git_clone(&sources_dir.join("schemes"), &schemes_source, verbose)?;
-    git_clone(&sources_dir.join("templates"), &templates_source, verbose)?;
+    //Spawn git clone threads, to clone schemes and templates lists
+    let schemes_source_dir = sources_dir.join("schemes");
+    let templates_source_dir = sources_dir.join("templates");
+    let s_child = thread::spawn(move || {
+        git_clone(&schemes_source_dir, schemes_source, verbose)
+    });
+    let t_child = thread::spawn(move || {
+        git_clone(&templates_source_dir, templates_source, verbose)
+    });
+
+    //Execute and check exit code
+    s_child.join().unwrap()?;
+    t_child.join().unwrap()?;
+    
     Ok(())
 }
 
@@ -157,11 +175,23 @@ fn update_schemes(dir: &path::Path, verbose:bool) -> Result<()> {
     if verbose { println!("Updating schemes from source") }
     let schemes = get_repo_list(scheme_list)?;
 
+    //Children for multithreaded processing
+    let mut children = vec![];
+
     for scheme in schemes {
+        //Making copies of the variables to avoid problems with borrowing
         let (name, repo) = scheme;
-        if verbose{ println!("Downloading scheme {}", name) }
-        git_clone(&schemes_dir.join(name), &repo, verbose)?;
+        let current_dir = schemes_dir.join(name);
+        //Spawn new thread
+        children.push(thread::spawn(move || {
+            git_clone(&current_dir, repo, verbose) 
+        }));
     }
+    for child in children {
+        //Unwrap thread result, then check git_clone return status with '?'
+        child.join().unwrap()?;
+    }
+    //If no errors were raised, return as ok
     Ok(())
 }
 
@@ -172,11 +202,23 @@ fn update_templates(dir: &path::Path, verbose:bool) -> Result<()> {
     if verbose { println!("Updating templates from source") }
     let templates = get_repo_list(template_list)?;
 
+    //Children for multithreaded processing
+    let mut children = vec![];
+
     for template in templates {
+        //Making copies of the variables to avoid problems with borrowing
         let (name, repo) = template;
-        if verbose{ println!("Downloading template {}", name) }
-        git_clone(&templates_dir.join(name), &repo, verbose)?;
+        let current_dir = templates_dir.join(name);
+        //Spawn new thread
+        children.push(thread::spawn(move || {
+            git_clone(&current_dir, repo, verbose) 
+        }));
     }
+    for child in children {
+        //Unwrap thread result, then check git_clone return status with '?'
+        child.join().unwrap()?;
+    }
+    //If no errors were raised, return as ok
     Ok(())
 }
 
@@ -188,6 +230,7 @@ fn update_templates(dir: &path::Path, verbose:bool) -> Result<()> {
 ///* `verbose` - Boolean, be verbose if true
 pub fn update(arguments: &clap::ArgMatches, dir: &path::Path, verbose: bool) -> Result<()> {
     let base16_dir = &dir.join("base16");
+    fs::create_dir_all(base16_dir)?;
     match arguments.value_of("operation") {
         Some("lists") => update_lists(base16_dir, verbose),
         Some("schemes") => update_schemes(base16_dir, verbose),

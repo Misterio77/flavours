@@ -10,7 +10,7 @@ pub fn build_cli() -> App<'static> {
         .setting(AppSettings::DeriveDisplayOrder)
         .setting(AppSettings::InferSubcommands)
         .arg(
-            Arg::new("verbose")
+            Arg::with_name("verbose")
             .about("Be more verbose")
             .long("verbose")
             .short('v')
@@ -23,7 +23,7 @@ pub fn build_cli() -> App<'static> {
                 .setting(AppSettings::DisableHelpSubcommand)
                 .setting(AppSettings::DisableVersion)
                 .arg(
-                    Arg::new("apply-pattern")
+                    Arg::with_name("pattern")
                         .about("Scheme to apply, supports glob. If not specified, defaults to last applied scheme. If matches more than one scheme (when using wildcards, for example), one among them is chosen randomly."),
                 )
         )
@@ -36,7 +36,7 @@ pub fn build_cli() -> App<'static> {
                 .setting(AppSettings::DisableVersion)
                 .setting(AppSettings::TrailingVarArg)
                 .arg(
-                    Arg::new("query-pattern")
+                    Arg::with_name("pattern")
                         .about("Scheme to query, supports glob. If not specified, defaults to last applied scheme. Supports displaying more than one scheme (when using wildcards, for example).")
                         .multiple(true)
                         .multiple_values(true)
@@ -50,7 +50,7 @@ pub fn build_cli() -> App<'static> {
                 .setting(AppSettings::DisableHelpSubcommand)
                 .setting(AppSettings::DisableVersion)
                 .arg(
-                    Arg::new("operation")
+                    Arg::with_name("operation")
                         .value_name("operation")
                         .about("Update sources lists from repositories or (re)download schemes/templates specified in the lists. Default repositories for lists, and the lists themselves, can be manually changed.")
                         .required(true)
@@ -65,7 +65,7 @@ pub fn build_cli() -> App<'static> {
                 .setting(AppSettings::DisableHelpSubcommand)
                 .setting(AppSettings::DisableVersion)
                 .arg(
-                    Arg::new("shell")
+                    Arg::with_name("shell")
                         .value_name("shell")
                         .about("Specify which shell to generate for")
                         .required(true)
@@ -73,3 +73,4 @@ pub fn build_cli() -> App<'static> {
                 ) 
         )
 }
+

@@ -1,8 +1,4 @@
-extern crate anyhow;
 use anyhow::Result;
-
-extern crate clap;
-extern crate clap_generate;
 
 #[path = "cli.rs"]
 mod cli;
