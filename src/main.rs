@@ -1,12 +1,20 @@
 use anyhow::{Result, anyhow};
 
 mod cli;
+
+mod current;
+mod list;
 mod update;
+
 mod completions;
-mod query;
 
 fn main() -> Result<()> {
     let matches = cli::build_cli().get_matches();
+
+    //Completetions flag
+    if matches.is_present("completions") {
+        return completions::completions(matches.value_of("completions"))
+    }
 
     //Should we be verbose?
     let verbose = matches.is_present("verbose");
@@ -26,13 +34,12 @@ fn main() -> Result<()> {
     //Check which subcommand was used
     match matches.subcommand() {
 //        ("apply",  Some(sub_matches)) => apply(sub_matches),
-        ("query",  Some(sub_matches)) => 
-            query::query(sub_matches, &flavours_dir, verbose),
+        ("list",  Some(sub_matches)) => 
+            list::list(sub_matches, &flavours_dir, verbose),
         ("update", Some(sub_matches)) => 
             update::update(sub_matches, &flavours_dir, verbose),
-        ("completions", Some(sub_matches)) => 
-            completions::completions(sub_matches),
-
+        ("current", Some(_)) =>
+            current::current(&flavours_dir, verbose),
         _ => Err(anyhow!("No valid subcommand specified")),
     }
 }

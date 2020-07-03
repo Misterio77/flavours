@@ -1,33 +1,21 @@
 use std::path;
-use std::fs;
 use std::env;
 use glob::glob;
 
-use anyhow::{Result, anyhow, Context};
+use anyhow::{Result, anyhow};
 
-fn last_scheme(dir: &path::Path) -> Result<String> {
-    //File that stores last used scheme
-    let file_path = &dir.join("lastscheme");
-    //Try to open it
-    let scheme = fs::read_to_string(file_path)
-        .with_context(|| format!("Failed to read last scheme from {:?}. Try applying one first", file_path))?;
+fn find_files(pattern: String, dir: &path::Path) -> Result<Vec<String>> {
+    //Matches vector to be returned
+    let mut matches = Vec::new();
 
-    if scheme == "" {
-        Err(anyhow!("Last scheme file is empty. Try applying one first"))
-    } else {
-        Ok(scheme)
-    }
-}
-
-fn find_file(pattern: String, base_dir: &path::Path, mut matches: Vec<String>) -> Result<Vec<String>> {
     //Store old working directory
     let old_working_dir = env::current_dir()?;
     //Change to the schemes directory
-    env::set_current_dir(&base_dir.join("base16").join("schemes"))?;
+    env::set_current_dir(dir)?;
     
     //Use glob to search with pattern, then iterate
     for entry in glob(&pattern).unwrap() {
-        //For every found file, we'll get only the stem (name without extension), turn into a string, and add to the supplied vector
+        //For every found file, we'll get only the stem (name without extension), turn into a string, and add to the vector
         matches.push( match entry?.file_stem() {
             Some(value) => match value.to_str() {
                 Some (contents) => String::from(contents),
@@ -44,7 +32,7 @@ fn find_file(pattern: String, base_dir: &path::Path, mut matches: Vec<String>) -
 
 
 pub fn find_schemes(pattern_in: Option<clap::Values>, base_dir: &path::Path) -> Result<Vec<String>> {
-    //String Vec that stores all given arguments
+    //String Vec that stores all given patterns
     let input = match pattern_in {
         Some(values) => {
             //Create a vector
@@ -56,22 +44,23 @@ pub fn find_schemes(pattern_in: Option<clap::Values>, base_dir: &path::Path) -> 
             //Return it
             vec
         },
-        //If none is supplied, get last applied scheme
-        None => vec!(last_scheme(base_dir)?),
+        //If none is supplied, defaults to wildcard
+        None => vec!(String::from("*")),
     };
 
-    //String vec that will contain all matches
+    //String vec that will contain all matching schemes
     let mut matches = Vec::new();
 
     //Iterate input vector
     for element in input {
         //Search twice, once for .yaml and another for .yml schemes
         //Find_file will get the matches and add them to the vector
+        let schemes_dir = base_dir.join("base16").join("schemes");
         let pattern = format!("*/{}.yaml", element);
-        matches = find_file(pattern, base_dir, matches)?;
+        matches.append(&mut find_files(pattern, &schemes_dir)?);
 
         let pattern = format!("*/{}.yml", element);
-        matches = find_file(pattern, base_dir, matches)?;
+        matches.append(&mut find_files(pattern, &schemes_dir)?);
     }
     //Sort vector
     matches.sort();
@@ -83,14 +72,29 @@ pub fn find_schemes(pattern_in: Option<clap::Values>, base_dir: &path::Path) -> 
 
 }
 
-pub fn query(arguments: &clap::ArgMatches, base_dir: &path::Path, _verbose: bool) -> Result<()> {
+pub fn list(arguments: &clap::ArgMatches, base_dir: &path::Path, _verbose: bool) -> Result<()> {
     //TODO: find info worth printing for verbose option
     //Get schemes
     let schemes = find_schemes(arguments.values_of("pattern"), base_dir)?;
-    //Print them
+
+    //Should we print a new line for each scheme?
+    let lines = arguments.is_present("lines");
+
+
     for scheme in schemes {
-        println!("{}", scheme);
+        //Print scheme
+        print!("{}", scheme);
+        if lines {
+            //Print newline
+            println!("");
+        } else {
+            //Print space
+            print!(" ");
+        }
     }
+
+    //If we separated by spaces, print an ending newline
+    if !lines { println!(""); }
 
     Ok(())
 }

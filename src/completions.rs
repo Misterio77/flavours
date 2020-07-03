@@ -5,8 +5,8 @@ mod cli;
 
 use clap_generate::{generate, generators::{Bash, Elvish, Fish, PowerShell, Zsh}};
 
-pub fn completions(arguments: &clap::ArgMatches) -> Result<()> {
-    match arguments.value_of("shell") {
+pub fn completions(shell: Option<&str>) -> Result<()> {
+    match shell {
         Some("bash") => Ok(generate::<Bash, _>(
             &mut cli::build_cli(), "flavours", &mut std::io::stdout()
         )),
