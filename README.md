@@ -6,24 +6,27 @@
 
 A (WIP) manager/builder for [Base16](https://github.com/chriskempson/base16). Written in Rust🦀.
 
+
+
 ## What
-The program is designed with three operations in mind: update, query, apply.
+This program is both a manager and a builder designed for Base16 schemes and templates. It's being written in Rust, using [clap](https://github.com/clap-rs/clap), [glob](https://github.com/rust-lang-nursery/glob) and [anyhow](https://github.com/dtolnay/anyhow) as the main libraries.
 
-Update will handle downloading base16 sources, schemes and templates.
-Query will return a list of available schemes matching the argument.
-Apply will (through a simple user configuration file) take a scheme, apply it to the apps configuration files the user specified, and run specified hooks for updating each application. If the user supplies a pattern that matches more than one scheme, the program should chose one randomly.
-
-Additionaly, there's a 'completions' operation, that will generate completion-scripts for specified shell. I will probably pack these scripts when releasing packages for distros.
-
-## Why
-I started this project because the existing tools didn't seem mature enough or didn't quite fit my workflow.
-I made a (quite functional) [bash script](https://gist.github.com/Misterio77/925243bdf3e7ce1f23654507e5326f7a), but i wanted something faster, modular and that could be used by other people without having to be rewritten each time. I've been wanting to try and make an actual rust project, so here we are.
+This is my first time written a public project in Rust, i'm 100% open to suggestions, critics, issues and PR!
 
 ## How
-I'm using this opportunity to learn rust, so it's fully written in it. [clap](https://github.com/clap-rs/clap) is used for cli arguments, [glob](https://github.com/rust-lang-nursery/glob) for pattern matching and [anyhow](https://github.com/dtolnay/anyhow) for error handling.
+flavours' main functionality is the apply subcommand. When run, it'll take a base16 scheme, look up your flavours configuration file (which will be a toml file) and apply that scheme to all specified templates, injecting (or replacing) a file. There will be also a hook option for each program when applying, which is a command flavours will run after the operation, allowing you to easily theme all your programs and reload them, showing all changes instantly.
+
+It's designed to be the most out of your way as possible, so you can easily integrate it with rofi menus, polybar widgets, and anything you can think of.
+
+Once all features are implemented and they're relatively stable, i will document usage on the wiki (even though it's pretty straightforward), including guides for some applications.
+
+## Why
+Why use this instead of other base16 managers, or even pywal?
+
+While these projects are great and certainly fit some people's workflow, they didn't quite fit mine. I decided to do my own project because i wanted a simple and straightforward way for anyone to enjoy every beautiful and polished scheme base16 has to offer, in all their applications in the blink of an eye. And most important, a program that can easily integrate with rofi, polybar, or any other setup.
 
 ## When
-I plan to have it fully functional by the end of 2020 July, but i will take my sweet time to make it better and featureful. Feel free to suggest changes, open issues or PR, i'm very open to feedback <3
+I plan to have it fully functional by the end of 2020 July, but i will take my sweet time to make it better and featureful. Feel free to report issues or help me out <3
 
 
 ### Thanks to:
