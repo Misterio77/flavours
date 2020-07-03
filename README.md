@@ -11,7 +11,7 @@ A (WIP) manager/builder for [Base16](https://github.com/chriskempson/base16). Wr
 ## What
 This program is both a manager and a builder designed for Base16 schemes and templates. It's being written in Rust, using [clap](https://github.com/clap-rs/clap), [glob](https://github.com/rust-lang-nursery/glob) and [anyhow](https://github.com/dtolnay/anyhow) as the main libraries.
 
-This is my first time written a public project in Rust, i'm 100% open to suggestions, critics, issues and PR!
+This is my first time with a public project in Rust, i'm 100% open to suggestions, critics, issues and PRs!
 
 ## How
 flavours' main functionality is the apply subcommand. When run, it'll take a base16 scheme, look up your flavours configuration file (which will be a toml file) and apply that scheme to all specified templates, injecting (or replacing) a file. There will be also a hook option for each program when applying, which is a command flavours will run after the operation, allowing you to easily theme all your programs and reload them, showing all changes instantly.
