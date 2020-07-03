@@ -14,7 +14,7 @@ This program is both a manager and a builder designed for Base16 schemes and tem
 This is my first time with a public project in Rust, i'm 100% open to suggestions, critics, issues and PRs!
 
 ## How
-flavours' main functionality is the apply subcommand. When run, it'll take a base16 scheme, look up your flavours configuration file (which will be a toml file) and apply that scheme to all specified templates, injecting (or replacing) a file. There will be also a hook option for each program when applying, which is a command flavours will run after the operation, allowing you to easily theme all your programs and reload them, showing all changes instantly.
+flavours' main functionality is the apply subcommand. When run, it'll take a base16 scheme, look up your flavours configuration file (which will be a toml file) and apply that scheme to all specified templates, injecting (or replacing) a file. There will be also a hook option for each program when applying, a command to run after the operation, allowing you to reload all themed apps, so your scheme changes are instantly visible.
 
 It's designed to be the most out of your way as possible, so you can easily integrate it with rofi menus, polybar widgets, and anything you can think of.
 
