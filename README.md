@@ -18,7 +18,7 @@ flavours' main functionality is the apply subcommand. When run, it'll take a bas
 
 It's designed to be the most out of your way as possible, so you can easily integrate it with rofi menus, polybar widgets, and anything you can think of.
 
-Once all features are implemented and they're relatively stable, i will document usage on the wiki (even though it's pretty straightforward), including guides for some applications.
+Once all features are implemented and they're relatively stable, i will document usage on the wiki (even though it's pretty straightforward) and publish easy to install (and stable) packages.
 
 ## Why
 Why use this instead of other base16 managers, or even pywal?
