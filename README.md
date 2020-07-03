@@ -23,7 +23,8 @@ Once all features are implemented and they're relatively stable, i will document
 ## Why
 Why use this instead of other base16 managers, or even pywal?
 
-While these projects are great and certainly fit some people's workflow, they didn't quite fit mine. I decided to do my own project because i wanted a simple and straightforward way for anyone to enjoy every beautiful and polished scheme base16 has to offer, in all their applications in the blink of an eye. And most important, a program that can easily integrate with rofi, polybar, or any other setup.
+While these projects are great and certainly fit some people's workflow, they didn't quite fit mine.
+I decided to do my own project because i wanted a simple and straightforward way for anyone to use base16. The main objective is to have a single command that allows you to apply a specific scheme, in all your applications in the blink of an eye. With that, you have a program that easily integrates with anything you want it to.
 
 ## When
 I plan to have it fully functional by the end of 2020 July, but i will take my sweet time to make it better and featureful. Feel free to report issues or help me out <3
