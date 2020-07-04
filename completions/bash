@@ -1,0 +1,135 @@
+_flavours() {
+    local i cur prev opts cmds
+    COMPREPLY=()
+    cur="${COMP_WORDS[COMP_CWORD]}"
+    prev="${COMP_WORDS[COMP_CWORD-1]}"
+    cmd=""
+    opts=""
+
+    for i in ${COMP_WORDS[@]}
+    do
+        case "${i}" in
+            flavours)
+                cmd="flavours"
+                ;;
+            
+            apply)
+                cmd+="__apply"
+                ;;
+            current)
+                cmd+="__current"
+                ;;
+            info)
+                cmd+="__info"
+                ;;
+            list)
+                cmd+="__list"
+                ;;
+            update)
+                cmd+="__update"
+                ;;
+            *)
+                ;;
+        esac
+    done
+
+    case "${cmd}" in
+        flavours)
+            opts=" -v -h -V  --verbose --completions --help --version  current list info apply update"
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+                return 0
+            fi
+            case "${prev}" in
+                
+                --completions)
+                    COMPREPLY=($(compgen -W "bash elvish fish powershell zsh" -- ${cur}))
+                    return 0
+                    ;;
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+            return 0
+            ;;
+        
+        flavours__apply)
+            opts=" -h -V  --help --version  $(flavours list) "
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+                return 0
+            fi
+            case "${prev}" in
+                
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+            return 0
+            ;;
+        flavours__current)
+            opts=" -h  --help  "
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+                return 0
+            fi
+            case "${prev}" in
+                
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+            return 0
+            ;;
+        flavours__info)
+            opts=" -h -V  --help --version  $(flavours list) "
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+                return 0
+            fi
+            case "${prev}" in
+                
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+            return 0
+            ;;
+        flavours__list)
+            opts=" -l -h -V  --lines --help --version  <pattern>... "
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+                return 0
+            fi
+            case "${prev}" in
+                
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+            return 0
+            ;;
+        flavours__update)
+            opts=" -h -V  --help --version lists schemes templates all"
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+                return 0
+            fi
+            case "${prev}" in
+                
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+            return 0
+            ;;
+    esac
+}
+
+complete -F _flavours -o bashdefault -o default flavours

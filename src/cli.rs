@@ -16,6 +16,20 @@ pub fn build_cli() -> App<'static> {
             .short('v')
         )
         .arg(
+            Arg::with_name("config")
+            .about("Specify a configuration file (Defaults to ~/.config/flavours/config.toml)")
+            .long("config")
+            .short('c')
+            .takes_value(true)
+        )
+        .arg(
+            Arg::with_name("directory")
+            .about("Specify a data directory (Defaults to ~/.local/share/flavours)")
+            .long("directory")
+            .short('d')
+            .takes_value(true)
+        )
+        .arg(
             Arg::with_name("completions")
             .setting(ArgSettings::Hidden)
             .about("Generates completion for given shell, outputs to stdout")
@@ -56,20 +70,23 @@ pub fn build_cli() -> App<'static> {
                 .setting(AppSettings::DisableHelpSubcommand)
                 .arg(
                     Arg::with_name("scheme")
-                        .about("Scheme(s) name(s) to display information. Use together with list subcommand if you want all schemes or glob matching")
+                        .about("Scheme(s) name(s) to display information. Use together with list subcommand if you want all schemes or glob matching.")
                         .multiple(true)
+                        .required(true)
+
                 )
         )        
         .subcommand(
             App::new("apply")
-                .about("Applies scheme, according to configuration")
+                .about("Applies scheme, according to user configuration")
                 .setting(AppSettings::UnifiedHelpMessage)
                 .setting(AppSettings::DeriveDisplayOrder)
                 .setting(AppSettings::DisableHelpSubcommand)
                 .arg(
                     Arg::with_name("scheme")
-                        .about("Applies specified scheme, using templates and locations specified in the configuration file. If more than one scheme is specified, picks one of them at random. Use together with list subcommand if you want all schemes or glob matching.")
+                        .about("Scheme to be applied. If more than one scheme is specified, picks one of them at random. Use together with list subcommand if you want all schemes or glob matching.")
                         .multiple(true)
+                        .required(true)
                 )
         )
         .subcommand(

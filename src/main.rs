@@ -2,6 +2,7 @@ use anyhow::{Result, anyhow};
 
 mod cli;
 
+mod apply;
 mod current;
 mod list;
 mod update;
@@ -38,6 +39,8 @@ fn main() -> Result<()> {
             list::list(sub_matches, &flavours_dir, verbose),
         ("update", Some(sub_matches)) => 
             update::update(sub_matches, &flavours_dir, verbose),
+        ("apply", Some(sub_matches)) =>
+            apply::apply(sub_matches, &flavours_dir, verbose),
         ("current", Some(_)) =>
             current::current(&flavours_dir, verbose),
         _ => Err(anyhow!("No valid subcommand specified")),

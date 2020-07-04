@@ -3,15 +3,15 @@ use std::fs;
 
 use::anyhow::{Result, anyhow, Context};
 
-fn get_current_scheme(dir: &path::Path) -> Result<String> {
+pub fn get_current_scheme(dir: &path::Path) -> Result<String> {
     //File that stores last used scheme
     let file_path = &dir.join("lastscheme");
     //Try to open it
     let scheme = fs::read_to_string(file_path)
-        .with_context(|| format!("Failed to read last scheme from {:?}. Try applying one first", file_path))?.split_whitespace().collect();
+        .with_context(|| "Failed to read last scheme file. Try applying first.")?.split_whitespace().collect();
 
     if scheme == "" {
-        Err(anyhow!("Last scheme file is empty. Try applying one first"))
+        Err(anyhow!("Failed to read last scheme from file. Try applying first."))
     } else {
         Ok(scheme)
     }
