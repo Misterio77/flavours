@@ -20,6 +20,7 @@ pub fn build_cli() -> App<'static> {
             .about("Specify a configuration file (Defaults to ~/.config/flavours/config.toml)")
             .long("config")
             .short('c')
+            .value_name("FILE")
             .takes_value(true)
         )
         .arg(
@@ -27,6 +28,7 @@ pub fn build_cli() -> App<'static> {
             .about("Specify a data directory (Defaults to ~/.local/share/flavours)")
             .long("directory")
             .short('d')
+            .value_name("DIRECTORY")
             .takes_value(true)
         )
         .arg(
@@ -46,13 +48,13 @@ pub fn build_cli() -> App<'static> {
         )
         .subcommand(
             App::new("list")
-                .about("Prints a list with all installed schemes")
+                .about("Prints a list with all matching schemes")
                 .setting(AppSettings::UnifiedHelpMessage)
                 .setting(AppSettings::DeriveDisplayOrder)
                 .setting(AppSettings::DisableHelpSubcommand)
                 .arg(
                     Arg::with_name("pattern")
-                        .about("Optionally, specify a pattern (glob) to only show matching schemes.")
+                        .about("Scheme name or glob pattern to match when listing scheme(s). If ommited, defaults to * (all installed schemes).")
                         .multiple(true)
                 )
                 .arg(
@@ -63,30 +65,15 @@ pub fn build_cli() -> App<'static> {
                 )
         )
         .subcommand(
-            App::new("info")
-                .about("Shows info on a scheme, or list of schemes")
-                .setting(AppSettings::UnifiedHelpMessage)
-                .setting(AppSettings::DeriveDisplayOrder)
-                .setting(AppSettings::DisableHelpSubcommand)
-                .arg(
-                    Arg::with_name("scheme")
-                        .about("Scheme(s) name(s) to display information. Use together with list subcommand if you want all schemes or glob matching.")
-                        .multiple(true)
-                        .required(true)
-
-                )
-        )        
-        .subcommand(
             App::new("apply")
                 .about("Applies scheme, according to user configuration")
                 .setting(AppSettings::UnifiedHelpMessage)
                 .setting(AppSettings::DeriveDisplayOrder)
                 .setting(AppSettings::DisableHelpSubcommand)
                 .arg(
-                    Arg::with_name("scheme")
-                        .about("Scheme to be applied. If more than one scheme is specified, picks one of them at random. Use together with list subcommand if you want all schemes or glob matching.")
+                    Arg::with_name("pattern")
+                        .about("Scheme to be applied, supports glob. If more than one is specified (or if glob pattern matched more than one), chooses one randomly among matches. If ommited, defaults to * (all schemes).")
                         .multiple(true)
-                        .required(true)
                 )
         )
         .subcommand(

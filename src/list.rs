@@ -1,56 +1,9 @@
 use std::path;
-use std::env;
-use glob::glob;
 
 use anyhow::{Result, anyhow};
 
-fn schemes_from_pattern(pattern: &str, dir: &path::Path) -> Result<Vec<String>> {
-    //Matches vector to be returned
-    let mut matches = Vec::new();
-
-    //Store old working directory
-    let old_working_dir = env::current_dir()?;
-    //Change to the schemes directory
-    env::set_current_dir(dir)?;
-    
-    //Use glob to search with pattern, then iterate
-    for entry in glob(&pattern).unwrap() {
-        //For every found file, we'll get only the stem (name without extension), turn into a string, and add to the vector
-        matches.push( match entry?.file_stem() {
-            Some(value) => match value.to_str() {
-                Some (contents) => String::from(contents),
-                None => return Err(anyhow!("Error converting string")),
-            }
-            None => return Err(anyhow!("Error converting scheme path to string")),
-        })
-    }
-    //Change back to old working directory
-    env::set_current_dir(old_working_dir)?;
-    //Return matches
-    Ok(matches)
-}
-
-
-pub fn schemes_from_patterns(patterns: Vec<&str>, base_dir: &path::Path) -> Result<Vec<String>> {
-    //String vec that will contain all matching schemes
-    let mut matches = Vec::new();
-
-    //Iterate input vector
-    for pattern in patterns {
-        //Search twice, once for .yaml and another for .yml schemes
-        let schemes_dir = base_dir.join("base16").join("schemes");
-        matches.append(&mut schemes_from_pattern(&format!("*/{}.yaml", pattern), &schemes_dir)?);
-        matches.append(&mut schemes_from_pattern(&format!("*/{}.yml", pattern), &schemes_dir)?);
-    }
-    //Sort vector
-    matches.sort();
-    //Remove duplicates
-    matches.dedup();
-
-    //Return it
-    Ok(matches)
-
-}
+#[path = "find.rs"]
+mod find;
 
 pub fn list(arguments: &clap::ArgMatches, base_dir: &path::Path, _verbose: bool) -> Result<()> {
     let patterns = match arguments.values_of("pattern") {
@@ -59,7 +12,20 @@ pub fn list(arguments: &clap::ArgMatches, base_dir: &path::Path, _verbose: bool)
         None => vec!["*"],
     };
 
-    let schemes = schemes_from_patterns(patterns, base_dir)?;
+    let mut schemes = Vec::new();
+    for pattern in patterns {        
+        let found_schemes = find::find(pattern, &base_dir.join("base16").join("schemes"))?;
+        for found_scheme in found_schemes {
+            schemes.push(
+                String::from(
+                    found_scheme
+                    .file_stem().ok_or(anyhow!("Couldn't get scheme name"))?
+                    .to_str().ok_or(anyhow!("Couldn't convert name"))?
+                )
+            );
+        }
+    }
+
 
     //Should we print a new line for each scheme?
     let lines = arguments.is_present("lines");
@@ -75,7 +41,6 @@ pub fn list(arguments: &clap::ArgMatches, base_dir: &path::Path, _verbose: bool)
             print!(" ");
         }
     }
-
     //If we separated by spaces, print an ending newline
     if !lines { println!(""); }
 

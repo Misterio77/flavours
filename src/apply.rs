@@ -3,22 +3,35 @@ use std::path;
 use anyhow::{Result, anyhow};
 use rand::seq::SliceRandom;
 
-fn random(values: Vec<&str>) -> Result<&str> {
-    match values.choose(&mut rand::thread_rng()) {
-        Some(chosen) => Ok(chosen),
-        None => Err(anyhow!("Error getting random scheme")),
-    }
+#[path = "find.rs"]
+mod find;
+
+fn random(values: Vec<path::PathBuf>) -> Result<path::PathBuf> {
+    let chosen = values.choose(&mut rand::thread_rng())
+                 .ok_or(anyhow!("Error getting random value"))?;
+    Ok(chosen.to_path_buf())
 }
 
 pub fn apply(arguments: &clap::ArgMatches, base_dir: &path::Path, verbose: bool) -> Result<()> {
-    //Get all supplied schemes, turn into vector of strings
-    let supplied_schemes = match arguments.values_of("scheme") {
+    let patterns = match arguments.values_of("pattern") {
         Some(schemes) => schemes.collect(),
-        None => return Err(anyhow!("You need to supply at least one scheme")),
+        //If none is supplied, defaults to wildcard
+        None => vec!["*"],
     };
-    //Call random function
-    let scheme = random(supplied_schemes)?;
 
-    println!("{}", scheme);
+    //Build vec with all matching schemes
+    let mut schemes = Vec::new();
+    for pattern in patterns {
+        let found_schemes = find::find(pattern, &base_dir.join("base16").join("schemes"))?;
+        for found_scheme in found_schemes {
+            schemes.push(found_scheme);
+        }
+    }
+
+    //Call random function
+    let chosen = random(schemes)?;
+
+    println!("{:?}", chosen);
+
     Ok(())
 }

@@ -3,7 +3,7 @@ use std::fs;
 
 use::anyhow::{Result, anyhow, Context};
 
-pub fn get_current_scheme(dir: &path::Path) -> Result<String> {
+fn get_current_scheme(dir: &path::Path) -> Result<String> {
     //File that stores last used scheme
     let file_path = &dir.join("lastscheme");
     //Try to open it
