@@ -1,0 +1,134 @@
+#compdef flavours
+
+autoload -U is-at-least
+
+_flavours() {
+    typeset -A opt_args
+    typeset -a _arguments_options
+    local ret=1
+
+    if is-at-least 5.2; then
+        _arguments_options=(-s -S -C)
+    else
+        _arguments_options=(-s -C)
+    fi
+
+    local context curcontext="$curcontext" state line
+    _arguments "${_arguments_options[@]}" \
+'-c+[Specify a configuration file (Defaults to ~/.config/flavours/config.toml)]' \
+'--config=[Specify a configuration file (Defaults to ~/.config/flavours/config.toml)]' \
+'-d+[Specify a data directory (Defaults to ~/.local/share/flavours)]' \
+'--directory=[Specify a data directory (Defaults to ~/.local/share/flavours)]' \
+'--completions=[Generates completion for given shell, outputs to stdout]: :(bash elvish fish powershell zsh)' \
+'-v[Be more verbose]' \
+'--verbose[Be more verbose]' \
+'-h[Prints help information]' \
+'--help[Prints help information]' \
+'-V[Prints version information]' \
+'--version[Prints version information]' \
+":: :_flavours_commands" \
+"*::: :->flavours" \
+&& ret=0
+    case $state in
+    (flavours)
+        words=($line[1] "${words[@]}")
+        (( CURRENT += 1 ))
+        curcontext="${curcontext%:*:*}:flavours-command-$line[1]:"
+        case $line[1] in
+            (current)
+_arguments "${_arguments_options[@]}" \
+'-h[Prints help information]' \
+'--help[Prints help information]' \
+&& ret=0
+;;
+(list)
+_arguments "${_arguments_options[@]}" \
+'-l[Print each scheme on its own line]' \
+'--lines[Print each scheme on its own line]' \
+'-h[Prints help information]' \
+'--help[Prints help information]' \
+'-V[Prints version information]' \
+'--version[Prints version information]' \
+'::pattern -- Optionally, specify a pattern (glob) to only show matching schemes.:()' \
+&& ret=0
+;;
+(info)
+_arguments "${_arguments_options[@]}" \
+'-h[Prints help information]' \
+'--help[Prints help information]' \
+'-V[Prints version information]' \
+'--version[Prints version information]' \
+':scheme -- Scheme(s) name(s) to display information. Use together with list subcommand if you want all schemes or glob matching.:($(flavours list))' \
+&& ret=0
+;;
+(apply)
+_arguments "${_arguments_options[@]}" \
+'-h[Prints help information]' \
+'--help[Prints help information]' \
+'-V[Prints version information]' \
+'--version[Prints version information]' \
+':scheme -- Scheme to be applied. If more than one scheme is specified, picks one of them at random. Use together with list subcommand if you want all schemes or glob matching.:($(flavours list))' \
+&& ret=0
+;;
+(update)
+_arguments "${_arguments_options[@]}" \
+'-h[Prints help information]' \
+'--help[Prints help information]' \
+'-V[Prints version information]' \
+'--version[Prints version information]' \
+':operation -- Update sources lists from repositories or (re)download schemes/templates specified in the lists. Default repositories for lists, and the lists themselves, can be manually changed.:(lists schemes templates all)' \
+&& ret=0
+;;
+        esac
+    ;;
+esac
+}
+
+(( $+functions[_flavours_commands] )) ||
+_flavours_commands() {
+    local commands; commands=(
+        "current:Prints last applied scheme name" \
+"list:Prints a list with all installed schemes" \
+"info:Shows info on a scheme, or list of schemes" \
+"apply:Applies scheme, according to user configuration" \
+"update:Downloads schemes, templates, or updates their lists" \
+    )
+    _describe -t commands 'flavours commands' commands "$@"
+}
+(( $+functions[_flavours__apply_commands] )) ||
+_flavours__apply_commands() {
+    local commands; commands=(
+        
+    )
+    _describe -t commands 'flavours apply commands' commands "$@"
+}
+(( $+functions[_flavours__current_commands] )) ||
+_flavours__current_commands() {
+    local commands; commands=(
+        
+    )
+    _describe -t commands 'flavours current commands' commands "$@"
+}
+(( $+functions[_flavours__info_commands] )) ||
+_flavours__info_commands() {
+    local commands; commands=(
+        
+    )
+    _describe -t commands 'flavours info commands' commands "$@"
+}
+(( $+functions[_flavours__list_commands] )) ||
+_flavours__list_commands() {
+    local commands; commands=(
+        
+    )
+    _describe -t commands 'flavours list commands' commands "$@"
+}
+(( $+functions[_flavours__update_commands] )) ||
+_flavours__update_commands() {
+    local commands; commands=(
+        
+    )
+    _describe -t commands 'flavours update commands' commands "$@"
+}
+
+_flavours "$@"
