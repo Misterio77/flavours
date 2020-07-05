@@ -27,11 +27,13 @@ pub fn apply(arguments: &clap::ArgMatches, base_dir: &path::Path, verbose: bool)
             schemes.push(found_scheme);
         }
     }
+    schemes.sort();
+    schemes.dedup();
 
     //Call random function
     let chosen = random(schemes)?;
 
-    println!("{:?}", chosen);
+    if verbose { println!("Chosen scheme: {:?}", chosen) };
 
     Ok(())
 }

@@ -13,53 +13,48 @@ mod completions;
 fn main() -> Result<()> {
     let matches = cli::build_cli().get_matches();
 
-    //Completetions flag
+    // Completetions flag
     if matches.is_present("completions") {
         return completions::completions(matches.value_of("completions"))
-    }
+    };
 
-    //Flavours data directory
+    // Flavours data directory
     let flavours_dir = match matches.value_of("directory") {
-        //User supplied
+        // User supplied
         Some(argument) => path::Path::new(argument)
                          .canonicalize()
                          .with_context(|| "Invalid data directory supplied")?
                          .to_path_buf(),
-        //Use default path instead
+        // Use default path instead
         None => dirs::data_dir()
                 .ok_or(anyhow!("Error getting default data directory"))?
                 .join("flavours"),
     };
 
-    //Flavours config file
+    // Flavours config file
     let flavours_config = match matches.value_of("config") {
-        //User supplied
-        //Make it canonical, then PathBuf (owned path)
+        // User supplied
+        // Make it canonical, then PathBuf (owned path)
         Some(argument) => path::Path::new(argument)
                          .canonicalize()
                          .with_context(|| "Invalid config file supplied")?
                          .to_path_buf(),
 
-        //Use default file instead
+        // Use default file instead
         None => dirs::config_dir()
                 .ok_or(anyhow!("Error getting default config directory"))?
                 .join("flavours").join("config.toml"),
     };
 
-
-
-    //Should we be verbose?
+    // Should we be verbose?
     let verbose = matches.is_present("verbose");
 
     if verbose {
         println!("Using directory: {:?}", flavours_dir);
         println!("Using config file: {:?}", flavours_config);
-    }
-    //Config file
-    //TODO
+    };
 
-
-    //Check which subcommand was used
+    // Check which subcommand was used
     match matches.subcommand() {
         ("current", Some(_)) =>
             current::current(&flavours_dir, verbose),

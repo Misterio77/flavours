@@ -36,34 +36,34 @@ fn write_sources(s_repo: &str, t_repo: &str, file: &path::Path) -> Result<()> {
 ///# Arguments
 ///* `file` - Path to sources file
 fn get_sources(file: &path::Path) -> Result<(String, String)> {
-    //Default repos
+    // Default repos
     let default_s_repo = "https://github.com/chriskempson/base16-schemes-source.git";
     let default_t_repo = "https://github.com/chriskempson/base16-templates-source.git";
     
-    //Try to open file
+    // Try to open file
     let sources_file = match fs::File::open(file) {
-        //Success
+        // Success
         Ok(contents) => contents,
-        //Handle error once, so if file is not found it can be created
+        // Handle error once, so if file is not found it can be created
         Err(_) => {
-            //Try to write default repos to file
+            // Try to write default repos to file
             write_sources(default_s_repo, default_t_repo, file)?;
-            //Try to open it again, returns errors if unsucessful again
+            // Try to open it again, returns errors if unsucessful again
             fs::File::open(file)
                 .with_context(||format!("Couldn't access {:?}", file))?
-        },
+        }
     };
-    //Variable to store repos, start with defaults (in case the file was read but didn't contain one or both repos
+    // Variable to store repos, start with defaults (in case the file was read but didn't contain one or both repos
     let mut s_repo = String::from(default_s_repo);
     let mut t_repo = String::from(default_t_repo);
 
-    //Bufreader from file
+    // Bufreader from file
     let reader = io::BufReader::new(sources_file);
-    //Iterate lines
+    // Iterate lines
     for line in reader.lines() {
-        //Get name and repo from line
+        // Get name and repo from line
         let (name, repo) = parse_yml_line(line?)?;
-        //Store in correct variable
+        // Store in correct variable
         if name == "schemes" {
             s_repo = repo;
         } else if name == "templates" {
@@ -71,10 +71,10 @@ fn get_sources(file: &path::Path) -> Result<(String, String)> {
         }
     }
 
-    //Rewrite file using found repository, this is done to clean up errors on the file or insert default values
+    // Rewrite file using found repository, this is done to clean up errors on the file or insert default values
     write_sources(&s_repo, &t_repo, file)?;
 
-    //Return repos
+    // Return repos
     Ok((s_repo, t_repo))
 }
 ///Get name and repository vector from given list
@@ -107,11 +107,11 @@ fn get_repo_list(file: &path::Path) -> Result<Vec<(String, String)>> {
 ///* `repo` - String slice containing link to repository
 ///* `verbose` - Boolean, tell git to be quiet if false
 fn git_clone(path: &path::Path, repo: String, verbose: bool) -> Result<()> {
-    //Remove directory, ignores errors
+    // Remove directory, ignores errors
     let _ = fs::remove_dir_all(path);
     env::set_var("GIT_TERMINAL_PROMPT", "0");
 
-    //Try to clone into directory
+    // Try to clone into directory
     let command;
     if verbose {
         command = process::Command::new("git")
@@ -129,11 +129,11 @@ fn git_clone(path: &path::Path, repo: String, verbose: bool) -> Result<()> {
     }
 
     
-    //Exit status code
+    // Exit status code
     match command.code() {
-        //If okay
+        // If okay
         Some(0) => Ok(()),
-        //If git returned an error
+        // If git returned an error
         Some(code) => Err(anyhow!("Git clone failed on repo '{}', check if your repository lists are correct. Code: {}", &repo, code)),
         None => Err(anyhow!("Interrupted")),
     }
@@ -144,14 +144,14 @@ fn update_lists(dir: &path::Path, verbose:bool) -> Result<()> {
     let sources_dir = &dir.join("sources");
     if verbose { println!("Updating sources list from sources.yaml") }
 
-    //Get schemes and templates repository from file
+    // Get schemes and templates repository from file
     let (schemes_source, templates_source) = get_sources(&dir.join("sources.yaml"))?; 
     if verbose {
         println!("Schemes source: {}", schemes_source);
         println!("Templates source: {}", templates_source);
     }
 
-    //Spawn git clone threads, to clone schemes and templates lists
+    // Spawn git clone threads, to clone schemes and templates lists
     let schemes_source_dir = sources_dir.join("schemes");
     let templates_source_dir = sources_dir.join("templates");
     let s_child = thread::spawn(move || {
@@ -161,7 +161,7 @@ fn update_lists(dir: &path::Path, verbose:bool) -> Result<()> {
         git_clone(&templates_source_dir, templates_source, verbose)
     });
 
-    //Execute and check exit code
+    // Execute and check exit code
     s_child.join().unwrap()?;
     t_child.join().unwrap()?;
     
@@ -175,23 +175,23 @@ fn update_schemes(dir: &path::Path, verbose:bool) -> Result<()> {
     if verbose { println!("Updating schemes from source") }
     let schemes = get_repo_list(scheme_list)?;
 
-    //Children for multithreaded processing
+    // Children for multithreaded processing
     let mut children = vec![];
 
     for scheme in schemes {
-        //Making copies of the variables to avoid problems with borrowing
+        // Making copies of the variables to avoid problems with borrowing
         let (name, repo) = scheme;
         let current_dir = schemes_dir.join(name);
-        //Spawn new thread
+        // Spawn new thread
         children.push(thread::spawn(move || {
             git_clone(&current_dir, repo, verbose) 
         }));
     }
     for child in children {
-        //Unwrap thread result, then check git_clone return status with '?'
+        // Unwrap thread result, then check git_clone return status with '?'
         child.join().unwrap()?;
     }
-    //If no errors were raised, return as ok
+    // If no errors were raised, return as ok
     Ok(())
 }
 
@@ -202,23 +202,23 @@ fn update_templates(dir: &path::Path, verbose:bool) -> Result<()> {
     if verbose { println!("Updating templates from source") }
     let templates = get_repo_list(template_list)?;
 
-    //Children for multithreaded processing
+    // Children for multithreaded processing
     let mut children = vec![];
 
     for template in templates {
-        //Making copies of the variables to avoid problems with borrowing
+        // Making copies of the variables to avoid problems with borrowing
         let (name, repo) = template;
         let current_dir = templates_dir.join(name);
-        //Spawn new thread
+        // Spawn new thread
         children.push(thread::spawn(move || {
             git_clone(&current_dir, repo, verbose) 
         }));
     }
     for child in children {
-        //Unwrap thread result, then check git_clone return status with '?'
+        // Unwrap thread result, then check git_clone return status with '?'
         child.join().unwrap()?;
     }
-    //If no errors were raised, return as ok
+    // If no errors were raised, return as ok
     Ok(())
 }
 
