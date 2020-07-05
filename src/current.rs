@@ -8,7 +8,9 @@ fn get_current_scheme(dir: &path::Path) -> Result<String> {
     let file_path = &dir.join("lastscheme");
     // Try to open it
     let scheme = fs::read_to_string(file_path)
-        .with_context(|| "Failed to read last scheme file. Try applying first.")?.split_whitespace().collect();
+        .with_context(|| "Failed to read last scheme file. Try applying first.")?
+        .split_whitespace()
+        .collect();
 
     if scheme == "" {
         Err(anyhow!("Failed to read last scheme from file. Try applying first."))

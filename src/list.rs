@@ -14,13 +14,23 @@ pub fn list(arguments: &clap::ArgMatches, base_dir: &path::Path, _verbose: bool)
 
     let mut schemes = Vec::new();
     for pattern in patterns {        
-        let found_schemes = find::find(pattern, &base_dir.join("base16").join("schemes"))?;
+        let found_schemes = find::find(
+            pattern,
+            &base_dir.join("base16").join("schemes")
+        )?;
+
         for found_scheme in found_schemes {
             schemes.push(
                 String::from(
                     found_scheme
-                    .file_stem().ok_or(anyhow!("Couldn't get scheme name"))?
-                    .to_str().ok_or(anyhow!("Couldn't convert name"))?
+                    .file_stem()
+                    .ok_or(
+                        anyhow!("Couldn't get scheme name")
+                    )?
+                    .to_str()
+                    .ok_or(
+                        anyhow!("Couldn't convert name")
+                    )?
                 )
             );
         }

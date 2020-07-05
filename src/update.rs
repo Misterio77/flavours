@@ -83,7 +83,9 @@ fn get_sources(file: &path::Path) -> Result<(String, String)> {
 ///* `file` - File with list
 fn get_repo_list(file: &path::Path) -> Result<Vec<(String, String)>> {
     let sources_file = fs::File::open(file)
-        .with_context(|| format!("Failed to read repository list {:?}. Try 'update lists' first?", file))?;
+        .with_context(||
+            format!("Failed to read repository list {:?}. Try 'update lists' first?", file)
+        )?;
     let mut result = Vec::new();
 
     let reader = io::BufReader::new(sources_file);
@@ -115,17 +117,23 @@ fn git_clone(path: &path::Path, repo: String, verbose: bool) -> Result<()> {
     let command;
     if verbose {
         command = process::Command::new("git")
-                                       .arg("clone")
-                                       .arg(&repo)
-                                       .arg(path)
-                                       .status().with_context(|| format!("Failed to run git, is it installed?"))?;
+            .arg("clone")
+            .arg(&repo)
+            .arg(path)
+            .status()
+            .with_context(||
+                format!("Failed to run git, is it installed?")
+            )?;
     } else {
         command = process::Command::new("git")
-                                       .arg("clone")
-                                       .arg("--quiet")
-                                       .arg(&repo)
-                                       .arg(path)
-                                       .status().with_context(|| format!("Failed to run git, is it installed?"))?;
+            .arg("clone")
+            .arg("--quiet")
+            .arg(&repo)
+            .arg(path)
+            .status()
+            .with_context(||
+                format!("Failed to run git, is it installed?")
+            )?;
     }
 
     
@@ -134,8 +142,11 @@ fn git_clone(path: &path::Path, repo: String, verbose: bool) -> Result<()> {
         // If okay
         Some(0) => Ok(()),
         // If git returned an error
-        Some(code) => Err(anyhow!("Git clone failed on repo '{}', check if your repository lists are correct. Code: {}", &repo, code)),
-        None => Err(anyhow!("Interrupted")),
+        Some(_) | None => {
+            Err(
+                anyhow!("Git clone failed on repo '{}', check if your repository lists are correct.", &repo)
+            )
+        }
     }
 }
 
