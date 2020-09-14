@@ -63,14 +63,14 @@ fn main() -> Result<()> {
 
     // Check which subcommand was used
     match matches.subcommand() {
-        ("current", Some(_)) => {
+        Some(("current", _)) => {
             current::current(
                 &flavours_dir,
                 verbose
             )
         },
 
-        ("apply", Some(sub_matches)) => {
+        Some(("apply", sub_matches)) => {
             apply::apply(
                 sub_matches,
                 &flavours_dir,
@@ -78,7 +78,7 @@ fn main() -> Result<()> {
             )
         },
 
-        ("list",  Some(sub_matches)) => {
+        Some(("list",  sub_matches)) => {
             list::list(
                 sub_matches,
                 &flavours_dir,
@@ -86,7 +86,7 @@ fn main() -> Result<()> {
             )
         },
 
-        ("update", Some(sub_matches)) => {
+        Some(("update", sub_matches)) => {
             update::update(
                 sub_matches,
                 &flavours_dir,

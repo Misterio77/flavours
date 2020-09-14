@@ -10,7 +10,7 @@ fn random(values: Vec<path::PathBuf>) -> Result<path::PathBuf> {
     let chosen = values
         .choose(&mut rand::thread_rng())
         .ok_or(
-            anyhow!("Error getting random value")
+            anyhow!("Scheme not found")
         )?;
     Ok(chosen.to_path_buf())
 }

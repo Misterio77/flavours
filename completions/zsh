@@ -15,10 +15,10 @@ _flavours() {
 
     local context curcontext="$curcontext" state line
     _arguments "${_arguments_options[@]}" \
-'-c+[Specify a configuration file (Defaults to ~/.config/flavours/config.toml)]' \
-'--config=[Specify a configuration file (Defaults to ~/.config/flavours/config.toml)]' \
-'-d+[Specify a data directory (Defaults to ~/.local/share/flavours)]' \
-'--directory=[Specify a data directory (Defaults to ~/.local/share/flavours)]' \
+'-c+[Specify a configuration file (Defaults to ~/.config/flavours/config.toml)]: :_files' \
+'--config=[Specify a configuration file (Defaults to ~/.config/flavours/config.toml)]: :_files' \
+'-d+[Specify a data directory (Defaults to ~/.local/share/flavours)]: :_files -/' \
+'--directory=[Specify a data directory (Defaults to ~/.local/share/flavours)]: :_files -/' \
 '--completions=[Generates completion for given shell, outputs to stdout]: :(bash elvish fish powershell zsh)' \
 '-v[Be more verbose]' \
 '--verbose[Be more verbose]' \
@@ -47,35 +47,20 @@ _arguments "${_arguments_options[@]}" \
 '--lines[Print each scheme on its own line]' \
 '-h[Prints help information]' \
 '--help[Prints help information]' \
-'-V[Prints version information]' \
-'--version[Prints version information]' \
-'::pattern -- Optionally, specify a pattern (glob) to only show matching schemes.:()' \
-&& ret=0
-;;
-(info)
-_arguments "${_arguments_options[@]}" \
-'-h[Prints help information]' \
-'--help[Prints help information]' \
-'-V[Prints version information]' \
-'--version[Prints version information]' \
-':scheme -- Scheme(s) name(s) to display information. Use together with list subcommand if you want all schemes or glob matching.:($(flavours list))' \
+'*::pattern -- Scheme name or glob pattern to match when listing scheme(s). If ommited, defaults to * (all installed schemes).:($(flavours list))' \
 && ret=0
 ;;
 (apply)
 _arguments "${_arguments_options[@]}" \
 '-h[Prints help information]' \
 '--help[Prints help information]' \
-'-V[Prints version information]' \
-'--version[Prints version information]' \
-':scheme -- Scheme to be applied. If more than one scheme is specified, picks one of them at random. Use together with list subcommand if you want all schemes or glob matching.:($(flavours list))' \
+'*::pattern -- Scheme to be applied, supports glob. If more than one is specified (or if glob pattern matched more than one), chooses one randomly. If ommited, defaults to * (all schemes).:($(flavours list))' \
 && ret=0
 ;;
 (update)
 _arguments "${_arguments_options[@]}" \
 '-h[Prints help information]' \
 '--help[Prints help information]' \
-'-V[Prints version information]' \
-'--version[Prints version information]' \
 ':operation -- Update sources lists from repositories or (re)download schemes/templates specified in the lists. Default repositories for lists, and the lists themselves, can be manually changed.:(lists schemes templates all)' \
 && ret=0
 ;;
@@ -88,10 +73,9 @@ esac
 _flavours_commands() {
     local commands; commands=(
         "current:Prints last applied scheme name" \
-"list:Prints a list with all installed schemes" \
-"info:Shows info on a scheme, or list of schemes" \
+"list:Prints a list with all matching schemes" \
 "apply:Applies scheme, according to user configuration" \
-"update:Downloads schemes, templates, or updates their lists" \
+"update:Downloads schemes, templates, or updates their lists (from repos specified in sources.yml)" \
     )
     _describe -t commands 'flavours commands' commands "$@"
 }
@@ -108,13 +92,6 @@ _flavours__current_commands() {
         
     )
     _describe -t commands 'flavours current commands' commands "$@"
-}
-(( $+functions[_flavours__info_commands] )) ||
-_flavours__info_commands() {
-    local commands; commands=(
-        
-    )
-    _describe -t commands 'flavours info commands' commands "$@"
 }
 (( $+functions[_flavours__list_commands] )) ||
 _flavours__list_commands() {
