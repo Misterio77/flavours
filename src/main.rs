@@ -74,6 +74,7 @@ fn main() -> Result<()> {
             apply::apply(
                 sub_matches,
                 &flavours_dir,
+                &flavours_config,
                 verbose
             )
         },

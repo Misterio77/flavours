@@ -118,6 +118,7 @@ fn git_clone(path: &path::Path, repo: String, verbose: bool) -> Result<()> {
     if verbose {
         command = process::Command::new("git")
             .arg("clone")
+            .arg("--depth 1")
             .arg(&repo)
             .arg(path)
             .status()
@@ -127,6 +128,7 @@ fn git_clone(path: &path::Path, repo: String, verbose: bool) -> Result<()> {
     } else {
         command = process::Command::new("git")
             .arg("clone")
+            .arg("--depth 1")
             .arg("--quiet")
             .arg(&repo)
             .arg(path)
@@ -192,9 +194,11 @@ fn update_schemes(dir: &path::Path, verbose:bool) -> Result<()> {
     for scheme in schemes {
         // Making copies of the variables to avoid problems with borrowing
         let (name, repo) = scheme;
+        // Current scheme directory
         let current_dir = schemes_dir.join(name);
         // Spawn new thread
         children.push(thread::spawn(move || {
+            // Delete scheme directory and clone the repo
             git_clone(&current_dir, repo, verbose) 
         }));
     }
@@ -219,9 +223,12 @@ fn update_templates(dir: &path::Path, verbose:bool) -> Result<()> {
     for template in templates {
         // Making copies of the variables to avoid problems with borrowing
         let (name, repo) = template;
+        // Current template directory
         let current_dir = templates_dir.join(name);
+
         // Spawn new thread
         children.push(thread::spawn(move || {
+            // Delete template directory and clone the repo
             git_clone(&current_dir, repo, verbose) 
         }));
     }
@@ -237,7 +244,7 @@ fn update_templates(dir: &path::Path, verbose:bool) -> Result<()> {
 ///
 ///# Arguments
 ///* `arguments` - A clap argmatches instance, for the update subcommand
-///* `dir` - The base16 path to be used
+///* `dir` - The base path to be used
 ///* `verbose` - Boolean, be verbose if true
 pub fn update(arguments: &clap::ArgMatches, dir: &path::Path, verbose: bool) -> Result<()> {
     let base16_dir = &dir.join("base16");

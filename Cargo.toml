@@ -12,8 +12,11 @@ categories = ["command-line-utilities"]
 [dependencies]
 clap = { git = "https://github.com/clap-rs/clap", features = ["wrap_help", "suggestions", "color"] }
 clap_generate = { git = "https://github.com/clap-rs/clap" }
+anyhow = "1.0"
 glob = "0.3"
 rand = "0.7"
-toml = "0.5"
 dirs = "3.0"
-anyhow = "1.0"
+hex = "0.4"
+serde = {version ="1.0", features = ["derive"]}
+serde_yaml = "0.8"
+toml = "0.5"
