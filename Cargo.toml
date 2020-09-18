@@ -1,13 +1,14 @@
 [package]
 name = "flavours"
 description = "An easy to use base16 scheme manager/builder that integrates with any workflow."
-version = "0.1.1"
+version = "0.1.2"
 authors = ["Gabriel Fontes (Misterio77) <eu@misterio.me>"]
 edition = "2018"
 readme = "README.md"
 license = "MIT"
 keywords = ["base16", "color", "color-scheme", "manager", "cli"]
 categories = ["command-line-utilities"]
+repository = "https://github.com/Misterio77/flavours"
 
 [dependencies]
 clap = { version = "3.0.0-beta.1", features = ["wrap_help", "suggestions", "color"] }
