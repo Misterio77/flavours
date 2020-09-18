@@ -9,25 +9,42 @@ A (WIP) manager/builder for [Base16](https://github.com/chriskempson/base16). Wr
 
 
 ## What
-This program is both a manager and a builder designed for Base16 schemes and templates. It's being written in Rust, using [clap](https://github.com/clap-rs/clap), [glob](https://github.com/rust-lang-nursery/glob) and [anyhow](https://github.com/dtolnay/anyhow) as the main libraries.
+This is a CLI program that both builds and manages Base16 schemes and templates.
 
-This is my first time with a public project in Rust, i'm 100% open to suggestions, critics, issues and PRs!
+The base16 specification consists of both schemes (with 16 colors) and templates. There'll probably be templates for most applications you use, but you can easily make one for literally any app that supports any sort of color customization.
+
+You can easily apply a specific (or multiple, then flavours picks one at random) scheme (`flavours apply pasque`), or glob pattern(s) (`flavours apply "gruvbox*"`). Supports tab completion for many shells (including scheme completion on zsh).
+You can also list schemes (`flavours list`) and get your current scheme (`flavours current`).
+
 
 ## How
-flavours' main functionality is the apply subcommand. When run, it'll take a base16 scheme, look up your flavours configuration file (which will be a toml file) and apply that scheme to all specified templates, injecting (or replacing) a file. There will be also a hook option for each program when applying, a command to run after the operation, allowing you to reload all themed apps, so your scheme changes are instantly visible.
 
-It's designed to be the most out of your way as possible, so you can easily integrate it with rofi menus, polybar widgets, and anything you can think of.
+###Installation
+Just install cargo and run `cargo install flavours` (don't forget to include `~/.cargo/bin` on your PATH).
 
-Once all features are implemented and they're relatively stable, i will document usage on the wiki (even though it's pretty straightforward) and publish easy to install (and stable) packages.
+I use arch (btw), so i'm building an AUR package. Let me know if you want to package flavours your favorite distro.
+
+After installing, you should probably use `flavours update all` to grab all published schemes and templates from the base16 repos. If you want, you can manually tweak the templates, schemes or even the repo lists (everything's located in `~/.local/share/flavours` on Linux).
+
+###Usage
+You can use flavours and base16 templates to automatically inject schemes into any application config file that supports colors codes.
+
+Choose a template for each of your apps (or create your own).
+On these config files, place a start and end comment to tell flavours where to replace lines (default is `# Start flavours` and `# End flavours`).
+
+On flavours configuration (`~/.config/flavours/config.toml` on Linux), create a `[[item]]` section for each app. Specify a `file` and a `template` (optionally a `subtemplate`, a `hook` to execute, whether to use `rewrite` mode, or change the `start` and `end` lines), and vóila. You're now ready to apply schemes.
+
+I will write some documentation soon-ish, including configuration and integration examples.
 
 ## Why
 Why use this instead of other base16 managers, or even pywal?
 
 While these projects are great and certainly fit some people's workflow, they didn't quite fit mine.
-I decided to do my own project because i wanted a simple and straightforward way for anyone to use base16. The main objective is to have a single command that allows you to apply a specific scheme, in all your applications in the blink of an eye. With that, you have a program that easily integrates with anything you want it to.
+
+I decided to do my own project because i wanted a simple CLI program that can easily integrate with rofi, polybar, and everything else in my workflow. The main feature is being able to quickly and easily use a curated list of schemes, on all your apps.
 
 ## When
-Everything seems to be working nicely. I'm currently looking for improvements and possibly bugs to fix. The only feature missing is running hooks after applying the scheme. Currently WIP.
+All features are implemented! I'm currently working on improving code quality and stabilizing the features, but everything should work as intended.
 
 ### Thanks to:
 - Functionality inspiration from [Base16 Universal Manager](https://github.com/pinpox/base16-universal-manager).
