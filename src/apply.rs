@@ -218,9 +218,21 @@ pub fn apply(arguments: &clap::ArgMatches, base_dir: &path::Path, config_path: &
                  scheme.author);
     }
 
-    //Read configuration
-    let configuration: Config = toml::from_str(&fs::read_to_string(config_path)?).with_context(|| "Couldn't read configuration file. Check if all items are valid and include (at least) a file and template keys.")?;
-    let items = configuration.item.ok_or(anyhow!("Error reading items from file. Try adding some."))?;
+    //Read configuration contents
+    let config_contents = match fs::read_to_string(config_path) {
+        Ok(contents) => contents,
+        Err(error) => {
+            fs::write(config_path, "")
+                .with_context(||format!("Couldn't create empty configuration file {:?}", config_path))?;
+            fs::read_to_string(config_path)
+                .with_context(||format!("Couldn't read configuration file {:?}", config_path))?
+        }//Create configuration
+    };
+
+    let config_parsed: Config = toml::from_str(&config_contents)
+        .with_context(||"Failed to parse configuration file. Check if it's syntatically correct.")?;
+
+    let items = config_parsed.item.ok_or(anyhow!("Error reading items from config file. Check the default file (/etc/flavours.conf on Linux) or github for config examples."))?;
 
     let mut hooks = Vec::new();
 
