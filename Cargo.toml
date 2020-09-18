@@ -10,8 +10,8 @@ keywords = ["base16", "color", "color-scheme", "manager", "cli"]
 categories = ["command-line-utilities"]
 
 [dependencies]
-clap = { git = "https://github.com/clap-rs/clap", features = ["wrap_help", "suggestions", "color"] }
-clap_generate = { git = "https://github.com/clap-rs/clap" }
+clap = { version = "3.0.0-beta.1", features = ["wrap_help", "suggestions", "color"] }
+clap_generate = { version = "3.0.0-beta.1" }
 anyhow = "1.0"
 glob = "0.3"
 rand = "0.7"
@@ -22,3 +22,7 @@ serde_yaml = "0.8"
 toml = "0.5"
 shellexpand = "2.0"
 shell-words = "1.0"
+
+[patch.crates-io]
+clap = { git = "https://github.com/clap-rs/clap", features = ["wrap_help", "suggestions", "color"] }
+clap_generate = { git = "https://github.com/clap-rs/clap" }
