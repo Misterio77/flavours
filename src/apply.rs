@@ -57,6 +57,40 @@ fn random(values: Vec<path::PathBuf>) -> Result<path::PathBuf> {
     Ok(chosen.to_path_buf())
 }
 
+fn replace_delimiter(file_content: &str, start: &str, end: &str, built_template: &str) -> Result<String> {
+    let mut changed_content = String::new();
+
+    let mut found_start = false;
+    let mut found_end = false;
+
+    let mut appended = false;
+
+    for line in file_content.lines() {
+        if found_start && !found_end {
+            if !appended {
+                changed_content.push_str(&built_template);
+                appended = true;
+            }
+            if line.trim().to_lowercase().eq(&end) {
+                changed_content.push_str(&format!("{}\n", line));
+                found_end = true;
+            }
+        } else {
+            changed_content.push_str(&format!("{}\n", line));
+            if line.trim().to_lowercase().eq(&start) {
+                found_start = true
+            }
+        }
+    }
+    if !found_start {
+        Err(anyhow!("Couldn't find starting string."))
+    } else if !found_end {
+        Err(anyhow!("Couldn't find ending string."))
+    } else {
+        Ok(changed_content)
+    }
+}
+ 
 fn build_template(template_base: String, scheme: &Scheme, scheme_slug: &str) -> Result<String> {
     let mut built_template = String::from(template_base);
     built_template = built_template
@@ -225,48 +259,30 @@ pub fn apply(arguments: &clap::ArgMatches, base_dir: &path::Path, config_path: &
 
             if verbose { println!("Wrote {}/{} on: {:?}", template, subtemplate, file) }
 
-        } else {
+        } else { //Or replace with delimiters
             let file_content = fs::read_to_string(&file)?;
-            let mut changed_content = String::new();
-
-            let mut found_start = false;
-            let mut found_end = false;
-
-            let mut appended = false;
-
-            for line in file_content.lines() {
-                if found_start && !found_end {
-                    if !appended {
-                        changed_content.push_str(&built_template);
-                        appended = true;
-                    }
-                    if line.trim().to_lowercase().eq(&end) {
-                        changed_content.push_str(&format!("{}\n", line));
-                        found_end = true;
-                    }
-                } else {
-                    changed_content.push_str(&format!("{}\n", line));
-                    if line.trim().to_lowercase().eq(&start) {
-                        found_start = true
-                    }
+            match replace_delimiter(&file_content, &start, &end, &built_template) {
+                Ok(content) => {
+                    fs::write(&file, content)
+                        .with_context(||
+                        format!("Couldn't write to file {:?}", file))?
+                }
+                Err(error) => {
+                    eprintln!("Error writing to file {:?}: {}", file, error)
                 }
             }
-            if !found_start {
-                eprintln!("Couldn't find starting string on {:?}. Skipping.", file);
-            } else if !found_end {
-                eprintln!("Couldn't find ending string on {:?}. Skipping.", file);
-            } else {
-                fs::write(&file, changed_content)
-                   .with_context(||
-                    format!("Couldn't write to file {:?}", file))?;
-
-                if verbose { println!("Wrote {}/{} on {:?}", template, subtemplate, file) }
-
+            if verbose {
+                println!("Wrote {}/{} on {:?}",
+                         template,
+                         subtemplate,
+                         file);
             }
         }
 
     }
-    if verbose { println!("Successfully applied {}", scheme_slug) }
+    if verbose {
+        println!("Successfully applied {}", scheme_slug);
+    }
     let last_scheme_file = &base_dir.join("lastscheme");
     fs::write(&last_scheme_file, scheme_slug)
        .with_context(||
