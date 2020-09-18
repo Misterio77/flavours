@@ -1,5 +1,6 @@
 use std::path;
 use std::fs;
+use std::str;
 
 use anyhow::{anyhow, Result, Context};
 use rand::seq::SliceRandom;
@@ -21,6 +22,7 @@ struct ConfigItem {
     end: Option<String>,
 }
 
+#[allow(non_snake_case)]
 #[derive(Deserialize, Debug)]
 struct Scheme {
     scheme: String,
@@ -55,6 +57,69 @@ fn random(values: Vec<path::PathBuf>) -> Result<path::PathBuf> {
     Ok(chosen.to_path_buf())
 }
 
+fn build_template(template_base: String, scheme: &Scheme, scheme_slug: &str) -> Result<String> {
+    let mut built_template = String::from(template_base);
+    built_template = built_template
+        .replace("{{scheme-name}}", &scheme.scheme)
+        .replace("{{scheme-author}}", &scheme.author)
+        .replace("{{scheme-slug}}", &scheme_slug);
+    for (hex, name) in [
+        (&scheme.base00, "base00"),
+        (&scheme.base01, "base01"),
+        (&scheme.base02, "base02"),
+        (&scheme.base03, "base03"),
+        (&scheme.base04, "base04"),
+        (&scheme.base05, "base05"),
+        (&scheme.base06, "base06"),
+        (&scheme.base07, "base07"),
+        (&scheme.base08, "base08"),
+        (&scheme.base09, "base09"),
+        (&scheme.base0A, "base0A"),
+        (&scheme.base0B, "base0B"),
+        (&scheme.base0C, "base0C"),
+        (&scheme.base0D, "base0D"),
+        (&scheme.base0E, "base0E"),
+        (&scheme.base0F, "base0F")
+    ].iter() {
+        let rgb = hex::decode(hex)?;
+        built_template = built_template
+            .replace( //hex
+                &format!("{{{{{}-hex}}}}", name),
+                hex)
+            .replace( //hex-r
+                &format!("{{{{{}-hex-r}}}}", name),
+                &hex[0..2])
+            .replace( //hex-g
+                &format!("{{{{{}-hex-g}}}}", name),
+                &hex[2..4])
+            .replace( //hex-b
+                &format!("{{{{{}-hex-b}}}}", name),
+                &hex[4..6])
+            .replace( //hex-bgr
+                &format!("{{{{{}-hex-bgr}}}}", name),
+                &format!("{}{}{}", &hex[4..6], &hex[2..4], &hex[0..2]))
+            .replace( //rgb-r
+                &format!("{{{{{}-rgb-r}}}}", name),
+                &format!("{}", rgb[0]))
+            .replace( //rgb-g
+                &format!("{{{{{}-rgb-g}}}}", name),
+                &format!("{}", rgb[1]))
+            .replace( //rgb-b
+                &format!("{{{{{}-rgb-b}}}}", name),
+                &format!("{}", rgb[2]))
+            .replace( //dec-r
+                &format!("{{{{{}-dec-r}}}}", name),
+                &format!("{:.2}", (rgb[0] as f64)/(255 as f64)))
+            .replace( //dec-g
+                &format!("{{{{{}-dec-g}}}}", name),
+                &format!("{:.2}", (rgb[1] as f64)/(255 as f64)))
+            .replace( //dec-b
+                &format!("{{{{{}-dec-b}}}}", name),
+                &format!("{:.2}", (rgb[2] as f64)/(255 as f64)))
+    }
+    Ok(built_template)
+}
+
 pub fn apply(arguments: &clap::ArgMatches, base_dir: &path::Path, config_path: &path::Path, verbose: bool) -> Result<()> {
     //Get search patterns
     let patterns = match arguments.values_of("pattern") {
@@ -80,15 +145,19 @@ pub fn apply(arguments: &clap::ArgMatches, base_dir: &path::Path, config_path: &
     schemes.dedup();
 
     //Get random scheme
-    let chosen = random(schemes)?;
+    let scheme_file = random(schemes)?;
+    let scheme_slug = scheme_file.file_stem()
+                      .ok_or(anyhow!("Couldn't get scheme name"))?
+                      .to_str()
+                      .ok_or(anyhow!("Couldn't convert scheme file name"))?;
 
     //Read chosen scheme, store its data
-    let scheme: Scheme = serde_yaml::from_str(&fs::read_to_string(&chosen)?).with_context(|| format!("Couldn't read scheme at {:?}. Verify if it contains all needed values and try again.", chosen))?;
+    let scheme: Scheme = serde_yaml::from_str(&fs::read_to_string(&scheme_file)?).with_context(|| format!("Couldn't read scheme at {:?}. Verify if it contains all needed values and try again.", scheme_file))?;
+
     if verbose {
-        println!("Using scheme: {} ({:?}), by {}", 
+        println!("Using scheme: {} ({}), by {}", 
                  scheme.scheme, 
-                 chosen.file_stem()
-                 .ok_or(anyhow!("Couldn't get scheme name"))?,
+                 scheme_slug,
                  scheme.author);
     }
 
@@ -96,31 +165,44 @@ pub fn apply(arguments: &clap::ArgMatches, base_dir: &path::Path, config_path: &
     let configuration: Config = toml::from_str(&fs::read_to_string(config_path)?).with_context(|| "Couldn't read configuration file. Check if all items are valid and include (at least) a file and template keys.")?;
     let items = configuration.item.ok_or(anyhow!("Error reading items from file. Try adding some."))?;
 
+    //Iterate configurated entries (templates)
     for item in items {
-        let file = item.file;
+        //File to write
+        let file = path::Path::new(
+                &shellexpand::full(&item.file)?
+                .to_string()
+            )
+            .canonicalize()
+            .with_context(|| format!("Invalid file to write: {}", item.file))?;
+        //Template name
         let template = item.template;
-
+        //Subtemplate name
         let subtemplate = match item.subtemplate {
             Some(value) => value,
             None => String::from("default"),
         };
-        let hook = match item.hook {
+        //Hook command
+        let _hook = match item.hook {
             Some(value) => value,
             None => String::from(""),
         };
+        //Rewrite or replace
         let rewrite = match item.rewrite {
             Some(value) => value,
             None => false,
         };
+        //Replace start delimiter
         let start = match item.start {
             Some(value) => value,
             None => String::from("# Start flavours"),
-        };
+        }.trim().to_lowercase();
+        //Replace end delimiter
         let end = match item.end {
             Some(value) => value,
             None => String::from("# End flavours"),
-        };
+        }.trim().to_lowercase();
 
+        //(sub)template file path
         let subtemplate_file = &base_dir
                                .join("base16")
                                .join("templates")
@@ -128,43 +210,66 @@ pub fn apply(arguments: &clap::ArgMatches, base_dir: &path::Path, config_path: &
                                .join("templates")
                                .join(format!("{}.mustache", subtemplate));
 
-        let mut template_content = fs::read_to_string(subtemplate_file)
+        //Template content
+        let template_content = fs::read_to_string(subtemplate_file)
                        .with_context(|| format!("Couldn't read template {}/{} at {:?}. Check if the correct template/subtemplate was specified, and run the update command if you didn't already.", template, subtemplate, subtemplate_file))?;
 
-        template_content = template_content
-            .replace("{{scheme-name}}", &scheme.scheme);
-        template_content = template_content
-            .replace("{{scheme-author}}", &scheme.author);
-        for (color, name) in [
-            (&scheme.base00, "base00"),
-            (&scheme.base01, "base01"),
-            (&scheme.base02, "base02"),
-            (&scheme.base03, "base03"),
-            (&scheme.base04, "base04"),
-            (&scheme.base05, "base05"),
-            (&scheme.base06, "base06"),
-            (&scheme.base07, "base07"),
-            (&scheme.base08, "base08"),
-            (&scheme.base09, "base09"),
-            (&scheme.base0A, "base0A"),
-            (&scheme.base0B, "base0B"),
-            (&scheme.base0C, "base0C"),
-            (&scheme.base0D, "base0D"),
-            (&scheme.base0E, "base0E"),
-            (&scheme.base0F, "base0F")
-        ].iter() {
-            template_content = template_content
-                .replace(
-                    &format!("{{{{{}-hex}}}}", name),
-                    color);
+        //Template with correct colors
+        let built_template = build_template(template_content, &scheme, scheme_slug)?;
+
+        //Rewrite file with built template
+        if rewrite {
+            fs::write(&file, built_template)
+                .with_context(||
+                format!("Couldn't write to file {:?}", file))?;
+
+            if verbose { println!("Wrote {}/{} on: {:?}", template, subtemplate, file) }
+
+        } else {
+            let file_content = fs::read_to_string(&file)?;
+            let mut changed_content = String::new();
+
+            let mut found_start = false;
+            let mut found_end = false;
+
+            let mut appended = false;
+
+            for line in file_content.lines() {
+                if found_start && !found_end {
+                    if !appended {
+                        changed_content.push_str(&built_template);
+                        appended = true;
+                    }
+                    if line.trim().to_lowercase().eq(&end) {
+                        changed_content.push_str(&format!("{}\n", line));
+                        found_end = true;
+                    }
+                } else {
+                    changed_content.push_str(&format!("{}\n", line));
+                    if line.trim().to_lowercase().eq(&start) {
+                        found_start = true
+                    }
+                }
+            }
+            if !found_start {
+                eprintln!("Couldn't find starting string on {:?}. Skipping.", file);
+            } else if !found_end {
+                eprintln!("Couldn't find ending string on {:?}. Skipping.", file);
+            } else {
+                fs::write(&file, changed_content)
+                   .with_context(||
+                    format!("Couldn't write to file {:?}", file))?;
+
+                if verbose { println!("Wrote {}/{} on {:?}", template, subtemplate, file) }
+
+            }
         }
 
-
-
-        println!("=============");
-        println!("Template {}/{}:", template, subtemplate);
-        println!("{}", template_content)
-
     }
+    if verbose { println!("Successfully applied {}", scheme_slug) }
+    let last_scheme_file = &base_dir.join("lastscheme");
+    fs::write(&last_scheme_file, scheme_slug)
+       .with_context(||
+        format!("Couldn't update applied scheme name"))?;
     Ok(())
 }
