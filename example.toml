@@ -1,0 +1,8 @@
+# [[item]]
+# file = '~/.config/example' (file to inject to, required)
+# template = 'example' (template to use, required)
+# subtemplate = 'default' (subtemplate to use)
+# rewrite = false (should we rewrite the entire file?)
+# start = '# Start flavours' (if not rewriting, where to start replacing)
+# end = '# End flavours' (if not rewriting, where to stop replacing)
+# hook = '' (command to execute after injecting)
