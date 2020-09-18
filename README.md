@@ -7,8 +7,8 @@
 A (WIP) manager/builder for [Base16](https://github.com/chriskempson/base16). Written in Rust🦀.
 
 [![Crates.io](https://img.shields.io/crates/v/flavours.svg)](https://crates.io/crates/flavours)
-[![Packaging status](https://repology.org/badge/vertical-allrepos/flavours.svg)](https://repology.org/project/flavours/versions)
 [![Build](https://github.com/misterio77/flavours/workflows/Rust/badge.svg)](https://github.com/misterio77/flavours/actions?query=workflow%3ARust)
+[![Packaging status](https://repology.org/badge/vertical-allrepos/flavours.svg)](https://repology.org/project/flavours/versions)
 
 
 ## What
