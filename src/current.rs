@@ -1,7 +1,7 @@
-use std::path;
 use std::fs;
+use std::path;
 
-use::anyhow::{Result, anyhow, Context};
+use anyhow::{anyhow, Context, Result};
 
 fn get_current_scheme(dir: &path::Path) -> Result<String> {
     // File that stores last used scheme
@@ -13,7 +13,9 @@ fn get_current_scheme(dir: &path::Path) -> Result<String> {
         .collect();
 
     if scheme == "" {
-        Err(anyhow!("Failed to read last scheme from file. Try applying first."))
+        Err(anyhow!(
+            "Failed to read last scheme from file. Try applying first."
+        ))
     } else {
         Ok(scheme)
     }

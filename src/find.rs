@@ -1,14 +1,12 @@
 use std::path;
 
-use anyhow::{Result, anyhow};
+use anyhow::{anyhow, Result};
 use glob::glob;
 
 pub fn find(pattern: &str, schemes_dir: &path::Path) -> Result<Vec<path::PathBuf>> {
     let dir = schemes_dir
         .to_str()
-        .ok_or(
-            anyhow!("Unable to convert path")
-        )?;
+        .ok_or_else(|| anyhow!("Unable to convert path"))?;
 
     let pattern = format!("{}/*/{}.y*ml", dir, pattern);
     let matches = glob(&pattern)?;
@@ -20,4 +18,3 @@ pub fn find(pattern: &str, schemes_dir: &path::Path) -> Result<Vec<path::PathBuf
 
     Ok(found)
 }
-

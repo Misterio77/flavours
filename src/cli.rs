@@ -1,4 +1,4 @@
-use clap::{App, Arg, AppSettings, ArgSettings, ValueHint, crate_version, crate_authors};
+use clap::{crate_authors, crate_version, App, AppSettings, Arg, ArgSettings, ValueHint};
 
 pub fn build_cli() -> App<'static> {
     App::new("flavours")
@@ -102,4 +102,3 @@ pub fn build_cli() -> App<'static> {
                 )
         )
 }
-
