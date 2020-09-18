@@ -1,0 +1,66 @@
+
+using namespace System.Management.Automation
+using namespace System.Management.Automation.Language
+
+Register-ArgumentCompleter -Native -CommandName 'flavours' -ScriptBlock {
+    param($wordToComplete, $commandAst, $cursorPosition)
+
+    $commandElements = $commandAst.CommandElements
+    $command = @(
+        'flavours'
+        for ($i = 1; $i -lt $commandElements.Count; $i++) {
+            $element = $commandElements[$i]
+            if ($element -isnot [StringConstantExpressionAst] -or
+                $element.StringConstantType -ne [StringConstantType]::BareWord -or
+                $element.Value.StartsWith('-')) {
+                break
+        }
+        $element.Value
+    }) -join ';'
+
+    $completions = @(switch ($command) {
+        'flavours' {
+            [CompletionResult]::new('-c', 'c', [CompletionResultType]::ParameterName, 'Specify a configuration file (Defaults to ~/.config/flavours/config.toml)')
+            [CompletionResult]::new('--config', 'config', [CompletionResultType]::ParameterName, 'Specify a configuration file (Defaults to ~/.config/flavours/config.toml)')
+            [CompletionResult]::new('-d', 'd', [CompletionResultType]::ParameterName, 'Specify a data directory (Defaults to ~/.local/share/flavours)')
+            [CompletionResult]::new('--directory', 'directory', [CompletionResultType]::ParameterName, 'Specify a data directory (Defaults to ~/.local/share/flavours)')
+            [CompletionResult]::new('--completions', 'completions', [CompletionResultType]::ParameterName, 'Generates completion for given shell, outputs to stdout')
+            [CompletionResult]::new('-v', 'v', [CompletionResultType]::ParameterName, 'Be more verbose')
+            [CompletionResult]::new('--verbose', 'verbose', [CompletionResultType]::ParameterName, 'Be more verbose')
+            [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Prints help information')
+            [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Prints help information')
+            [CompletionResult]::new('-V', 'V', [CompletionResultType]::ParameterName, 'Prints version information')
+            [CompletionResult]::new('--version', 'version', [CompletionResultType]::ParameterName, 'Prints version information')
+            [CompletionResult]::new('current', 'current', [CompletionResultType]::ParameterValue, 'Prints last applied scheme name')
+            [CompletionResult]::new('list', 'list', [CompletionResultType]::ParameterValue, 'Prints a list with all matching schemes')
+            [CompletionResult]::new('apply', 'apply', [CompletionResultType]::ParameterValue, 'Applies scheme, according to user configuration')
+            [CompletionResult]::new('update', 'update', [CompletionResultType]::ParameterValue, 'Downloads schemes, templates, or updates their lists (from repos specified in sources.yml)')
+            break
+        }
+        'flavours;current' {
+            [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Prints help information')
+            [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Prints help information')
+            break
+        }
+        'flavours;list' {
+            [CompletionResult]::new('-l', 'l', [CompletionResultType]::ParameterName, 'Print each scheme on its own line')
+            [CompletionResult]::new('--lines', 'lines', [CompletionResultType]::ParameterName, 'Print each scheme on its own line')
+            [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Prints help information')
+            [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Prints help information')
+            break
+        }
+        'flavours;apply' {
+            [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Prints help information')
+            [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Prints help information')
+            break
+        }
+        'flavours;update' {
+            [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Prints help information')
+            [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Prints help information')
+            break
+        }
+    })
+
+    $completions.Where{ $_.CompletionText -like "$wordToComplete*" } |
+        Sort-Object -Property ListItemText
+}

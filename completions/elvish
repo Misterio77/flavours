@@ -1,0 +1,54 @@
+
+edit:completion:arg-completer[flavours] = [@words]{
+    fn spaces [n]{
+        repeat $n ' ' | joins ''
+    }
+    fn cand [text desc]{
+        edit:complex-candidate $text &display-suffix=' '(spaces (- 14 (wcswidth $text)))$desc
+    }
+    command = 'flavours'
+    for word $words[1:-1] {
+        if (has-prefix $word '-') {
+            break
+        }
+        command = $command';'$word
+    }
+    completions = [
+        &'flavours'= {
+            cand -c 'Specify a configuration file (Defaults to ~/.config/flavours/config.toml)'
+            cand --config 'Specify a configuration file (Defaults to ~/.config/flavours/config.toml)'
+            cand -d 'Specify a data directory (Defaults to ~/.local/share/flavours)'
+            cand --directory 'Specify a data directory (Defaults to ~/.local/share/flavours)'
+            cand --completions 'Generates completion for given shell, outputs to stdout'
+            cand -v 'Be more verbose'
+            cand --verbose 'Be more verbose'
+            cand -h 'Prints help information'
+            cand --help 'Prints help information'
+            cand -V 'Prints version information'
+            cand --version 'Prints version information'
+            cand current 'Prints last applied scheme name'
+            cand list 'Prints a list with all matching schemes'
+            cand apply 'Applies scheme, according to user configuration'
+            cand update 'Downloads schemes, templates, or updates their lists (from repos specified in sources.yml)'
+        }
+        &'flavours;current'= {
+            cand -h 'Prints help information'
+            cand --help 'Prints help information'
+        }
+        &'flavours;list'= {
+            cand -l 'Print each scheme on its own line'
+            cand --lines 'Print each scheme on its own line'
+            cand -h 'Prints help information'
+            cand --help 'Prints help information'
+        }
+        &'flavours;apply'= {
+            cand -h 'Prints help information'
+            cand --help 'Prints help information'
+        }
+        &'flavours;update'= {
+            cand -h 'Prints help information'
+            cand --help 'Prints help information'
+        }
+    ]
+    $completions[$command]
+}

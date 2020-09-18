@@ -19,9 +19,6 @@ _flavours() {
             current)
                 cmd+="__current"
                 ;;
-            info)
-                cmd+="__info"
-                ;;
             list)
                 cmd+="__list"
                 ;;
@@ -35,29 +32,45 @@ _flavours() {
 
     case "${cmd}" in
         flavours)
-            opts=" -v -h -V  --verbose --completions --help --version  current list info apply update"
+            opts=" -v -c -d -h -V  --verbose --config --directory --completions --help --version  current list apply update"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
-                COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
             fi
             case "${prev}" in
                 
+                --config)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                    -c)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                --directory)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                    -d)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
                 --completions)
-                    COMPREPLY=($(compgen -W "bash elvish fish powershell zsh" -- ${cur}))
+                    COMPREPLY=($(compgen -W "bash elvish fish powershell zsh" -- "${cur}"))
                     return 0
                     ;;
                 *)
                     COMPREPLY=()
                     ;;
             esac
-            COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
         
         flavours__apply)
-            opts=" -h -V  --help --version  $(flavours list) "
+            opts=" -h  --help  <pattern>... "
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
-                COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
             fi
             case "${prev}" in
@@ -66,13 +79,13 @@ _flavours() {
                     COMPREPLY=()
                     ;;
             esac
-            COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
         flavours__current)
             opts=" -h  --help  "
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
-                COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
             fi
             case "${prev}" in
@@ -81,28 +94,13 @@ _flavours() {
                     COMPREPLY=()
                     ;;
             esac
-            COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
-            return 0
-            ;;
-        flavours__info)
-            opts=" -h -V  --help --version  $(flavours list) "
-            if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
-                COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
-                return 0
-            fi
-            case "${prev}" in
-                
-                *)
-                    COMPREPLY=()
-                    ;;
-            esac
-            COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
         flavours__list)
-            opts=" -l -h -V  --lines --help --version  <pattern>... "
+            opts=" -l -h  --lines --help  <pattern>... "
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
-                COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
             fi
             case "${prev}" in
@@ -111,13 +109,13 @@ _flavours() {
                     COMPREPLY=()
                     ;;
             esac
-            COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
         flavours__update)
-            opts=" -h -V  --help --version lists schemes templates all"
+            opts=" -h  --help  <operation> "
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
-                COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
             fi
             case "${prev}" in
@@ -126,7 +124,7 @@ _flavours() {
                     COMPREPLY=()
                     ;;
             esac
-            COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
     esac
