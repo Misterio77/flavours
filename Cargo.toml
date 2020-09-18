@@ -21,3 +21,4 @@ serde = {version ="1.0", features = ["derive"]}
 serde_yaml = "0.8"
 toml = "0.5"
 shellexpand = "2.0"
+shell-words = "1.0"

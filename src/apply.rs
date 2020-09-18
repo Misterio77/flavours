@@ -1,6 +1,8 @@
 use std::path;
 use std::fs;
 use std::str;
+use std::process;
+use std::thread;
 
 use anyhow::{anyhow, Result, Context};
 use rand::seq::SliceRandom;
@@ -55,6 +57,27 @@ fn random(values: Vec<path::PathBuf>) -> Result<path::PathBuf> {
             anyhow!("Scheme not found")
         )?;
     Ok(chosen.to_path_buf())
+}
+
+fn run_hook(command: &str, verbose: bool) -> Result<()> {
+    if verbose && command != "" {
+        println!("running {}", command);
+    }
+    let command = shell_words::split(command)?;
+    if command.len() >= 1 {
+        process::Command::new(&command[0])
+            .args(&command[1..])
+            .stdout(process::Stdio::null())
+            .stderr(process::Stdio::null())
+            .status()?;
+    } else if command.len() == 1 {
+        process::Command::new(&command[0])
+            .stdout(process::Stdio::null())
+            .stderr(process::Stdio::null())
+            .status()?;
+    }
+
+    Ok(())
 }
 
 fn replace_delimiter(file_content: &str, start: &str, end: &str, built_template: &str) -> Result<String> {
@@ -199,6 +222,8 @@ pub fn apply(arguments: &clap::ArgMatches, base_dir: &path::Path, config_path: &
     let configuration: Config = toml::from_str(&fs::read_to_string(config_path)?).with_context(|| "Couldn't read configuration file. Check if all items are valid and include (at least) a file and template keys.")?;
     let items = configuration.item.ok_or(anyhow!("Error reading items from file. Try adding some."))?;
 
+    let mut hooks = Vec::new();
+
     //Iterate configurated entries (templates)
     for item in items {
         //File to write
@@ -216,7 +241,7 @@ pub fn apply(arguments: &clap::ArgMatches, base_dir: &path::Path, config_path: &
             None => String::from("default"),
         };
         //Hook command
-        let _hook = match item.hook {
+        let hook = match item.hook {
             Some(value) => value,
             None => String::from(""),
         };
@@ -278,6 +303,9 @@ pub fn apply(arguments: &clap::ArgMatches, base_dir: &path::Path, config_path: &
                          file);
             }
         }
+        hooks.push(thread::spawn(move || {
+            run_hook(&hook, verbose)
+        }));
 
     }
     if verbose {
@@ -287,5 +315,9 @@ pub fn apply(arguments: &clap::ArgMatches, base_dir: &path::Path, config_path: &
     fs::write(&last_scheme_file, scheme_slug)
        .with_context(||
         format!("Couldn't update applied scheme name"))?;
+
+    while !hooks.is_empty() {
+        hooks.pop().ok_or(anyhow!("Couldn't pop hooks"))?.join().unwrap()?;
+    }
     Ok(())
 }
