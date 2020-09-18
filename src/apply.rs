@@ -54,7 +54,7 @@ fn random(values: Vec<path::PathBuf>) -> Result<path::PathBuf> {
     let chosen = values
         .choose(&mut rand::thread_rng())
         .ok_or(
-            anyhow!("Scheme not found")
+            anyhow!("Scheme not found. Check if it exists, or run update schemes if you didn't already.")
         )?;
     Ok(chosen.to_path_buf())
 }
@@ -204,35 +204,47 @@ pub fn apply(arguments: &clap::ArgMatches, base_dir: &path::Path, config_path: &
     //Get random scheme
     let scheme_file = random(schemes)?;
     let scheme_slug = scheme_file.file_stem()
-                      .ok_or(anyhow!("Couldn't get scheme name"))?
+                      .ok_or(anyhow!("Couldn't get scheme name."))?
                       .to_str()
-                      .ok_or(anyhow!("Couldn't convert scheme file name"))?;
+                      .ok_or(anyhow!("Couldn't convert scheme file name."))?;
 
     //Read chosen scheme, store its data
-    let scheme: Scheme = serde_yaml::from_str(&fs::read_to_string(&scheme_file)?).with_context(|| format!("Couldn't read scheme at {:?}. Verify if it contains all needed values and try again.", scheme_file))?;
+    let scheme: Scheme = serde_yaml::from_str(
+        &fs::read_to_string(&scheme_file)
+        .with_context(||format!("Couldn't read scheme file at {:?}.", scheme_file))?)
+        .with_context(||format!("Couldn't parse scheme {}. Check if it's syntatically correct.", scheme_slug))?;
 
     if verbose {
         println!("Using scheme: {} ({}), by {}", 
                  scheme.scheme, 
                  scheme_slug,
                  scheme.author);
+        println!("");
     }
 
-    //Read configuration contents
-    let config_contents = match fs::read_to_string(config_path) {
-        Ok(contents) => contents,
-        Err(error) => {
-            fs::write(config_path, "")
-                .with_context(||format!("Couldn't create empty configuration file {:?}", config_path))?;
-            fs::read_to_string(config_path)
-                .with_context(||format!("Couldn't read configuration file {:?}", config_path))?
-        }//Create configuration
-    };
+    //Check if config file exists
+    if !config_path.exists() {
+        eprintln!("Config {:?} doesn't exist, creating", config_path);
+        let default_content = match fs::read_to_string(path::Path::new("/etc/flavours.conf")) {
+            Ok(content) => content,
+            Err(_) => String::from(""),
+        };
+        let config_path_parent = config_path.parent()
+            .with_context(||format!("Couldn't get parent directory of {:?}", config_path))?;
+
+        fs::create_dir_all(config_path_parent)
+            .with_context(||format!("Couldn't create configuration file parent directory {:?}", config_path_parent))?;
+        fs::write(config_path, default_content)
+            .with_context(||format!("Couldn't create configuration file at {:?}", config_path))?;
+    }
+
+    let config_contents = fs::read_to_string(config_path)
+        .with_context(||format!("Couldn't read configuration file {:?}.", config_path))?;
 
     let config_parsed: Config = toml::from_str(&config_contents)
-        .with_context(||"Failed to parse configuration file. Check if it's syntatically correct.")?;
+        .with_context(||"Couldn't parse configuration file. Check if it's syntatically correct.")?;
 
-    let items = config_parsed.item.ok_or(anyhow!("Error reading items from config file. Check the default file (/etc/flavours.conf on Linux) or github for config examples."))?;
+    let items = config_parsed.item.ok_or(anyhow!("Couldn't get items from config file. Check the default file or github for config examples."))?;
 
     let mut hooks = Vec::new();
 
@@ -244,7 +256,7 @@ pub fn apply(arguments: &clap::ArgMatches, base_dir: &path::Path, config_path: &
                 .to_string()
             )
             .canonicalize()
-            .with_context(|| format!("Invalid file to write: {}", item.file))?;
+            .with_context(||format!("Invalid file to write: {}.", item.file))?;
         //Template name
         let template = item.template;
         //Subtemplate name
@@ -283,7 +295,7 @@ pub fn apply(arguments: &clap::ArgMatches, base_dir: &path::Path, config_path: &
 
         //Template content
         let template_content = fs::read_to_string(subtemplate_file)
-                       .with_context(|| format!("Couldn't read template {}/{} at {:?}. Check if the correct template/subtemplate was specified, and run the update command if you didn't already.", template, subtemplate, subtemplate_file))?;
+                       .with_context(||format!("Couldn't read template {}/{} at {:?}. Check if the correct template/subtemplate was specified, and run the update templates command if you didn't already.", template, subtemplate, subtemplate_file))?;
 
         //Template with correct colors
         let built_template = build_template(template_content, &scheme, scheme_slug)?;
@@ -291,8 +303,7 @@ pub fn apply(arguments: &clap::ArgMatches, base_dir: &path::Path, config_path: &
         //Rewrite file with built template
         if rewrite {
             fs::write(&file, built_template)
-                .with_context(||
-                format!("Couldn't write to file {:?}", file))?;
+                .with_context(||format!("Couldn't write to file {:?}.", file))?;
 
             if verbose { println!("Wrote {}/{} on: {:?}", template, subtemplate, file) }
 
@@ -301,11 +312,10 @@ pub fn apply(arguments: &clap::ArgMatches, base_dir: &path::Path, config_path: &
             match replace_delimiter(&file_content, &start, &end, &built_template) {
                 Ok(content) => {
                     fs::write(&file, content)
-                        .with_context(||
-                        format!("Couldn't write to file {:?}", file))?
+                        .with_context(||format!("Couldn't write to file {:?}", file))?
                 }
                 Err(error) => {
-                    eprintln!("Error writing to file {:?}: {}", file, error)
+                    eprintln!("Couldn't replace lines in {:?}: {}", file, error)
                 }
             }
             if verbose {
@@ -325,11 +335,10 @@ pub fn apply(arguments: &clap::ArgMatches, base_dir: &path::Path, config_path: &
     }
     let last_scheme_file = &base_dir.join("lastscheme");
     fs::write(&last_scheme_file, scheme_slug)
-       .with_context(||
-        format!("Couldn't update applied scheme name"))?;
+       .with_context(||format!("Couldn't update applied scheme name"))?;
 
     while !hooks.is_empty() {
-        hooks.pop().ok_or(anyhow!("Couldn't pop hooks"))?.join().unwrap()?;
+        hooks.pop().ok_or(anyhow!("Couldn't pop hooks."))?.join().unwrap()?;
     }
     Ok(())
 }
