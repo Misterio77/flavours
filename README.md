@@ -27,8 +27,7 @@ While these projects are great and certainly fit some people's workflow, they di
 I decided to do my own project because i wanted a simple and straightforward way for anyone to use base16. The main objective is to have a single command that allows you to apply a specific scheme, in all your applications in the blink of an eye. With that, you have a program that easily integrates with anything you want it to.
 
 ## When
-I plan to have it fully functional by the end of 2020 July, but i will take my sweet time to make it better and featureful. Feel free to report issues or help me out <3
-
+Everything seems to be working nicely. I'm currently looking for improvements and possibly bugs to fix. The only feature missing is running hooks after applying the scheme. Currently WIP.
 
 ### Thanks to:
 - Functionality inspiration from [Base16 Universal Manager](https://github.com/pinpox/base16-universal-manager).
