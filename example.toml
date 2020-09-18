@@ -1,8 +1,18 @@
+# Example config and default values when omitted
 # [[item]]
-# file = '~/.config/example' (file to inject to, required)
-# template = 'example' (template to use, required)
+# file = '~/.config/example' (file to inject to, supports tilde and env var expansion. required)
+# template = 'example' (template to use. required)
 # subtemplate = 'default' (subtemplate to use)
 # rewrite = false (should we rewrite the entire file?)
 # start = '# Start flavours' (if not rewriting, where to start replacing)
 # end = '# End flavours' (if not rewriting, where to stop replacing)
 # hook = '' (command to execute after injecting)
+#
+# Example for i3
+# [[item]]
+# file = '~/.config/i3/config'
+# template = 'i3'
+# subtemplate = 'colors'
+# hook = 'i3-msg-reload'
+# rewrite = false
+
