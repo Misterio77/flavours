@@ -19,18 +19,18 @@ You can also list schemes (`flavours list`) and get your current scheme (`flavou
 
 ## How
 
-###Installation
+### Installation
 Just install cargo and run `cargo install flavours` (don't forget to include `~/.cargo/bin` on your PATH).
 
-I use arch (btw), so i'm building an AUR package. Let me know if you want to package flavours your favorite distro.
+I use arch (btw), so i'm building an AUR package. Let me know if you want to package flavours for any other distro.
 
 After installing, you should probably use `flavours update all` to grab all published schemes and templates from the base16 repos. If you want, you can manually tweak the templates, schemes or even the repo lists (everything's located in `~/.local/share/flavours` on Linux).
 
-###Usage
+### Usage
 You can use flavours and base16 templates to automatically inject schemes into any application config file that supports colors codes.
 
-Choose a template for each of your apps (or create your own).
-On these config files, place a start and end comment to tell flavours where to replace lines (default is `# Start flavours` and `# End flavours`).
+Choose a template/subtemplate for each app you want themed (or create your own).
+On these config files, place a start and end comment to tell flavours where to replace lines (defaults are `# Start flavours` and `# End flavours`).
 
 On flavours configuration (`~/.config/flavours/config.toml` on Linux), create a `[[item]]` section for each app. Specify a `file` and a `template` (optionally a `subtemplate`, a `hook` to execute, whether to use `rewrite` mode, or change the `start` and `end` lines), and vóila. You're now ready to apply schemes.
 
