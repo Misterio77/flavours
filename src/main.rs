@@ -54,9 +54,9 @@ fn main() -> Result<()> {
 
     // Check which subcommand was used
     match matches.subcommand() {
-        Some(("current", _)) => current::current(&flavours_dir, verbose),
+        ("current", Some(_)) => current::current(&flavours_dir, verbose),
 
-        Some(("apply", sub_matches)) => {
+        ("apply", Some(sub_matches)) => {
             //Get search patterns
             let patterns = match sub_matches.values_of("pattern") {
                 Some(content) => content.collect(),
@@ -66,7 +66,7 @@ fn main() -> Result<()> {
             apply::apply(patterns, &flavours_dir, &flavours_config, verbose)
         }
 
-        Some(("list", sub_matches)) => {
+        ("list", Some(sub_matches)) => {
             let patterns = match sub_matches.values_of("pattern") {
                 Some(content) => content.collect(),
                 //Defaults to wildcard
@@ -76,7 +76,7 @@ fn main() -> Result<()> {
             list::list(patterns, &flavours_dir, verbose, lines)
         }
 
-        Some(("update", sub_matches)) => {
+        ("update", Some(sub_matches)) => {
             let operation = sub_matches
                 .value_of("operation")
                 .ok_or_else(|| anyhow!("Invalid operation"))?;

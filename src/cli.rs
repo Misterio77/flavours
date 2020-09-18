@@ -1,4 +1,4 @@
-use clap::{crate_authors, crate_version, App, AppSettings, Arg, ArgSettings, ValueHint};
+use clap::{crate_authors, crate_version, App, AppSettings, Arg, ArgSettings};
 
 pub fn build_cli() -> App<'static> {
     App::new("flavours")
@@ -11,31 +11,31 @@ pub fn build_cli() -> App<'static> {
         .setting(AppSettings::InferSubcommands)
         .setting(AppSettings::ArgRequiredElseHelp)
         .arg(
-            Arg::new("verbose")
+            Arg::with_name("verbose")
             .about("Be more verbose")
             .long("verbose")
             .short('v')
         )
         .arg(
-            Arg::new("config")
+            Arg::with_name("config")
             .about("Specify a configuration file (Defaults to ~/.config/flavours/config.toml)")
             .long("config")
             .short('c')
             .value_name("FILE")
-            .value_hint(ValueHint::FilePath)
+//            .value_hint(ValueHint::FilePath)
             .takes_value(true)
         )
         .arg(
-            Arg::new("directory")
+            Arg::with_name("directory")
             .about("Specify a data directory (Defaults to ~/.local/share/flavours)")
             .long("directory")
             .short('d')
             .value_name("DIRECTORY")
-            .value_hint(ValueHint::DirPath)
+//            .value_hint(ValueHint::DirPath)
             .takes_value(true)
         )
         .arg(
-            Arg::new("completions")
+            Arg::with_name("completions")
             .setting(ArgSettings::Hidden)
             .about("Generates completion for given shell, outputs to stdout")
             .long("completions")
@@ -58,14 +58,14 @@ pub fn build_cli() -> App<'static> {
                 .setting(AppSettings::DisableHelpSubcommand)
                 .setting(AppSettings::DisableVersion)
                 .arg(
-                    Arg::new("pattern")
+                    Arg::with_name("pattern")
                         .about("Scheme name or glob pattern to match when listing scheme(s). If ommited, defaults to * (all installed schemes).")
                         .setting(ArgSettings::MultipleValues)
-                        .value_hint(ValueHint::Other)
+//                        .value_hint(ValueHint::Other)
                         .multiple(true)
                 )
                 .arg(
-                    Arg::new("lines")
+                    Arg::with_name("lines")
                         .about("Print each scheme on its own line")
                         .long("lines")
                         .short('l')
@@ -79,9 +79,9 @@ pub fn build_cli() -> App<'static> {
                 .setting(AppSettings::DisableHelpSubcommand)
                 .setting(AppSettings::DisableVersion)
                 .arg(
-                    Arg::new("pattern")
+                    Arg::with_name("pattern")
                         .about("Scheme to be applied, supports glob. If more than one is specified (or if glob pattern matched more than one), chooses one randomly. If ommited, defaults to * (all schemes).")
-                        .value_hint(ValueHint::Other)
+//                        .value_hint(ValueHint::Other)
                         .setting(ArgSettings::MultipleValues)
                         .multiple(true)
                 )
@@ -94,7 +94,7 @@ pub fn build_cli() -> App<'static> {
                 .setting(AppSettings::DisableHelpSubcommand)
                 .setting(AppSettings::DisableVersion)
                 .arg(
-                    Arg::new("operation")
+                    Arg::with_name("operation")
                         .value_name("operation")
                         .about("Update sources lists from repositories or (re)download schemes/templates specified in the lists. Default repositories for lists, and the lists themselves, can be manually changed.")
                         .required(true)
