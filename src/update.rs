@@ -118,7 +118,8 @@ fn git_clone(path: &path::Path, repo: String, verbose: bool) -> Result<()> {
     if verbose {
         command = process::Command::new("git")
             .arg("clone")
-            .arg("--depth 1")
+            .arg("--depth")
+            .arg("1")
             .arg(&repo)
             .arg(path)
             .status()
@@ -128,7 +129,8 @@ fn git_clone(path: &path::Path, repo: String, verbose: bool) -> Result<()> {
     } else {
         command = process::Command::new("git")
             .arg("clone")
-            .arg("--depth 1")
+            .arg("--depth")
+            .arg("1")
             .arg("--quiet")
             .arg(&repo)
             .arg(path)
@@ -246,19 +248,19 @@ fn update_templates(dir: &path::Path, verbose:bool) -> Result<()> {
 ///* `arguments` - A clap argmatches instance, for the update subcommand
 ///* `dir` - The base path to be used
 ///* `verbose` - Boolean, be verbose if true
-pub fn update(arguments: &clap::ArgMatches, dir: &path::Path, verbose: bool) -> Result<()> {
+pub fn update(operation: &str, dir: &path::Path, verbose: bool) -> Result<()> {
     let base16_dir = &dir.join("base16");
     fs::create_dir_all(base16_dir)?;
-    match arguments.value_of("operation") {
-        Some("lists") => update_lists(base16_dir, verbose),
-        Some("schemes") => update_schemes(base16_dir, verbose),
-        Some("templates") => update_templates(base16_dir, verbose),
-        Some("all") => {
+    match operation {
+        "lists" => update_lists(base16_dir, verbose),
+        "schemes" => update_schemes(base16_dir, verbose),
+        "templates" => update_templates(base16_dir, verbose),
+        "all" => {
             update_lists(base16_dir, verbose)?;
             update_schemes(base16_dir, verbose)?;
             update_templates(base16_dir, verbose)
         }
-        Some(_) | None => Err(anyhow!("Invalid operation"))
+        _ => Err(anyhow!("Invalid operation"))
     }
 }
 

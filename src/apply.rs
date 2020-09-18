@@ -177,13 +177,7 @@ fn build_template(template_base: String, scheme: &Scheme, scheme_slug: &str) -> 
     Ok(built_template)
 }
 
-pub fn apply(arguments: &clap::ArgMatches, base_dir: &path::Path, config_path: &path::Path, verbose: bool) -> Result<()> {
-    //Get search patterns
-    let patterns = match arguments.values_of("pattern") {
-        Some(schemes) => schemes.collect(),
-        //If none is supplied, defaults to wildcard
-        None => vec!["*"],
-    };
+pub fn apply(patterns: Vec<&str>, base_dir: &path::Path, config_path: &path::Path, verbose: bool) -> Result<()> {
 
     //Find schemes that match given patterns
     let mut schemes = Vec::new();

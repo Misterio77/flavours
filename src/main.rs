@@ -71,8 +71,14 @@ fn main() -> Result<()> {
         },
 
         Some(("apply", sub_matches)) => {
+            //Get search patterns
+            let patterns = match sub_matches.values_of("pattern") {
+                Some(content) => content.collect(),
+                //Defaults to wildcard
+                None => vec!["*"],
+            };
             apply::apply(
-                sub_matches,
+                patterns,
                 &flavours_dir,
                 &flavours_config,
                 verbose
@@ -80,16 +86,25 @@ fn main() -> Result<()> {
         },
 
         Some(("list",  sub_matches)) => {
+            let patterns = match sub_matches.values_of("pattern") {
+                Some(content) => content.collect(),
+                //Defaults to wildcard
+                None => vec!["*"],
+            };
+            let lines = sub_matches.is_present("lines");
             list::list(
-                sub_matches,
+                patterns,
                 &flavours_dir,
-                verbose
+                verbose,
+                lines
             )
         },
 
         Some(("update", sub_matches)) => {
+            let operation = sub_matches.value_of("operation")
+                .ok_or(anyhow!("Invalid operation"))?;
             update::update(
-                sub_matches,
+                operation,
                 &flavours_dir,
                 verbose
             )

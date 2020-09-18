@@ -5,13 +5,7 @@ use anyhow::{Result, anyhow};
 #[path = "find.rs"]
 mod find;
 
-pub fn list(arguments: &clap::ArgMatches, base_dir: &path::Path, _verbose: bool) -> Result<()> {
-    let patterns = match arguments.values_of("pattern") {
-        Some(values) => values.collect(),
-        // If none is supplied, defaults to wildcard
-        None => vec!["*"],
-    };
-
+pub fn list(patterns: Vec<&str>, base_dir: &path::Path, _verbose: bool, lines: bool) -> Result<()> {
     let mut schemes = Vec::new();
     for pattern in patterns {        
         let found_schemes = find::find(
@@ -37,9 +31,6 @@ pub fn list(arguments: &clap::ArgMatches, base_dir: &path::Path, _verbose: bool)
     }
     schemes.sort();
     schemes.dedup();
-
-    // Should we print a new line for each scheme?
-    let lines = arguments.is_present("lines");
 
     for scheme in schemes {
         // Print scheme
