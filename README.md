@@ -25,16 +25,16 @@ You can also list schemes (`flavours list`) and get your current scheme (`flavou
 
 ### Installation
 
-##### Packages
+#### Packages
 - [AUR Package](https://aur.archlinux.org/packages/flavours/) for Arch (and derivatives):
 `yay -S flavours`
 
 Let me know if you want to package flavours for your favorite distro.
 
-##### Cargo
+#### Cargo
 Just install cargo and run `cargo install flavours` (don't forget to include `~/.cargo/bin` on your PATH).
 
-##### Post-install
+#### Post-install
 After installing, you should probably use `flavours update all` to grab all published schemes and templates from the base16 repos. If you want, you can manually tweak the templates, schemes or even the repo lists (everything's located in `~/.local/share/flavours` on Linux).
 
 ### Usage
