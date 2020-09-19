@@ -239,7 +239,7 @@ fn update_templates(dir: &path::Path, verbose: bool) -> Result<()> {
 ///Implementation of update operation
 ///
 ///# Arguments
-///* `arguments` - A clap argmatches instance, for the update subcommand
+///* `operation` - Which operation to do
 ///* `dir` - The base path to be used
 ///* `verbose` - Boolean, be verbose if true
 pub fn update(operation: &str, dir: &path::Path, verbose: bool) -> Result<()> {

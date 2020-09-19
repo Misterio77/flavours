@@ -13,6 +13,7 @@ struct Config {
     item: Option<Vec<ConfigItem>>,
 }
 
+/// Structure for configuration items
 #[derive(Deserialize, Debug)]
 struct ConfigItem {
     file: String,
@@ -24,6 +25,7 @@ struct ConfigItem {
     end: Option<String>,
 }
 
+/// Structure for schemes
 #[allow(non_snake_case)]
 #[derive(Deserialize, Debug)]
 struct Scheme {
@@ -50,6 +52,8 @@ struct Scheme {
 #[path = "find.rs"]
 mod find;
 
+/// Picks a random path, from given vec
+/// * `values` - Vec with paths
 fn random(values: Vec<path::PathBuf>) -> Result<path::PathBuf> {
     let chosen = values.choose(&mut rand::thread_rng()).ok_or_else(|| {
         anyhow!(
@@ -59,6 +63,10 @@ fn random(values: Vec<path::PathBuf>) -> Result<path::PathBuf> {
     Ok(chosen.to_path_buf())
 }
 
+/// Runs hook commands
+///
+/// * `command` - Command string to execute
+/// * `verbose` - Should we be verbose?
 fn run_hook(command: &str, verbose: bool) -> Result<()> {
     if verbose && command != "" {
         println!("running {}", command);
@@ -83,6 +91,14 @@ fn run_hook(command: &str, verbose: bool) -> Result<()> {
     Ok(())
 }
 
+/// Replace with delimiter lines
+///
+/// In a string, removes everything from one line to another, and puts the built template in place
+///
+/// * `file_content` - String with lines to be replaced
+/// * `start` - Where to start replacing
+/// * `end` - Where to stop replacing
+/// * `built_template` - Built template to be injected
 fn replace_delimiter(
     file_content: &str,
     start: &str,
@@ -122,6 +138,13 @@ fn replace_delimiter(
     }
 }
 
+/// Build a template
+///
+/// Given template base, scheme and scheme slug, builds the template and returns it
+///
+/// * `template_base` - Template base string
+/// * `scheme` - Scheme structure
+/// * `scheme_slug` - Scheme slug
 fn build_template(template_base: String, scheme: &Scheme, scheme_slug: &str) -> Result<String> {
     let mut built_template = template_base;
     built_template = built_template
@@ -209,6 +232,12 @@ fn build_template(template_base: String, scheme: &Scheme, scheme_slug: &str) -> 
     Ok(built_template)
 }
 
+/// Apply function
+///
+/// * `patterns` - Which patterns the user specified
+/// * `base_dir` - Flavours base directory
+/// * `config_path` - Flavours configuration path
+/// * `verbose` - Should we be verbose?
 pub fn apply(
     patterns: Vec<&str>,
     base_dir: &path::Path,

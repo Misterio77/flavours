@@ -3,6 +3,9 @@ use std::path;
 
 use anyhow::{anyhow, Context, Result};
 
+/// Get current scheme
+///
+/// * `dir` - flavours data directory
 fn get_current_scheme(dir: &path::Path) -> Result<String> {
     // File that stores last used scheme
     let file_path = &dir.join("lastscheme");
@@ -21,6 +24,10 @@ fn get_current_scheme(dir: &path::Path) -> Result<String> {
     }
 }
 
+/// Current subcommand
+///
+/// * `base_dir` - flavours data directory
+/// * `verbose` - Should we be verbose (unused atm)
 pub fn current(base_dir: &path::Path, _verbose: bool) -> Result<()> {
     println!("{}", get_current_scheme(base_dir)?);
     Ok(())

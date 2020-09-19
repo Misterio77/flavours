@@ -3,6 +3,10 @@ use std::path;
 use anyhow::{anyhow, Result};
 use glob::glob;
 
+/// Find function
+///
+/// * `pattern` - Which pattern to use
+/// * `schemes_dir` - Schemes directory
 pub fn find(pattern: &str, schemes_dir: &path::Path) -> Result<Vec<path::PathBuf>> {
     let dir = schemes_dir
         .to_str()

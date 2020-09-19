@@ -5,6 +5,12 @@ use anyhow::{anyhow, Result};
 #[path = "find.rs"]
 mod find;
 
+/// List subcommand
+///
+/// * `patterns` - Vector with patterns
+/// * `base_dir` - flavours base data dir
+/// * `verbose` - Should we be verbose? (unused)
+/// * `lines` - Should we print each scheme on its own line?
 pub fn list(patterns: Vec<&str>, base_dir: &path::Path, _verbose: bool, lines: bool) -> Result<()> {
     let mut schemes = Vec::new();
     for pattern in patterns {
