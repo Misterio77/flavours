@@ -40,12 +40,24 @@ After installing, you should probably use `flavours update all` to grab all publ
 ### Usage
 You can use flavours and base16 templates to automatically inject schemes into any application config file that supports colors codes.
 
+#### Setup
 Choose a template/subtemplate for each app you want themed (or create your own).
 On these config files, place a start and end comment to tell flavours where to replace lines (defaults are `# Start flavours` and `# End flavours`).
 
 On flavours configuration (`~/.config/flavours/config.toml` on Linux), create a `[[item]]` section for each app. Specify a `file` and a `template` (optionally a `subtemplate`, a `hook` to execute, whether to use `rewrite` mode, or change the `start` and `end` lines), and vóila. You're now ready to apply schemes.
 
-I will write some documentation soon-ish, including configuration and integration examples.
+#### Applying
+`flavours apply` is the command you'll probably be using all the time. So it's built to be as useful as possible.
+
+If more than one scheme is specified or matched (with glob), flavours will choose one randomly.
+You can:
+- Specify a scheme: `flavours apply pasque`
+- Specify multiple: `flavours apply pasque paraiso atlas`
+- Use glob: `flavours apply "gruvbox*"`
+- Omit: `flavours apply` (is the same as running `flavours apply "*"`)
+
+#### Other commands
+You can also use `flavours current` to see the last scheme you applied, `flavours list` to list all available schemes (`-l` or `--lines` to print each in one line).
 
 ## Why
 Why use this instead of other base16 managers, or even pywal?
