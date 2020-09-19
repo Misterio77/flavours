@@ -17,9 +17,11 @@ This is a CLI program that both builds and manages Base16 schemes and templates.
 
 The base16 specification consists of both schemes (with 16 colors) and templates. There'll probably be templates for most applications you use, but you can easily make one for literally any app that supports any sort of color customization.
 
-You can easily apply a specific (or multiple, then flavours picks one at random) scheme (`flavours apply pasque`), or glob pattern(s) (`flavours apply "gruvbox*"`). Supports tab completion for many shells (including scheme completion on zsh).
-You can also list schemes (`flavours list`) and get your current scheme (`flavours current`).
+Once your configuration files are set, you can theme your entire desktop with just *one* command. No more hassle changing themes when you get bored.
+Why have one color if you can have all the colors?
 
+I use it to theme kitty terminal, i3wm, rofi, polybar, gtk, discord and spotify. Here's how it looks in action:
+![Usage](http://u.cubeupload.com/Misterio77x/flavours202009191033.gif)
 
 ## How
 
