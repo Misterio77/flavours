@@ -18,6 +18,6 @@
 # file = '~/.config/i3/config'
 # template = 'i3'
 # subtemplate = 'colors'
-# hook = 'i3-msg-reload'
+# hook = 'i3-msg reload'
 # rewrite = false
 
