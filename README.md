@@ -66,7 +66,7 @@ Why use this instead of other base16 managers, or even pywal?
 
 While these projects are great and certainly fit some people's workflow, they didn't quite fit mine.
 
-I decided to do my own project because i wanted a simple CLI program that can easily integrate with rofi, polybar, and everything else in my workflow. The main feature is being able to quickly and easily use a curated list of schemes, on all your apps.
+I decided to do my own project because i wanted a simple CLI program that can easily integrate with rofi, polybar, and everything else in my workflow. The main feature is being able to quickly and easily use a curated list of schemes, on all your apps. It's also objectively faster than _any_ other manager.
 
 ## When
 All features are implemented! I'm currently working on improving code quality and stabilizing the features, but everything should work as intended.
