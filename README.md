@@ -43,7 +43,7 @@ After installing, you should probably use `flavours update all` to grab all publ
 You can use flavours and base16 templates to automatically inject schemes into any application config file that supports colors codes.
 
 #### Setup
-Choose a template/subtemplate for each app you want themed (or create your own).
+Choose a [template](https://github.com/chriskempson/base16#template-repositories) for each app you want themed (or create your own).
 On these config files, place a start and end comment to tell flavours where to replace lines (defaults are `# Start flavours` and `# End flavours`).
 
 On flavours configuration (`~/.config/flavours/config.toml` on Linux), create a `[[item]]` section for each app. Specify a `file` and a `template` (optionally a `subtemplate`, a `hook` to execute, whether to use `rewrite` mode, or change the `start` and `end` lines), and vóila. You're now ready to apply schemes.
