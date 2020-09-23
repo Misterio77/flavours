@@ -43,7 +43,7 @@ After installing, you should probably use `flavours update all` to grab all publ
 You can use flavours and base16 templates to automatically inject schemes into any application config file that supports colors codes.
 
 #### Setup
-Choose a template/subtemplate for each app you want themed (or create your own).
+Choose a [template](https://github.com/chriskempson/base16#template-repositories) for each app you want themed (or create your own).
 On these config files, place a start and end comment to tell flavours where to replace lines (defaults are `# Start flavours` and `# End flavours`).
 
 On flavours configuration (`~/.config/flavours/config.toml` on Linux), create a `[[item]]` section for each app. Specify a `file` and a `template` (optionally a `subtemplate`, a `hook` to execute, whether to use `rewrite` mode, or change the `start` and `end` lines), and vóila. You're now ready to apply schemes.
@@ -66,7 +66,7 @@ Why use this instead of other base16 managers, or even pywal?
 
 While these projects are great and certainly fit some people's workflow, they didn't quite fit mine.
 
-I decided to do my own project because i wanted a simple CLI program that can easily integrate with rofi, polybar, and everything else in my workflow. The main feature is being able to quickly and easily use a curated list of schemes, on all your apps.
+I decided to do my own project because i wanted a simple CLI program that can easily integrate with rofi, polybar, and everything else in my workflow. The main feature is being able to quickly and easily use a curated list of schemes, on all your apps. It's also objectively faster than _any_ other manager.
 
 ## When
 All features are implemented! I'm currently working on improving code quality and stabilizing the features, but everything should work as intended.
