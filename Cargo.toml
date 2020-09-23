@@ -1,7 +1,7 @@
 [package]
 name = "flavours"
 description = "An easy to use base16 scheme manager/builder that integrates with any workflow."
-version = "0.1.3"
+version = "0.1.4"
 authors = ["Gabriel Fontes (Misterio77) <eu@misterio.me>"]
 edition = "2018"
 readme = "README.md"
@@ -11,8 +11,8 @@ categories = ["command-line-utilities"]
 repository = "https://github.com/Misterio77/flavours"
 
 [dependencies]
-clap = { version = "3.0.0-beta.1", features = ["wrap_help", "suggestions", "color"] }
-clap_generate = { version = "3.0.0-beta.1" }
+clap = { version = "3.0.0-beta.2", features = ["wrap_help", "suggestions", "color"] }
+clap_generate = { version = "3.0.0-beta.2" }
 anyhow = "1.0"
 glob = "0.3"
 rand = "0.7"
