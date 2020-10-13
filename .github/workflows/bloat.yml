@@ -1,0 +1,2 @@
+- name: cargo-bloat
+  uses: orf/cargo-bloat-action@v1
