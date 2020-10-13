@@ -71,18 +71,18 @@ fn run_hook(command: &str, verbose: bool) -> Result<()> {
     if verbose && command != "" {
         println!("running {}", command);
     }
-    let command = shell_words::split(command)?;
+    let command_vec = shell_words::split(command)?;
 
-    if !command.is_empty() {
-        if command.len() == 1 {
-            process::Command::new(&command[0])
+    if !command_vec.is_empty() {
+        if command_vec.len() == 1 {
+            process::Command::new(&command_vec[0])
                 .stdout(process::Stdio::null())
                 .stderr(process::Stdio::null())
                 .status()
                 .with_context(|| format!("Couldn't run hook '{}'", command))?;
         } else {
-            process::Command::new(&command[0])
-                .args(&command[1..])
+            process::Command::new(&command_vec[0])
+                .args(&command_vec[1..])
                 .stdout(process::Stdio::null())
                 .stderr(process::Stdio::null())
                 .status()
