@@ -1,4 +1,4 @@
-use clap::{crate_authors, crate_version, App, AppSettings, Arg, ArgSettings};
+use clap::{crate_authors, crate_version, App, AppSettings, Arg, ArgSettings, ValueHint};
 
 pub fn build_cli() -> App<'static> {
     App::new("flavours")
@@ -22,7 +22,7 @@ pub fn build_cli() -> App<'static> {
             .long("config")
             .short('c')
             .value_name("FILE")
-//            .value_hint(ValueHint::FilePath)
+            .value_hint(ValueHint::FilePath)
             .takes_value(true)
         )
         .arg(
@@ -31,7 +31,7 @@ pub fn build_cli() -> App<'static> {
             .long("directory")
             .short('d')
             .value_name("DIRECTORY")
-//            .value_hint(ValueHint::DirPath)
+            .value_hint(ValueHint::DirPath)
             .takes_value(true)
         )
         .arg(
@@ -61,7 +61,7 @@ pub fn build_cli() -> App<'static> {
                     Arg::new("pattern")
                         .about("Scheme name or glob pattern to match when listing scheme(s). If ommited, defaults to * (all installed schemes).")
                         .setting(ArgSettings::MultipleValues)
-//                        .value_hint(ValueHint::Other)
+                        .value_hint(ValueHint::Other)
                         .multiple(true)
                 )
                 .arg(
@@ -81,7 +81,7 @@ pub fn build_cli() -> App<'static> {
                 .arg(
                     Arg::new("pattern")
                         .about("Scheme to be applied, supports glob. If more than one is specified (or if glob pattern matched more than one), chooses one randomly. If ommited, defaults to * (all schemes).")
-//                        .value_hint(ValueHint::Other)
+                        .value_hint(ValueHint::Other)
                         .setting(ArgSettings::MultipleValues)
                         .multiple(true)
                 )

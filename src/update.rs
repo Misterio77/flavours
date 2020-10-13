@@ -101,48 +101,98 @@ fn get_repo_list(file: &path::Path) -> Result<Vec<(String, String)>> {
     Ok(result)
 }
 
-///Uses git to clone a repository
+enum CloneType {
+    Scheme,
+    Template,
+    List,
+}
+
+///Uses git to sparsely clone a repository, and then only checkout the .yml files and templates
+///folder
 ///
 ///# Arguments
 ///* `path` - File path where repository should be cloned
 ///* `repo` - String slice containing link to repository
 ///* `verbose` - Boolean, tell git to be quiet if false
-fn git_clone(path: &path::Path, repo: String, verbose: bool) -> Result<()> {
+fn git_clone(path: &path::Path, repo: String, verbose: bool, clone_type: CloneType) -> Result<()> {
     // Remove directory, ignores errors
     let _ = fs::remove_dir_all(path);
     env::set_var("GIT_TERMINAL_PROMPT", "0");
 
     // Try to clone into directory
-    let command = if verbose {
+    let command_clone = if verbose {
         process::Command::new("git")
             .arg("clone")
-            .arg("--depth")
-            .arg("1")
+            .arg("-n")
             .arg(&repo)
             .arg(path)
+            .arg("--depth")
+            .arg("1")
             .status()
-            .with_context(|| "Failed to run git, is it installed?")?
+            .context("Couldn't run git (is it installed?)")?
     } else {
         process::Command::new("git")
             .arg("clone")
-            .arg("--depth")
-            .arg("1")
             .arg("--quiet")
+            .arg("-n")
             .arg(&repo)
             .arg(path)
+            .arg("--depth")
+            .arg("1")
             .status()
-            .with_context(|| "Failed to run git, is it installed?")?
+            .context("Couldn't run git (is it installed?)")?
     };
 
-    // Exit status code
-    match command.code() {
-        // If okay
-        Some(0) => Ok(()),
-        // If git returned an error
-        Some(_) | None => Err(anyhow!(
-            "Git clone failed on repo '{}', check if your repository lists are correct.",
-            &repo
-        )),
+    if verbose {
+        println!("checking out on {:?}", path)
+    }
+    // Try to checkout the files
+    let command_checkout = match clone_type {
+        CloneType::Scheme => process::Command::new("git")
+            .arg("-C")
+            .arg(path)
+            .arg("checkout")
+            .arg("--quiet")
+            .arg("HEAD")
+            .arg("*.y*ml")
+            .status()
+            .context("Couldn't run git (is it installed?)")?,
+        CloneType::Template => process::Command::new("git")
+            .arg("-C")
+            .arg(path)
+            .arg("checkout")
+            .arg("--quiet")
+            .arg("HEAD")
+            .arg("templates")
+            .status()
+            .context("Couldn't run git (is it installed?)")?,
+        CloneType::List => process::Command::new("git")
+            .arg("-C")
+            .arg(path)
+            .arg("checkout")
+            .arg("--quiet")
+            .arg("HEAD")
+            .arg("list.yaml")
+            .status()
+            .context("Couldn't run git (is it installed?)")?,
+    };
+
+    let command_clone = command_clone
+        .code()
+        .ok_or_else(|| anyhow!("Failed to clone with git (is it installed?)"))?;
+    let command_checkout = command_checkout
+        .code()
+        .ok_or_else(|| anyhow!("Failed to checkout files with git"))?;
+
+    let _ = fs::remove_dir_all(path.join(".git"));
+
+    if command_clone != 0 || command_checkout != 0 {
+        Err(anyhow!(
+            "Git failed to run on repository '{}'. Check if your repo list is valid.",
+            repo
+        ))
+    } else {
+        Ok(())
     }
 }
 
@@ -162,9 +212,22 @@ fn update_lists(dir: &path::Path, verbose: bool) -> Result<()> {
     // Spawn git clone threads, to clone schemes and templates lists
     let schemes_source_dir = sources_dir.join("schemes");
     let templates_source_dir = sources_dir.join("templates");
-    let s_child = thread::spawn(move || git_clone(&schemes_source_dir, schemes_source, verbose));
-    let t_child =
-        thread::spawn(move || git_clone(&templates_source_dir, templates_source, verbose));
+    let s_child = thread::spawn(move || {
+        git_clone(
+            &schemes_source_dir,
+            schemes_source,
+            verbose,
+            CloneType::List,
+        )
+    });
+    let t_child = thread::spawn(move || {
+        git_clone(
+            &templates_source_dir,
+            templates_source,
+            verbose,
+            CloneType::List,
+        )
+    });
 
     // Execute and check exit code
     s_child.join().unwrap()?;
@@ -193,7 +256,7 @@ fn update_schemes(dir: &path::Path, verbose: bool) -> Result<()> {
         // Spawn new thread
         children.push(thread::spawn(move || {
             // Delete scheme directory and clone the repo
-            git_clone(&current_dir, repo, verbose)
+            git_clone(&current_dir, repo, verbose, CloneType::Scheme)
         }));
     }
     for child in children {
@@ -225,7 +288,7 @@ fn update_templates(dir: &path::Path, verbose: bool) -> Result<()> {
         // Spawn new thread
         children.push(thread::spawn(move || {
             // Delete template directory and clone the repo
-            git_clone(&current_dir, repo, verbose)
+            git_clone(&current_dir, repo, verbose, CloneType::Template)
         }));
     }
     for child in children {
