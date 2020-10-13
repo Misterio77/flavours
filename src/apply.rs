@@ -78,13 +78,15 @@ fn run_hook(command: &str, verbose: bool) -> Result<()> {
             process::Command::new(&command[0])
                 .stdout(process::Stdio::null())
                 .stderr(process::Stdio::null())
-                .status()?;
+                .status()
+                .with_context(|| format!("Couldn't run hook '{}'", command))?;
         } else {
             process::Command::new(&command[0])
                 .args(&command[1..])
                 .stdout(process::Stdio::null())
                 .stderr(process::Stdio::null())
-                .status()?;
+                .status()
+                .with_context(|| format!("Couldn't run hook '{}'", command))?;
         }
     }
 
@@ -392,9 +394,7 @@ pub fn apply(
         }
         hooks.push(thread::spawn(move || run_hook(&hook, verbose)));
     }
-    if verbose {
-        println!("Successfully applied {}", scheme_slug);
-    }
+
     let last_scheme_file = &base_dir.join("lastscheme");
     fs::write(&last_scheme_file, scheme_slug)
         .with_context(|| "Couldn't update applied scheme name")?;
@@ -405,6 +405,10 @@ pub fn apply(
             .ok_or_else(|| anyhow!("Couldn't pop hooks."))?
             .join()
             .unwrap()?;
+    }
+
+    if verbose {
+        println!("Successfully applied {}", scheme_slug);
     }
     Ok(())
 }
