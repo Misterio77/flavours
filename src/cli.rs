@@ -72,6 +72,33 @@ pub fn build_cli() -> App<'static> {
                 )
         )
         .subcommand(
+            App::new("info")
+                .about("Shows scheme colors for all schemes matching pattern. Can print just the codes or pretty print (with truecolor)")
+                .setting(AppSettings::UnifiedHelpMessage)
+                .setting(AppSettings::DeriveDisplayOrder)
+                .setting(AppSettings::DisableHelpSubcommand)
+                .setting(AppSettings::DisableVersion)
+                .arg(
+                    Arg::new("pattern")
+                        .about("Scheme name or glob pattern to match when showing scheme(s). If ommited, defaults to * (all installed schemes).")
+                        .setting(ArgSettings::MultipleValues)
+                        .value_hint(ValueHint::Other)
+                        .multiple(true)
+                )
+                .arg(
+                    Arg::new("pretty")
+                        .about("Prints color codes with truecolor.")
+                        .long("pretty")
+                        .short('p')
+                )
+                .arg(
+                    Arg::new("lines")
+                        .about("Print each scheme on its own line")
+                        .long("lines")
+                        .short('l')
+                )
+        )
+        .subcommand(
             App::new("apply")
                 .about("Applies scheme, according to user configuration")
                 .setting(AppSettings::UnifiedHelpMessage)
@@ -80,7 +107,7 @@ pub fn build_cli() -> App<'static> {
                 .setting(AppSettings::DisableVersion)
                 .arg(
                     Arg::new("pattern")
-                        .about("Scheme to be applied, supports glob. If more than one is specified (or if glob pattern matched more than one), chooses one randomly. If ommited, defaults to * (all schemes).")
+                        .about("Scheme to be applied, supports glob. If more than one is specified (or if glob pattern matched more than one), chooses one randomly. If ommited, defaults to * (all installed schemes).")
                         .value_hint(ValueHint::Other)
                         .setting(ArgSettings::MultipleValues)
                         .multiple(true)

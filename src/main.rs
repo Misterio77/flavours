@@ -5,6 +5,7 @@ mod cli;
 
 mod apply;
 mod current;
+mod info;
 mod list;
 mod update;
 
@@ -81,6 +82,16 @@ fn main() -> Result<()> {
                 .value_of("operation")
                 .ok_or_else(|| anyhow!("Invalid operation"))?;
             update::update(operation, &flavours_dir, verbose)
+        }
+
+        Some(("info", sub_matches)) => {
+            let patterns = match sub_matches.values_of("pattern") {
+                Some(content) => content.collect(),
+                //Defaults to wildcard
+                None => vec!["*"],
+            };
+            let pretty = sub_matches.is_present("pretty");
+            info::info(patterns, &flavours_dir, pretty)
         }
         _ => Err(anyhow!("No valid subcommand specified")),
     }

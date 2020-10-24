@@ -8,6 +8,12 @@ use anyhow::{anyhow, Context, Result};
 use rand::seq::SliceRandom;
 use serde::Deserialize;
 
+#[path = "find.rs"]
+mod find;
+
+#[path = "scheme.rs"]
+mod scheme;
+
 #[derive(Deserialize, Debug)]
 struct Config {
     item: Option<Vec<ConfigItem>>,
@@ -24,33 +30,6 @@ struct ConfigItem {
     start: Option<String>,
     end: Option<String>,
 }
-
-/// Structure for schemes
-#[allow(non_snake_case)]
-#[derive(Deserialize, Debug)]
-struct Scheme {
-    scheme: String,
-    author: String,
-    base00: String,
-    base01: String,
-    base02: String,
-    base03: String,
-    base04: String,
-    base05: String,
-    base06: String,
-    base07: String,
-    base08: String,
-    base09: String,
-    base0A: String,
-    base0B: String,
-    base0C: String,
-    base0D: String,
-    base0E: String,
-    base0F: String,
-}
-
-#[path = "find.rs"]
-mod find;
 
 /// Picks a random path, from given vec
 /// * `values` - Vec with paths
@@ -147,7 +126,7 @@ fn replace_delimiter(
 /// * `template_base` - Template base string
 /// * `scheme` - Scheme structure
 /// * `scheme_slug` - Scheme slug
-fn build_template(template_base: String, scheme: &Scheme, scheme_slug: &str) -> Result<String> {
+fn build_template(template_base: String, scheme: &scheme::Scheme, scheme_slug: &str) -> Result<String> {
     let mut built_template = template_base;
     built_template = built_template
         .replace("{{scheme-name}}", &scheme.scheme)
@@ -268,16 +247,11 @@ pub fn apply(
         .ok_or_else(|| anyhow!("Couldn't convert scheme file name."))?;
 
     //Read chosen scheme, store its data
-    let scheme: Scheme = serde_yaml::from_str(
+    let scheme = scheme::parse_scheme(
         &fs::read_to_string(&scheme_file)
             .with_context(|| format!("Couldn't read scheme file at {:?}.", scheme_file))?,
-    )
-    .with_context(|| {
-        format!(
-            "Couldn't parse scheme {}. Check if it's syntatically correct.",
-            scheme_slug
-        )
-    })?;
+        scheme_slug,
+    )?;
 
     if verbose {
         println!(

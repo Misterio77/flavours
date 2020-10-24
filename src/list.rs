@@ -29,7 +29,11 @@ pub fn list(patterns: Vec<&str>, base_dir: &path::Path, _verbose: bool, lines: b
     schemes.sort();
     schemes.dedup();
 
-    for scheme in schemes {
+    if schemes.is_empty() {
+        return Err(anyhow!("No matching scheme found"))
+    };
+
+    for scheme in &schemes {
         // Print scheme
         print!("{}", scheme);
         if lines {
