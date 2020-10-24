@@ -91,12 +91,6 @@ pub fn build_cli() -> App<'static> {
                         .long("pretty")
                         .short('p')
                 )
-                .arg(
-                    Arg::new("lines")
-                        .about("Print each scheme on its own line")
-                        .long("lines")
-                        .short('l')
-                )
         )
         .subcommand(
             App::new("apply")

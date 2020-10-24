@@ -66,7 +66,7 @@ pub fn info(patterns: Vec<&str>, base_dir: &path::Path, pretty: bool) -> Result<
 
         println!("{} ({})", scheme.scheme, scheme_slug);
         println!("by {}", scheme.author);
-        if pretty {
+        if !pretty {
             println!("#{}", scheme.base00);
             println!("#{}", scheme.base01);
             println!("#{}", scheme.base02);
