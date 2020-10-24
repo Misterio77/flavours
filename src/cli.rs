@@ -73,7 +73,7 @@ pub fn build_cli() -> App<'static> {
         )
         .subcommand(
             App::new("info")
-                .about("Shows scheme colors for all schemes matching pattern. Can print just the codes or pretty print (with truecolor)")
+                .about("Shows scheme colors for all schemes matching pattern. Optionally uses truecolor")
                 .setting(AppSettings::UnifiedHelpMessage)
                 .setting(AppSettings::DeriveDisplayOrder)
                 .setting(AppSettings::DisableHelpSubcommand)
@@ -86,10 +86,10 @@ pub fn build_cli() -> App<'static> {
                         .multiple(true)
                 )
                 .arg(
-                    Arg::new("pretty")
+                    Arg::new("color")
                         .about("Prints color codes with truecolor.")
-                        .long("pretty")
-                        .short('p')
+                        .long("color")
+                        .short('c')
                 )
         )
         .subcommand(

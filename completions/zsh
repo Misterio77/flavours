@@ -50,11 +50,20 @@ _arguments "${_arguments_options[@]}" \
 '*::pattern -- Scheme name or glob pattern to match when listing scheme(s). If ommited, defaults to * (all installed schemes).:($(flavours list))' \
 && ret=0
 ;;
+(info)
+_arguments "${_arguments_options[@]}" \
+'-c[Prints color codes with truecolor.]' \
+'--color[Prints color codes with truecolor.]' \
+'-h[Prints help information]' \
+'--help[Prints help information]' \
+'*::pattern -- Scheme name or glob pattern to match when showing scheme(s). If ommited, defaults to * (all installed schemes).:($(flavours list))' \
+&& ret=0
+;;
 (apply)
 _arguments "${_arguments_options[@]}" \
 '-h[Prints help information]' \
 '--help[Prints help information]' \
-'*::pattern -- Scheme to be applied, supports glob. If more than one is specified (or if glob pattern matched more than one), chooses one randomly. If ommited, defaults to * (all schemes).:($(flavours list))' \
+'*::pattern -- Scheme to be applied, supports glob. If more than one is specified (or if glob pattern matched more than one), chooses one randomly. If ommited, defaults to * (all installed schemes).:($(flavours list))' \
 && ret=0
 ;;
 (update)
@@ -74,6 +83,7 @@ _flavours_commands() {
     local commands; commands=(
         "current:Prints last applied scheme name" \
 "list:Prints a list with all matching schemes" \
+"info:Shows scheme colors for all schemes matching pattern. Optionally uses truecolor" \
 "apply:Applies scheme, according to user configuration" \
 "update:Downloads schemes, templates, or updates their lists (from repos specified in sources.yml)" \
     )
@@ -92,6 +102,13 @@ _flavours__current_commands() {
         
     )
     _describe -t commands 'flavours current commands' commands "$@"
+}
+(( $+functions[_flavours__info_commands] )) ||
+_flavours__info_commands() {
+    local commands; commands=(
+        
+    )
+    _describe -t commands 'flavours info commands' commands "$@"
 }
 (( $+functions[_flavours__list_commands] )) ||
 _flavours__list_commands() {

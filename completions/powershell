@@ -33,6 +33,7 @@ Register-ArgumentCompleter -Native -CommandName 'flavours' -ScriptBlock {
             [CompletionResult]::new('--version', 'version', [CompletionResultType]::ParameterName, 'Prints version information')
             [CompletionResult]::new('current', 'current', [CompletionResultType]::ParameterValue, 'Prints last applied scheme name')
             [CompletionResult]::new('list', 'list', [CompletionResultType]::ParameterValue, 'Prints a list with all matching schemes')
+            [CompletionResult]::new('info', 'info', [CompletionResultType]::ParameterValue, 'Shows scheme colors for all schemes matching pattern. Optionally uses truecolor')
             [CompletionResult]::new('apply', 'apply', [CompletionResultType]::ParameterValue, 'Applies scheme, according to user configuration')
             [CompletionResult]::new('update', 'update', [CompletionResultType]::ParameterValue, 'Downloads schemes, templates, or updates their lists (from repos specified in sources.yml)')
             break
@@ -45,6 +46,13 @@ Register-ArgumentCompleter -Native -CommandName 'flavours' -ScriptBlock {
         'flavours;list' {
             [CompletionResult]::new('-l', 'l', [CompletionResultType]::ParameterName, 'Print each scheme on its own line')
             [CompletionResult]::new('--lines', 'lines', [CompletionResultType]::ParameterName, 'Print each scheme on its own line')
+            [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Prints help information')
+            [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Prints help information')
+            break
+        }
+        'flavours;info' {
+            [CompletionResult]::new('-c', 'c', [CompletionResultType]::ParameterName, 'Prints color codes with truecolor.')
+            [CompletionResult]::new('--color', 'color', [CompletionResultType]::ParameterName, 'Prints color codes with truecolor.')
             [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Prints help information')
             [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Prints help information')
             break

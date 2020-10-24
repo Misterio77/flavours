@@ -28,8 +28,8 @@ fn true_color(hex_color: &str, background: bool) -> Result<String> {
 /// * `patterns` - Vector with patterns
 /// * `base_dir` - flavours base data dir
 /// * `verbose` - Should we be verbose? (unused)
-/// * `pretty` - Pretty level
-pub fn info(patterns: Vec<&str>, base_dir: &path::Path, pretty: bool) -> Result<()> {
+/// * `color` - Should we print with colors?
+pub fn info(patterns: Vec<&str>, base_dir: &path::Path, color: bool) -> Result<()> {
     let mut schemes = Vec::new();
     for pattern in patterns {
         let found_schemes = find::find(pattern, &base_dir.join("base16").join("schemes"))?;
@@ -66,7 +66,7 @@ pub fn info(patterns: Vec<&str>, base_dir: &path::Path, pretty: bool) -> Result<
 
         println!("{} ({})", scheme.scheme, scheme_slug);
         println!("by {}", scheme.author);
-        if !pretty {
+        if !color {
             println!("#{}", scheme.base00);
             println!("#{}", scheme.base01);
             println!("#{}", scheme.base02);

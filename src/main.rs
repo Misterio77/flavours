@@ -90,8 +90,8 @@ fn main() -> Result<()> {
                 //Defaults to wildcard
                 None => vec!["*"],
             };
-            let pretty = sub_matches.is_present("pretty");
-            info::info(patterns, &flavours_dir, pretty)
+            let color = sub_matches.is_present("color");
+            info::info(patterns, &flavours_dir, color)
         }
         _ => Err(anyhow!("No valid subcommand specified")),
     }

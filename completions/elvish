@@ -28,6 +28,7 @@ edit:completion:arg-completer[flavours] = [@words]{
             cand --version 'Prints version information'
             cand current 'Prints last applied scheme name'
             cand list 'Prints a list with all matching schemes'
+            cand info 'Shows scheme colors for all schemes matching pattern. Optionally uses truecolor'
             cand apply 'Applies scheme, according to user configuration'
             cand update 'Downloads schemes, templates, or updates their lists (from repos specified in sources.yml)'
         }
@@ -38,6 +39,12 @@ edit:completion:arg-completer[flavours] = [@words]{
         &'flavours;list'= {
             cand -l 'Print each scheme on its own line'
             cand --lines 'Print each scheme on its own line'
+            cand -h 'Prints help information'
+            cand --help 'Prints help information'
+        }
+        &'flavours;info'= {
+            cand -c 'Prints color codes with truecolor.'
+            cand --color 'Prints color codes with truecolor.'
             cand -h 'Prints help information'
             cand --help 'Prints help information'
         }
