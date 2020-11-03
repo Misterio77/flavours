@@ -10,6 +10,7 @@ pub fn build_cli() -> App<'static> {
         .setting(AppSettings::DisableHelpSubcommand)
         .setting(AppSettings::InferSubcommands)
         .setting(AppSettings::ArgRequiredElseHelp)
+        .setting(AppSettings::ColoredHelp)
         .arg(
             Arg::new("verbose")
             .about("Be more verbose")
@@ -49,6 +50,7 @@ pub fn build_cli() -> App<'static> {
                 .setting(AppSettings::DeriveDisplayOrder)
                 .setting(AppSettings::DisableHelpSubcommand)
                 .setting(AppSettings::DisableVersion)
+                .setting(AppSettings::ColoredHelp)
         )
         .subcommand(
             App::new("list")
@@ -57,6 +59,7 @@ pub fn build_cli() -> App<'static> {
                 .setting(AppSettings::DeriveDisplayOrder)
                 .setting(AppSettings::DisableHelpSubcommand)
                 .setting(AppSettings::DisableVersion)
+                .setting(AppSettings::ColoredHelp)
                 .arg(
                     Arg::new("pattern")
                         .about("Scheme name or glob pattern to match when listing scheme(s). If ommited, defaults to * (all installed schemes).")
@@ -78,6 +81,7 @@ pub fn build_cli() -> App<'static> {
                 .setting(AppSettings::DeriveDisplayOrder)
                 .setting(AppSettings::DisableHelpSubcommand)
                 .setting(AppSettings::DisableVersion)
+                .setting(AppSettings::ColoredHelp)
                 .arg(
                     Arg::new("pattern")
                         .about("Scheme name or glob pattern to match when showing scheme(s). If ommited, defaults to * (all installed schemes).")
@@ -99,6 +103,7 @@ pub fn build_cli() -> App<'static> {
                 .setting(AppSettings::DeriveDisplayOrder)
                 .setting(AppSettings::DisableHelpSubcommand)
                 .setting(AppSettings::DisableVersion)
+                .setting(AppSettings::ColoredHelp)
                 .arg(
                     Arg::new("pattern")
                         .about("Scheme to be applied, supports glob. If more than one is specified (or if glob pattern matched more than one), chooses one randomly. If ommited, defaults to * (all installed schemes).")
@@ -114,6 +119,7 @@ pub fn build_cli() -> App<'static> {
                 .setting(AppSettings::DeriveDisplayOrder)
                 .setting(AppSettings::DisableHelpSubcommand)
                 .setting(AppSettings::DisableVersion)
+                .setting(AppSettings::ColoredHelp)
                 .arg(
                     Arg::new("operation")
                         .value_name("operation")
