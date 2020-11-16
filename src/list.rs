@@ -30,7 +30,7 @@ pub fn list(patterns: Vec<&str>, base_dir: &path::Path, _verbose: bool, lines: b
     schemes.dedup();
 
     if schemes.is_empty() {
-        return Err(anyhow!("No matching scheme found"))
+        return Err(anyhow!("No matching scheme found"));
     };
 
     for scheme in &schemes {

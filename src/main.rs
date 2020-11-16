@@ -5,8 +5,10 @@ mod cli;
 
 mod apply;
 mod current;
+mod generate;
 mod info;
 mod list;
+mod scheme;
 mod update;
 
 mod completions;
@@ -92,6 +94,36 @@ fn main() -> Result<()> {
             };
             let color = sub_matches.is_present("color");
             info::info(patterns, &flavours_dir, color)
+        }
+
+        Some(("generate", sub_matches)) => {
+            let slug = match sub_matches.value_of("slug") {
+                Some(content) => content,
+                None => "generated",
+            };
+            let name = match sub_matches.value_of("name") {
+                Some(content) => content,
+                None => "Generated",
+            };
+            let author = match sub_matches.value_of("author") {
+                Some(content) => content,
+                None => "Flavours",
+            };
+
+            let image = match sub_matches.value_of("file") {
+                Some(content) => path::Path::new(content)
+                    .canonicalize()
+                    .with_context(|| "Invalid image file supplied"),
+                None => Err(anyhow!("No image file specified")),
+            }?;
+
+            let mode = match sub_matches.value_of("mode") {
+                Some("dark") => generate::Mode::Dark,
+                Some("light") => generate::Mode::Light,
+                _ => generate::Mode::Auto,
+            };
+
+            generate::generate(&image, slug, name, author, &flavours_dir, mode, verbose)
         }
         _ => Err(anyhow!("No valid subcommand specified")),
     }
