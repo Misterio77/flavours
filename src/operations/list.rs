@@ -1,9 +1,7 @@
-use std::path;
-
 use anyhow::{anyhow, Result};
+use std::path::Path;
 
-#[path = "find.rs"]
-mod find;
+use crate::find::find;
 
 /// List subcommand
 ///
@@ -11,10 +9,10 @@ mod find;
 /// * `base_dir` - flavours base data dir
 /// * `verbose` - Should we be verbose? (unused)
 /// * `lines` - Should we print each scheme on its own line?
-pub fn list(patterns: Vec<&str>, base_dir: &path::Path, _verbose: bool, lines: bool) -> Result<()> {
+pub fn list(patterns: Vec<&str>, base_dir: &Path, _verbose: bool, lines: bool) -> Result<()> {
     let mut schemes = Vec::new();
     for pattern in patterns {
-        let found_schemes = find::find(pattern, &base_dir.join("base16").join("schemes"))?;
+        let found_schemes = find(pattern, &base_dir.join("base16").join("schemes"))?;
 
         for found_scheme in found_schemes {
             schemes.push(String::from(

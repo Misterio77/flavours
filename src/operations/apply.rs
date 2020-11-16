@@ -1,35 +1,14 @@
+use anyhow::{anyhow, Context, Result};
+use rand::seq::SliceRandom;
 use std::fs;
 use std::path;
 use std::process;
 use std::str;
 use std::thread;
 
-use anyhow::{anyhow, Context, Result};
-use rand::seq::SliceRandom;
-use serde::Deserialize;
-
-#[path = "find.rs"]
-mod find;
-
-#[path = "scheme.rs"]
-mod scheme;
-
-#[derive(Deserialize, Debug)]
-struct Config {
-    item: Option<Vec<ConfigItem>>,
-}
-
-/// Structure for configuration items
-#[derive(Deserialize, Debug)]
-struct ConfigItem {
-    file: String,
-    template: String,
-    subtemplate: Option<String>,
-    hook: Option<String>,
-    rewrite: Option<bool>,
-    start: Option<String>,
-    end: Option<String>,
-}
+use crate::scheme::Scheme;
+use crate::config::Config;
+use crate::find::find;
 
 /// Picks a random path, from given vec
 /// * `values` - Vec with paths
@@ -121,96 +100,75 @@ fn replace_delimiter(
 
 /// Build a template
 ///
-/// Given template base, scheme and scheme slug, builds the template and returns it
+/// Given template base and scheme, builds the template and returns it
 ///
 /// * `template_base` - Template base string
 /// * `scheme` - Scheme structure
-/// * `scheme_slug` - Scheme slug
-fn build_template(
-    template_base: String,
-    scheme: &scheme::Scheme,
-    scheme_slug: &str,
-) -> Result<String> {
+fn build_template(template_base: String, scheme: &Scheme) -> Result<String> {
     let mut built_template = template_base;
     built_template = built_template
-        .replace("{{scheme-name}}", &scheme.scheme)
+        .replace("{{scheme-name}}", &scheme.name)
         .replace("{{scheme-author}}", &scheme.author)
-        .replace("{{scheme-slug}}", &scheme_slug);
-    for (hex, name) in [
-        (&scheme.base00, "base00"),
-        (&scheme.base01, "base01"),
-        (&scheme.base02, "base02"),
-        (&scheme.base03, "base03"),
-        (&scheme.base04, "base04"),
-        (&scheme.base05, "base05"),
-        (&scheme.base06, "base06"),
-        (&scheme.base07, "base07"),
-        (&scheme.base08, "base08"),
-        (&scheme.base09, "base09"),
-        (&scheme.base0A, "base0A"),
-        (&scheme.base0B, "base0B"),
-        (&scheme.base0C, "base0C"),
-        (&scheme.base0D, "base0D"),
-        (&scheme.base0E, "base0E"),
-        (&scheme.base0F, "base0F"),
-    ]
-    .iter()
-    {
-        let rgb = hex::decode(hex)?;
+        .replace("{{scheme-slug}}", &scheme.slug);
+
+    for color in scheme.colors.iter() {
+        let name = &color.id;
+        let hex = &color.color;
+        let rgb = hex::decode(&hex)?;
         built_template = built_template
             .replace(
                 //hex
-                &format!("{{{{{}-hex}}}}", name),
-                hex,
+                &format!("{{{{base0{:X}-hex}}}}", name),
+                &hex,
             )
             .replace(
                 //hex-r
-                &format!("{{{{{}-hex-r}}}}", name),
+                &format!("{{{{base0{:X}-hex-r}}}}", name),
                 &hex[0..2],
             )
             .replace(
                 //hex-g
-                &format!("{{{{{}-hex-g}}}}", name),
+                &format!("{{{{base0{:X}-hex-g}}}}", name),
                 &hex[2..4],
             )
             .replace(
                 //hex-b
-                &format!("{{{{{}-hex-b}}}}", name),
+                &format!("{{{{base0{:X}-hex-b}}}}", name),
                 &hex[4..6],
             )
             .replace(
                 //hex-bgr
-                &format!("{{{{{}-hex-bgr}}}}", name),
+                &format!("{{{{base0{:X}-hex-bgr}}}}", name),
                 &format!("{}{}{}", &hex[4..6], &hex[2..4], &hex[0..2]),
             )
             .replace(
                 //rgb-r
-                &format!("{{{{{}-rgb-r}}}}", name),
+                &format!("{{{{base0{:X}-rgb-r}}}}", name),
                 &format!("{}", rgb[0]),
             )
             .replace(
                 //rgb-g
-                &format!("{{{{{}-rgb-g}}}}", name),
+                &format!("{{{{base0{:X}-rgb-g}}}}", name),
                 &format!("{}", rgb[1]),
             )
             .replace(
                 //rgb-b
-                &format!("{{{{{}-rgb-b}}}}", name),
+                &format!("{{{{base0{:X}-rgb-b}}}}", name),
                 &format!("{}", rgb[2]),
             )
             .replace(
                 //dec-r
-                &format!("{{{{{}-dec-r}}}}", name),
+                &format!("{{{{base0{:X}-dec-r}}}}", name),
                 &format!("{:.2}", (rgb[0] as f64) / (255_f64)),
             )
             .replace(
                 //dec-g
-                &format!("{{{{{}-dec-g}}}}", name),
+                &format!("{{{{base0{:X}-dec-g}}}}", name),
                 &format!("{:.2}", (rgb[1] as f64) / (255_f64)),
             )
             .replace(
                 //dec-b
-                &format!("{{{{{}-dec-b}}}}", name),
+                &format!("{{{{base0{:X}-dec-b}}}}", name),
                 &format!("{:.2}", (rgb[2] as f64) / (255_f64)),
             )
     }
@@ -232,7 +190,7 @@ pub fn apply(
     //Find schemes that match given patterns
     let mut schemes = Vec::new();
     for pattern in patterns {
-        let found_schemes = find::find(pattern, &base_dir.join("base16").join("schemes"))?;
+        let found_schemes = find(pattern, &base_dir.join("base16").join("schemes"))?;
 
         for found_scheme in found_schemes {
             schemes.push(found_scheme);
@@ -250,17 +208,16 @@ pub fn apply(
         .to_str()
         .ok_or_else(|| anyhow!("Couldn't convert scheme file name."))?;
 
-    //Read chosen scheme, store its data
-    let scheme = scheme::parse_scheme(
-        &fs::read_to_string(&scheme_file)
-            .with_context(|| format!("Couldn't read scheme file at {:?}.", scheme_file))?,
-        scheme_slug,
-    )?;
+    //Read chosen scheme
+    let scheme_contents = &fs::read_to_string(&scheme_file)
+        .with_context(|| format!("Couldn't read scheme file at {:?}.", scheme_file))?;
+
+    let scheme = Scheme::from_str(scheme_contents, scheme_slug)?;
 
     if verbose {
         println!(
             "Using scheme: {} ({}), by {}",
-            scheme.scheme, scheme_slug, scheme.author
+            scheme.name, scheme.slug, scheme.author
         );
         println!();
     }
@@ -289,47 +246,45 @@ pub fn apply(
     let config_contents = fs::read_to_string(config_path)
         .with_context(|| format!("Couldn't read configuration file {:?}.", config_path))?;
 
-    let config_parsed: Config = toml::from_str(&config_contents).with_context(|| {
-        "Couldn't parse configuration file. Check if it's syntatically correct."
-    })?;
-
-    let items = config_parsed.item.ok_or_else(||anyhow!("Couldn't get items from config file. Check the default file or github for config examples."))?;
+    let config = Config::from_str(&config_contents)?;
 
     let mut hooks = Vec::new();
 
     //Iterate configurated entries (templates)
-    for item in items {
+    let items = config.item.ok_or_else(|| anyhow!("Couldn't get items from config file. Check the default file or github for config examples."))?;
+
+    for item in items.iter() {
         //File to write
         let file = path::Path::new(&shellexpand::full(&item.file)?.to_string())
             .canonicalize()
             .with_context(|| format!("Invalid file to write: {}.", item.file))?;
         //Template name
-        let template = item.template;
+        let template = &item.template;
         //Subtemplate name
-        let subtemplate = match item.subtemplate {
-            Some(value) => value,
+        let subtemplate = match &item.subtemplate {
+            Some(value) => String::from(value),
             None => String::from("default"),
         };
         //Hook command
-        let hook = match item.hook {
-            Some(value) => value,
+        let hook = match &item.hook {
+            Some(value) => String::from(value),
             None => String::from(""),
         };
         //Rewrite or replace
-        let rewrite = match item.rewrite {
-            Some(value) => value,
+        let rewrite = match &item.rewrite {
+            Some(value) => *value,
             None => false,
         };
         //Replace start delimiter
-        let start = match item.start {
-            Some(value) => value,
+        let start = match &item.start {
+            Some(value) => String::from(value),
             None => String::from("# Start flavours"),
         }
         .trim()
         .to_lowercase();
         //Replace end delimiter
-        let end = match item.end {
-            Some(value) => value,
+        let end = match &item.end {
+            Some(value) => String::from(value),
             None => String::from("# End flavours"),
         }
         .trim()
@@ -348,7 +303,7 @@ pub fn apply(
                        .with_context(||format!("Couldn't read template {}/{} at {:?}. Check if the correct template/subtemplate was specified, and run the update templates command if you didn't already.", template, subtemplate, subtemplate_file))?;
 
         //Template with correct colors
-        let built_template = build_template(template_content, &scheme, scheme_slug)?;
+        let built_template = build_template(template_content, &scheme)?;
 
         //Rewrite file with built template
         if rewrite {
@@ -374,7 +329,7 @@ pub fn apply(
     }
 
     let last_scheme_file = &base_dir.join("lastscheme");
-    fs::write(&last_scheme_file, scheme_slug)
+    fs::write(&last_scheme_file, &scheme.slug)
         .with_context(|| "Couldn't update applied scheme name")?;
 
     while !hooks.is_empty() {
@@ -386,7 +341,7 @@ pub fn apply(
     }
 
     if verbose {
-        println!("Successfully applied {}", scheme_slug);
+        println!("Successfully applied {}", &scheme.slug);
     }
     Ok(())
 }

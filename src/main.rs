@@ -1,17 +1,14 @@
 use anyhow::{anyhow, Context, Result};
-use std::path;
+use std::path::Path;
+use dirs::{data_dir, config_dir};
 
+mod find;
 mod cli;
-
-mod apply;
-mod current;
-mod generate;
-mod info;
-mod list;
+mod operations;
 mod scheme;
-mod update;
-
+mod config;
 mod completions;
+use operations::{apply, current, generate, info, list, update};
 
 fn main() -> Result<()> {
     let matches = cli::build_cli().get_matches();
@@ -24,11 +21,11 @@ fn main() -> Result<()> {
     // Flavours data directory
     let flavours_dir = match matches.value_of("directory") {
         // User supplied
-        Some(argument) => path::Path::new(argument)
+        Some(argument) => Path::new(argument)
             .canonicalize()
             .with_context(|| "Invalid data directory supplied")?,
         // Use default path instead
-        None => dirs::data_dir()
+        None => data_dir()
             .ok_or_else(|| anyhow!("Error getting default data directory"))?
             .join("flavours"),
     };
@@ -37,11 +34,11 @@ fn main() -> Result<()> {
     let flavours_config = match matches.value_of("config") {
         // User supplied
         // Make it canonical, then PathBuf (owned path)
-        Some(argument) => path::Path::new(argument)
+        Some(argument) => Path::new(argument)
             .canonicalize()
             .with_context(|| "Invalid config file supplied")?,
         // Use default file instead
-        None => dirs::config_dir()
+        None => config_dir()
             .ok_or_else(|| anyhow!("Error getting default config directory"))?
             .join("flavours")
             .join("config.toml"),
@@ -111,7 +108,7 @@ fn main() -> Result<()> {
             };
 
             let image = match sub_matches.value_of("file") {
-                Some(content) => path::Path::new(content)
+                Some(content) => Path::new(content)
                     .canonicalize()
                     .with_context(|| "Invalid image file supplied"),
                 None => Err(anyhow!("No image file specified")),

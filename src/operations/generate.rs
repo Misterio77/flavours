@@ -1,13 +1,8 @@
-use std::path;
-
 use anyhow::{anyhow, Result};
-use palette::{luma::Luma, rgb::Rgb, Hsl, Blend};
+use palette::{luma::Luma, rgb::Rgb, Blend, Hsl};
+use std::path::Path;
 
-#[path = "scheme.rs"]
-mod scheme;
-
-#[path = "info.rs"]
-mod info;
+use crate::operations::info;
 
 pub enum Mode {
     Light,
@@ -36,10 +31,10 @@ fn color_pass(
         let (luma,) = color_luma.into_components();
         let color_hsl: Hsl = Hsl::from(color);
         let (_, saturation, _) = color_hsl.into_components();
-        if (max_luma == None || luma <= max_luma.unwrap()) &&
-           (min_luma == None || luma >= min_luma.unwrap()) &&
-           (max_saturation == None || saturation <= max_saturation.unwrap()) &&
-           (min_saturation == None || saturation >= min_saturation.unwrap())
+        if (max_luma == None || luma <= max_luma.unwrap())
+            && (min_luma == None || luma >= min_luma.unwrap())
+            && (max_saturation == None || saturation <= max_saturation.unwrap())
+            && (min_saturation == None || saturation >= min_saturation.unwrap())
         {
             chosen = Some(color);
             break;
@@ -50,97 +45,129 @@ fn color_pass(
 }
 
 fn light_color(colors: &[Rgb], verbose: bool) -> Result<Rgb> {
-    if verbose { print!("Searching best light color... "); }
+    if verbose {
+        print!("Searching best light color... ");
+    }
     // Try to find a nice light color with low saturation
-    if verbose { print!("1... "); }
+    if verbose {
+        print!("1... ");
+    }
     let mut light = color_pass(colors, Some(0.85), None, None, Some(0.4));
 
     // Try again, but now we will accept saturated colors, as long as they're very bright
     if light == None {
-        if verbose { print!("2... "); }
+        if verbose {
+            print!("2... ");
+        }
         light = color_pass(colors, Some(0.9), None, None, Some(0.85));
     }
 
     // Try again, same as first, but a little more permissive
     if light == None {
-        if verbose { print!("3... "); }
+        if verbose {
+            print!("3... ");
+        }
         light = color_pass(colors, Some(0.75), None, None, Some(0.5));
     }
 
     // Try again, but accept more saturated colors
     if light == None {
-        if verbose { print!("4... "); }
+        if verbose {
+            print!("4... ");
+        }
         light = color_pass(colors, Some(0.8), None, None, Some(0.85));
     }
 
     // Try again, but now we will accept darker colors, as long as they're not saturated
     if light == None {
-        if verbose { print!("5... "); }
+        if verbose {
+            print!("5... ");
+        }
         light = color_pass(colors, Some(0.65), None, None, Some(0.4));
     }
 
     // Try again, but now we will accept even more saturated colors
     if light == None {
-        if verbose { print!("6... "); }
+        if verbose {
+            print!("6... ");
+        }
         light = color_pass(colors, Some(0.65), None, None, None);
     }
 
     // Try again, with darker colors
     if light == None {
-        if verbose { print!("7... "); }
+        if verbose {
+            print!("7... ");
+        }
         light = color_pass(colors, Some(0.5), None, None, None);
     }
 
     // Ok, we didn't find anything usable. So let's just grab the most dominant color (we'll lighten it later)
     if light == None {
-        if verbose { print!("Giving up."); }
+        if verbose {
+            print!("Giving up.");
+        }
         light = match colors.first() {
             Some(color) => Some(*color),
             None => None,
         };
     }
-    if verbose { println!(); }
+    if verbose {
+        println!();
+    }
 
     light.ok_or_else(|| anyhow!("Failed to find colors on image"))
 }
 
 fn dark_color(colors: &[Rgb], verbose: bool) -> Result<Rgb> {
-    if verbose { print!("Searching best dark color..."); }
+    if verbose {
+        print!("Searching best dark color...");
+    }
     // Try to find a nice darkish color with at least a bit of color
-    if verbose { print!("1... "); }
+    if verbose {
+        print!("1... ");
+    }
     let mut dark = color_pass(colors, Some(0.08), Some(0.3), Some(0.18), None);
 
     // Try again, but now we will accept color with less saturation
     if dark == None {
-        if verbose { print!("2... "); }
+        if verbose {
+            print!("2... ");
+        }
         dark = color_pass(colors, Some(0.08), Some(0.3), None, None);
     }
 
     // Try again, but now we will accept black(ish) colors too
     if dark == None {
-        if verbose { print!("3..."); }
+        if verbose {
+            print!("3...");
+        }
         dark = color_pass(colors, None, Some(0.3), None, None);
     }
 
     // Ok, we didn't find anything usable. So let's just grab the most dominant color (we'll darken it later)
     if dark == None {
-        if verbose { print!("Giving up."); }
+        if verbose {
+            print!("Giving up.");
+        }
         dark = match colors.first() {
             Some(color) => Some(*color),
             None => None,
         };
     }
-    if verbose { println!(); }
+    if verbose {
+        println!();
+    }
 
     dark.ok_or_else(|| anyhow!("Failed to find colors on image"))
 }
 
 pub fn generate(
-    image_path: &path::Path,
+    image_path: &Path,
     slug: &str,
     name: &str,
     author: &str,
-    base_dir: &path::Path,
+    base_dir: &Path,
     mode: Mode,
     verbose: bool,
 ) -> Result<()> {
