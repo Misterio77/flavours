@@ -1,9 +1,9 @@
-use serde::Deserialize;
 use anyhow::{Context, Result};
+use serde::{Deserialize, Serialize};
 
 /// Structure for schemes
 #[allow(non_snake_case)]
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct Scheme {
     pub scheme: String,
     pub author: String,
@@ -35,4 +35,14 @@ pub fn parse_scheme(input: &str, scheme_slug: &str) -> Result<Scheme> {
         )
     })?;
     Ok(scheme)
+}
+
+/// Turns a Scheme struct into a yaml string
+/// * `input` - Scheme struct
+/// * `scheme_slug` - Scheme slug name
+pub fn serialize_scheme(input: &Scheme, scheme_slug: &str) -> Result<String> {
+    let output = serde_yaml::to_string(&input)
+        .with_context(|| format!("Couldn't serialize scheme {} into YAML.", scheme_slug))?;
+
+    Ok(output)
 }

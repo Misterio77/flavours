@@ -126,7 +126,11 @@ fn replace_delimiter(
 /// * `template_base` - Template base string
 /// * `scheme` - Scheme structure
 /// * `scheme_slug` - Scheme slug
-fn build_template(template_base: String, scheme: &scheme::Scheme, scheme_slug: &str) -> Result<String> {
+fn build_template(
+    template_base: String,
+    scheme: &scheme::Scheme,
+    scheme_slug: &str,
+) -> Result<String> {
     let mut built_template = template_base;
     built_template = built_template
         .replace("{{scheme-name}}", &scheme.scheme)
