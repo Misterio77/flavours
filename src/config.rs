@@ -1,5 +1,5 @@
-use serde::Deserialize;
 use anyhow::{Context, Result};
+use serde::Deserialize;
 
 /// Structure for configuration
 #[derive(Deserialize, Debug)]

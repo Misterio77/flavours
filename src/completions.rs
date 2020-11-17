@@ -1,6 +1,6 @@
-use std::io::stdout;
-use anyhow::Result;
 use crate::cli::build_cli;
+use anyhow::Result;
+use std::io::stdout;
 
 use clap_generate::{
     generate,

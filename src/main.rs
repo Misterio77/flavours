@@ -1,14 +1,16 @@
 use anyhow::{anyhow, Context, Result};
+use dirs::{config_dir, data_dir};
 use std::path::Path;
-use dirs::{data_dir, config_dir};
 
-mod find;
 mod cli;
+mod completions;
+mod config;
+mod find;
 mod operations;
 mod scheme;
-mod config;
-mod completions;
+
 use operations::{apply, current, generate, info, list, update};
+use scheme::Scheme;
 
 fn main() -> Result<()> {
     let matches = cli::build_cli().get_matches();
@@ -89,23 +91,24 @@ fn main() -> Result<()> {
                 //Defaults to wildcard
                 None => vec!["*"],
             };
-            let color = sub_matches.is_present("color");
-            info::info(patterns, &flavours_dir, color)
+            let raw = sub_matches.is_present("raw");
+            info::info(patterns, &flavours_dir, raw)
         }
 
         Some(("generate", sub_matches)) => {
-            let slug = match sub_matches.value_of("slug") {
+            let mut scheme = Scheme::default();
+            scheme.slug = String::from(match sub_matches.value_of("slug") {
                 Some(content) => content,
                 None => "generated",
-            };
-            let name = match sub_matches.value_of("name") {
+            });
+            scheme.name = String::from(match sub_matches.value_of("name") {
                 Some(content) => content,
                 None => "Generated",
-            };
-            let author = match sub_matches.value_of("author") {
+            });
+            scheme.author = String::from(match sub_matches.value_of("author") {
                 Some(content) => content,
                 None => "Flavours",
-            };
+            });
 
             let image = match sub_matches.value_of("file") {
                 Some(content) => Path::new(content)
@@ -115,12 +118,14 @@ fn main() -> Result<()> {
             }?;
 
             let mode = match sub_matches.value_of("mode") {
-                Some("dark") => generate::Mode::Dark,
-                Some("light") => generate::Mode::Light,
-                _ => generate::Mode::Auto,
-            };
+                Some("dark") => Ok(generate::Mode::Dark),
+                Some("light") => Ok(generate::Mode::Light),
+                _ => Err(anyhow!("No valid mode specified")),
+            }?;
 
-            generate::generate(&image, slug, name, author, &flavours_dir, mode, verbose)
+            let to_stdout = sub_matches.is_present("stdout");
+
+            generate::generate(&image, scheme, mode, &flavours_dir, verbose, to_stdout)
         }
         _ => Err(anyhow!("No valid subcommand specified")),
     }

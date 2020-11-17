@@ -7,6 +7,7 @@ complete -c flavours -n "__fish_use_subcommand" -s V -l version -d 'Prints versi
 complete -c flavours -n "__fish_use_subcommand" -f -a "current" -d 'Prints last applied scheme name'
 complete -c flavours -n "__fish_use_subcommand" -f -a "list" -d 'Prints a list with all matching schemes'
 complete -c flavours -n "__fish_use_subcommand" -f -a "info" -d 'Shows scheme colors for all schemes matching pattern. Optionally uses truecolor'
+complete -c flavours -n "__fish_use_subcommand" -f -a "generate" -d 'Generates a scheme based on an image'
 complete -c flavours -n "__fish_use_subcommand" -f -a "apply" -d 'Applies scheme, according to user configuration'
 complete -c flavours -n "__fish_use_subcommand" -f -a "update" -d 'Downloads schemes, templates, or updates their lists (from repos specified in sources.yml)'
 complete -c flavours -n "__fish_seen_subcommand_from current" -s h -l help -d 'Prints help information'
@@ -14,8 +15,15 @@ complete -c flavours -n "__fish_seen_subcommand_from list" -d 'Scheme name or gl
 complete -c flavours -n "__fish_seen_subcommand_from list" -s l -l lines -d 'Print each scheme on its own line'
 complete -c flavours -n "__fish_seen_subcommand_from list" -s h -l help -d 'Prints help information'
 complete -c flavours -n "__fish_seen_subcommand_from info" -d 'Scheme name or glob pattern to match when showing scheme(s). If ommited, defaults to * (all installed schemes).' -r -f -a "(flavours list -l)"
-complete -c flavours -n "__fish_seen_subcommand_from info" -s c -l color -d 'Prints color codes with truecolor.'
+complete -c flavours -n "__fish_seen_subcommand_from info" -s r -l raw -d 'Don\'t pretty print the colors.'
 complete -c flavours -n "__fish_seen_subcommand_from info" -s h -l help -d 'Prints help information'
+complete -c flavours -n "__fish_seen_subcommand_from generate" -d 'Whether to generate a dark or light scheme' -r -f -a "dark light"
+complete -c flavours -n "__fish_seen_subcommand_from generate" -d 'Which image file to use.' -r -F
+complete -c flavours -n "__fish_seen_subcommand_from generate" -s s -l slug -d 'Scheme slug (the name you specify when applying schemes) to output to. If ommited, defaults to \'generated\'' -r -f -a "(flavours list -l)"
+complete -c flavours -n "__fish_seen_subcommand_from generate" -s n -l name -d 'Scheme display name (can include spaces and capitalization) to write, defaults to \'Generated\'' -r -f
+complete -c flavours -n "__fish_seen_subcommand_from generate" -s a -l author -d 'Scheme author info (name, email, etc) to write, defaults to \'Flavours\'' -r -f
+complete -c flavours -n "__fish_seen_subcommand_from generate" -l stdout -d 'Outputs scheme to stdout instead of writing it to a file.'
+complete -c flavours -n "__fish_seen_subcommand_from generate" -s h -l help -d 'Prints help information'
 complete -c flavours -n "__fish_seen_subcommand_from apply" -d 'Scheme to be applied, supports glob. If more than one is specified (or if glob pattern matched more than one), chooses one randomly. If ommited, defaults to * (all installed schemes).' -r -f -a "(flavours list -l)"
 complete -c flavours -n "__fish_seen_subcommand_from apply" -s h -l help -d 'Prints help information'
 complete -c flavours -n "__fish_seen_subcommand_from update" -d 'Update sources lists from repositories or (re)download schemes/templates specified in the lists. Default repositories for lists, and the lists themselves, can be manually changed.' -r -f -a "lists schemes templates all"

@@ -1,5 +1,7 @@
 use anyhow::{Context, Result};
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
+use std::collections::VecDeque;
+use std::fmt::Write;
 
 /// Structure that represents a scheme
 #[derive(Debug, Default)]
@@ -7,19 +9,12 @@ pub struct Scheme {
     pub slug: String,
     pub name: String,
     pub author: String,
-    pub colors: [SchemeColor; 16],
-}
-
-/// Structure that represents a single color item in a scheme
-#[derive(Debug, Default)]
-pub struct SchemeColor {
-    pub id: u8,
-    pub color: String,
+    pub colors: VecDeque<String>,
 }
 
 /// Structure for raw scheme
 #[allow(non_snake_case)]
-#[derive(Deserialize, Debug)]
+#[derive(Deserialize, Serialize, Debug, Default)]
 struct SchemeFile {
     scheme: String,
     author: String,
@@ -54,29 +49,34 @@ impl Scheme {
         scheme.slug = String::from(slug);
         scheme.name = scheme_file.scheme;
         scheme.author = scheme_file.author;
-
-        for (color, id) in [
-            (&scheme_file.base00, 0x00),
-            (&scheme_file.base01, 0x01),
-            (&scheme_file.base02, 0x02),
-            (&scheme_file.base03, 0x03),
-            (&scheme_file.base04, 0x04),
-            (&scheme_file.base05, 0x05),
-            (&scheme_file.base06, 0x06),
-            (&scheme_file.base07, 0x07),
-            (&scheme_file.base08, 0x08),
-            (&scheme_file.base09, 0x09),
-            (&scheme_file.base0A, 0x0A),
-            (&scheme_file.base0B, 0x0B),
-            (&scheme_file.base0C, 0x0C),
-            (&scheme_file.base0D, 0x0D),
-            (&scheme_file.base0E, 0x0E),
-            (&scheme_file.base0F, 0x0F),
-        ].iter() {
-            scheme.colors[*id as usize].color = color.to_string();
-            scheme.colors[*id as usize].id = *id as u8;
-        }
+        scheme.colors.push_back(scheme_file.base00);
+        scheme.colors.push_back(scheme_file.base01);
+        scheme.colors.push_back(scheme_file.base02);
+        scheme.colors.push_back(scheme_file.base03);
+        scheme.colors.push_back(scheme_file.base04);
+        scheme.colors.push_back(scheme_file.base05);
+        scheme.colors.push_back(scheme_file.base06);
+        scheme.colors.push_back(scheme_file.base07);
+        scheme.colors.push_back(scheme_file.base08);
+        scheme.colors.push_back(scheme_file.base09);
+        scheme.colors.push_back(scheme_file.base0A);
+        scheme.colors.push_back(scheme_file.base0B);
+        scheme.colors.push_back(scheme_file.base0C);
+        scheme.colors.push_back(scheme_file.base0D);
+        scheme.colors.push_back(scheme_file.base0E);
+        scheme.colors.push_back(scheme_file.base0F);
 
         Ok(scheme)
+    }
+    pub fn to_string(&self) -> Result<String> {
+        let mut string = String::new();
+
+        writeln!(&mut string, "scheme: \"{}\"", self.name)?;
+        writeln!(&mut string, "author: \"{}\"", self.author)?;
+
+        for (i, color) in self.colors.iter().enumerate() {
+            writeln!(&mut string, "base0{:X}: \"{}\"", i, color)?;
+        }
+        Ok(string)
     }
 }

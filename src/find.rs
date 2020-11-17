@@ -1,7 +1,7 @@
-use std::path;
 use anyhow::{anyhow, Result};
 use glob::glob;
-use path::{PathBuf, Path};
+use path::{Path, PathBuf};
+use std::path;
 
 /// Find function
 ///

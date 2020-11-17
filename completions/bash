@@ -19,6 +19,9 @@ _flavours() {
             current)
                 cmd+="__current"
                 ;;
+            generate)
+                cmd+="__generate"
+                ;;
             info)
                 cmd+="__info"
                 ;;
@@ -35,7 +38,7 @@ _flavours() {
 
     case "${cmd}" in
         flavours)
-            opts=" -v -c -d -h -V  --verbose --config --directory --completions --help --version  current list info apply update"
+            opts=" -v -c -d -h -V  --verbose --config --directory --completions --help --version  current list info generate apply update"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -100,8 +103,47 @@ _flavours() {
             COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
             return 0
             ;;
+        flavours__generate)
+            opts=" -s -n -a -h  --slug --name --author --stdout --help  <mode> <file> "
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                
+                --slug)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                    -s)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                --name)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                    -n)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                --author)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                    -a)
+                    COMPREPLY=($(compgen -f "${cur}"))
+                    return 0
+                    ;;
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
         flavours__info)
-            opts=" -c -h  --color --help  <pattern>... "
+            opts=" -r -h  --raw --help  <pattern>... "
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0

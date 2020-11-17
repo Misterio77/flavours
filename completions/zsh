@@ -52,11 +52,26 @@ _arguments "${_arguments_options[@]}" \
 ;;
 (info)
 _arguments "${_arguments_options[@]}" \
-'-c[Prints color codes with truecolor.]' \
-'--color[Prints color codes with truecolor.]' \
+'-r[Don'\''t pretty print the colors.]' \
+'--raw[Don'\''t pretty print the colors.]' \
 '-h[Prints help information]' \
 '--help[Prints help information]' \
 '*::pattern -- Scheme name or glob pattern to match when showing scheme(s). If ommited, defaults to * (all installed schemes).:($(flavours list))' \
+&& ret=0
+;;
+(generate)
+_arguments "${_arguments_options[@]}" \
+'-s+[Scheme slug (the name you specify when applying schemes) to output to. If ommited, defaults to '\''generated'\'']: :($(flavours list))' \
+'--slug=[Scheme slug (the name you specify when applying schemes) to output to. If ommited, defaults to '\''generated'\'']: :($(flavours list))' \
+'-n+[Scheme display name (can include spaces and capitalization) to write, defaults to '\''Generated'\'']: :( )' \
+'--name=[Scheme display name (can include spaces and capitalization) to write, defaults to '\''Generated'\'']: :( )' \
+'-a+[Scheme author info (name, email, etc) to write, defaults to '\''Flavours'\'']: :( )' \
+'--author=[Scheme author info (name, email, etc) to write, defaults to '\''Flavours'\'']: :( )' \
+'--stdout[Outputs scheme to stdout instead of writing it to a file.]' \
+'-h[Prints help information]' \
+'--help[Prints help information]' \
+':mode -- Whether to generate a dark or light scheme:(dark light)' \
+':file -- Which image file to use.:_files' \
 && ret=0
 ;;
 (apply)
@@ -84,6 +99,7 @@ _flavours_commands() {
         "current:Prints last applied scheme name" \
 "list:Prints a list with all matching schemes" \
 "info:Shows scheme colors for all schemes matching pattern. Optionally uses truecolor" \
+"generate:Generates a scheme based on an image" \
 "apply:Applies scheme, according to user configuration" \
 "update:Downloads schemes, templates, or updates their lists (from repos specified in sources.yml)" \
     )
@@ -102,6 +118,13 @@ _flavours__current_commands() {
         
     )
     _describe -t commands 'flavours current commands' commands "$@"
+}
+(( $+functions[_flavours__generate_commands] )) ||
+_flavours__generate_commands() {
+    local commands; commands=(
+        
+    )
+    _describe -t commands 'flavours generate commands' commands "$@"
 }
 (( $+functions[_flavours__info_commands] )) ||
 _flavours__info_commands() {

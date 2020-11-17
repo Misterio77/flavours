@@ -29,6 +29,7 @@ edit:completion:arg-completer[flavours] = [@words]{
             cand current 'Prints last applied scheme name'
             cand list 'Prints a list with all matching schemes'
             cand info 'Shows scheme colors for all schemes matching pattern. Optionally uses truecolor'
+            cand generate 'Generates a scheme based on an image'
             cand apply 'Applies scheme, according to user configuration'
             cand update 'Downloads schemes, templates, or updates their lists (from repos specified in sources.yml)'
         }
@@ -43,8 +44,19 @@ edit:completion:arg-completer[flavours] = [@words]{
             cand --help 'Prints help information'
         }
         &'flavours;info'= {
-            cand -c 'Prints color codes with truecolor.'
-            cand --color 'Prints color codes with truecolor.'
+            cand -r 'Don''t pretty print the colors.'
+            cand --raw 'Don''t pretty print the colors.'
+            cand -h 'Prints help information'
+            cand --help 'Prints help information'
+        }
+        &'flavours;generate'= {
+            cand -s 'Scheme slug (the name you specify when applying schemes) to output to. If ommited, defaults to ''generated'''
+            cand --slug 'Scheme slug (the name you specify when applying schemes) to output to. If ommited, defaults to ''generated'''
+            cand -n 'Scheme display name (can include spaces and capitalization) to write, defaults to ''Generated'''
+            cand --name 'Scheme display name (can include spaces and capitalization) to write, defaults to ''Generated'''
+            cand -a 'Scheme author info (name, email, etc) to write, defaults to ''Flavours'''
+            cand --author 'Scheme author info (name, email, etc) to write, defaults to ''Flavours'''
+            cand --stdout 'Outputs scheme to stdout instead of writing it to a file.'
             cand -h 'Prints help information'
             cand --help 'Prints help information'
         }

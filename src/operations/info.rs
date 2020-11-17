@@ -33,7 +33,7 @@ pub fn print_color(color: &str) -> Result<()> {
 /// * `base_dir` - flavours base data dir
 /// * `verbose` - Should we be verbose? (unused)
 /// * `color` - Should we print with colors?
-pub fn info(patterns: Vec<&str>, base_dir: &Path, color: bool) -> Result<()> {
+pub fn info(patterns: Vec<&str>, base_dir: &Path, raw: bool) -> Result<()> {
     let mut schemes = Vec::new();
     for pattern in patterns {
         let found_schemes = find(pattern, &base_dir.join("base16").join("schemes"))?;
@@ -68,13 +68,13 @@ pub fn info(patterns: Vec<&str>, base_dir: &Path, color: bool) -> Result<()> {
 
         println!("{} ({})", scheme.name, scheme.slug);
         println!("by {}", scheme.author);
-        if !color {
+        if raw {
             for color in scheme.colors.iter() {
-                println!("#{}", color.color);
+                println!("#{}", color);
             }
         } else {
             for color in scheme.colors.iter() {
-                print_color(&color.color)?;
+                print_color(color)?;
             }
         }
     }

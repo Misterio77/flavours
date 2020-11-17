@@ -6,9 +6,9 @@ use std::process;
 use std::str;
 use std::thread;
 
-use crate::scheme::Scheme;
 use crate::config::Config;
 use crate::find::find;
+use crate::scheme::Scheme;
 
 /// Picks a random path, from given vec
 /// * `values` - Vec with paths
@@ -111,9 +111,8 @@ fn build_template(template_base: String, scheme: &Scheme) -> Result<String> {
         .replace("{{scheme-author}}", &scheme.author)
         .replace("{{scheme-slug}}", &scheme.slug);
 
-    for color in scheme.colors.iter() {
-        let name = &color.id;
-        let hex = &color.color;
+    for (name, color) in scheme.colors.iter().enumerate() {
+        let hex = String::from(color);
         let rgb = hex::decode(&hex)?;
         built_template = built_template
             .replace(
@@ -254,10 +253,6 @@ pub fn apply(
     let items = config.item.ok_or_else(|| anyhow!("Couldn't get items from config file. Check the default file or github for config examples."))?;
 
     for item in items.iter() {
-        //File to write
-        let file = path::Path::new(&shellexpand::full(&item.file)?.to_string())
-            .canonicalize()
-            .with_context(|| format!("Invalid file to write: {}.", item.file))?;
         //Template name
         let template = &item.template;
         //Subtemplate name
@@ -303,7 +298,13 @@ pub fn apply(
                        .with_context(||format!("Couldn't read template {}/{} at {:?}. Check if the correct template/subtemplate was specified, and run the update templates command if you didn't already.", template, subtemplate, subtemplate_file))?;
 
         //Template with correct colors
-        let built_template = build_template(template_content, &scheme)?;
+        let built_template = build_template(template_content, &scheme)
+            .context("Couldn't replace placeholders. Check if all colors on the specified scheme file are valid (don't include a leading '#').")?;
+
+        //File to write
+        let file = path::Path::new(&shellexpand::full(&item.file)?.to_string())
+            .canonicalize()
+            .with_context(|| format!("Invalid file to write: {}.", item.file))?;
 
         //Rewrite file with built template
         if rewrite {
