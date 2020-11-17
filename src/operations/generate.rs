@@ -190,6 +190,7 @@ pub fn generate(
     if verbose {
         info::print_color(&to_hex(light)?)?;
         info::print_color(&to_hex(dark)?)?;
+        println!()
     }
 
     let (background, foreground) = match mode {
@@ -297,13 +298,17 @@ pub fn generate(
             .pop()
             .ok_or_else(|| anyhow!("Couldn't get accent colors from image"))?;
 
-        let luma = match mode {
-            Mode::Light => 0.2,
-            Mode::Dark => 0.6,
-        };
         color = {
             let yxy: Yxy = Yxy::from(color);
-            let (x, y, _) = yxy.into_components();
+            let (x, y, luma) = yxy.into_components();
+            let luma = match mode {
+                Mode::Light => {
+                    luma.min(0.12).max(0.1)
+                },
+                Mode::Dark => {
+                    luma.max(0.16)
+                }
+            };
             let yxy: Yxy = Yxy::from_components((x, y, luma));
             Rgb::from(yxy)
         };
