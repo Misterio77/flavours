@@ -1,7 +1,7 @@
-use anyhow::{anyhow, Result};
+use anyhow::{anyhow, Context, Result};
 use palette::rgb::Rgb;
 use palette::{Hsl, Yxy};
-use std::fs::write;
+use std::fs::{create_dir_all, write};
 use std::path::Path;
 
 use crate::operations::info;
@@ -302,12 +302,8 @@ pub fn generate(
             let yxy: Yxy = Yxy::from(color);
             let (x, y, luma) = yxy.into_components();
             let luma = match mode {
-                Mode::Light => {
-                    luma.min(0.12).max(0.1)
-                },
-                Mode::Dark => {
-                    luma.max(0.16)
-                }
+                Mode::Light => luma.min(0.12).max(0.1),
+                Mode::Dark => luma.max(0.16),
             };
             let yxy: Yxy = Yxy::from_components((x, y, luma));
             Rgb::from(yxy)
@@ -326,12 +322,14 @@ pub fn generate(
     if to_stdout {
         print!("{}", scheme_string);
     } else {
-        let path = base_dir
-            .join("base16")
-            .join("schemes")
-            .join("generated")
-            .join(format!("{}.yaml", scheme.slug));
-        write(path, scheme_string)?;
+        let path = base_dir.join("base16").join("schemes").join("generated");
+        if !path.exists() {
+            create_dir_all(&path)
+                .with_context(|| format!("Couldn't create directory {:?}", &path))?;
+        }
+        let file_path = &path.join(format!("{}.yaml", scheme.slug));
+        write(file_path, scheme_string)
+            .with_context(|| format!("Couldn't write scheme file at {:?}", path))?;
     }
 
     Ok(())
