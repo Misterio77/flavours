@@ -65,7 +65,10 @@ You can also use `flavours current` to see the last scheme you applied, `flavour
 
 Lastly, we have `flavours generate`, it can generate a scheme based on an image (usually your wallpaper), with the following syntax: `flavours generate <dark/light> /path/to/image/file`. By default, the scheme will be saved with the slug (the scheme name referenced in all other commands) `generated` (you can change it with `-s` or `--slug`, or output to stdout instead with `--stdout`).
 
-In my setup, i use feh to apply wallpapers, and i can get the current wallpaper with the command `cat .fehbg | tail -1 | cut -d "'" -f2`. So my flavours command to generate and apply a dark scheme matching my wallpaper would be:
+In my setup, i use feh to apply wallpapers, and i can get the current wallpaper with the command `cat .fehbg | tail -1 | cut -d "'" -f2`.
+
+So my flavours command to generate and apply a dark scheme matching my wallpaper would be:
+
 `flavours generate dark $(cat .fehbg | tail -1 | cut -d "'" -f2) && flavours apply generated`
 
 Which i include in the script i use to change my wallpapers randomly.
