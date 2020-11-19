@@ -44,9 +44,27 @@ You can use flavours and base16 templates to automatically inject schemes into a
 
 #### Setup
 Choose a [template](https://github.com/chriskempson/base16#template-repositories) for each app you want themed (or create your own).
-On these config files, place a start and end comment to tell flavours where to replace lines (defaults are `# Start flavours` and `# End flavours`).
 
-On flavours configuration (`~/.config/flavours/config.toml` on Linux), create a `[[item]]` section for each app. Specify a `file` and a `template` (optionally a `subtemplate`, a `hook` to execute, whether to use `rewrite` mode, or change the `start` and `end` lines), and vóila. You're now ready to apply schemes.
+On these config files, place a start and end comment to tell flavours where to **replace** lines (defaults are `# Start flavours` and `# End flavours`). These usually should be located where you set color options on your app configuration. If the specific app supports including colors from another file, or if the template provides the entire file, you can forgo the comments altogether and use the `rewrite=true` on flavours config.
+
+For reference, here's a couple configuration files from my [dots](https://github.com/Misterio77/dotfiles):
+- [zathura](https://github.com/Misterio77/dotfiles/blob/master/home/.config/zathura/zathurarc)
+- [dunst](https://github.com/Misterio77/dotfiles/blob/master/home/.config/dunst/dunstrc)
+- [polybar](https://github.com/Misterio77/dotfiles/blob/master/home/.config/polybar/config.ini)
+- [kitty](https://github.com/Misterio77/dotfiles/tree/master/home/.config/kitty) (rewrite mode)
+- [rofi](https://github.com/Misterio77/dotfiles/blob/master/home/.config/rofi/themes/styles/colors.rasi) (rewrite mode)
+
+
+On flavours configuration (`~/.config/flavours/config.toml` on Linux):
+- Create a `[[item]]` section for each app, each section can have the following entries:
+  - Specify the `file` to write (required)
+  - A `template` (required)
+  - A `subtemplate` (for when the template has one other than "default")
+  - A `hook` to execute (do keep in mind this currently **doesn't** go through your shell, so if you want to use bash syntax, do it like this: `hook='bash -c "my cool && bash stuff"')
+  - Whether to use `rewrite` mode (if you do, you don't need the start and end comments)
+  - Or change the `start` and `end` lines (useful for config files which comments are not started with `#`)
+
+Vóila. You're now ready to apply schemes.
 
 #### Applying
 `flavours apply` is the command you'll probably be using all the time. So it's built to be as useful as possible.
