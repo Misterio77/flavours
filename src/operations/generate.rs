@@ -214,18 +214,18 @@ pub fn generate(
             }
 
             // Background should be light have:
-            // luma >= 0.5 && saturation <= 0.35
+            // luma >= 0.7 && saturation <= 0.12
             let (saturation, luma) = grab_sat_luma(light);
-            if luma < 0.5 {
+            if luma < 0.75 {
                 let yxy: Yxy = Yxy::from(bg);
                 let (x, y, _) = yxy.into_components();
-                let yxy: Yxy = Yxy::from_components((x, y, 0.5));
+                let yxy: Yxy = Yxy::from_components((x, y, 0.75));
                 bg = Rgb::from(yxy);
             }
-            if saturation > 0.35 {
+            if saturation > 0.12 {
                 let hsl: Hsl = Hsl::from(bg);
                 let (h, _, l) = hsl.into_components();
-                let hsl: Hsl = Hsl::from_components((h, 0.35, l));
+                let hsl: Hsl = Hsl::from_components((h, 0.15, l));
                 bg = Rgb::from(hsl);
             }
             (bg, fg)
@@ -303,7 +303,7 @@ pub fn generate(
             let (x, y, luma) = yxy.into_components();
             let luma = match mode {
                 Mode::Light => luma.min(0.12).max(0.1),
-                Mode::Dark => luma.max(0.16),
+                Mode::Dark => luma.max(0.19),
             };
             let yxy: Yxy = Yxy::from_components((x, y, luma));
             Rgb::from(yxy)
