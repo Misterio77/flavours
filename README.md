@@ -51,15 +51,24 @@ On flavours configuration (`~/.config/flavours/config.toml` on Linux), create a 
 #### Applying
 `flavours apply` is the command you'll probably be using all the time. So it's built to be as useful as possible.
 
-If more than one scheme is specified or matched (with glob), flavours will choose one randomly.
-You can:
+The syntax is `flavours apply [PATTERN]`, where PATTERN can be a scheme name, multiple scheme name, a glob (such as `*light`) expression, or can be ommited.
+If more than one scheme is specified or matched, flavours will choose one randomly (`flavours apply *light` will pick one random scheme ending with light, and apply it).
+
+You can, for instance:
 - Specify a scheme: `flavours apply pasque`
-- Specify multiple: `flavours apply pasque paraiso atlas`
+- Specify multiple schemes: `flavours apply pasque paraiso atlas`
 - Use glob: `flavours apply "gruvbox*"`
 - Omit: `flavours apply` (is the same as running `flavours apply "*"`)
 
 #### Other commands
-You can also use `flavours current` to see the last scheme you applied, `flavours list` to list all available schemes (`-l` or `--lines` to print each in one line).
+You can also use `flavours current` to see the last scheme you applied, `flavours list` to list all available schemes (`-l` or `--lines` to print each in one line, you can also use PATTERN like on apply to list only specific scheme(s)), `flavours info` to show info (including truecolor colored output, `r` or `--raw` to disable) about some scheme(s) (also using the PATTERN syntax).
+
+Lastly, we have `flavours generate`, it can generate a scheme based on an image (usually your wallpaper), with the following syntax: `flavours generate <dark/light> /path/to/image/file`. By default, the scheme will be saved with the slug (the scheme name referenced in all other commands) `generated` (you can change it with `-s` or `--slug`, or output to stdout instead with `--stdout`).
+
+In my setup, i use feh to apply wallpapers, and i can get the current wallpaper with the command `cat .fehbg | tail -1 | cut -d "'" -f2`. So my flavours command to generate and apply a dark scheme matching my wallpaper would be:
+`flavours generate dark $(cat .fehbg | tail -1 | cut -d "'" -f2) && flavours apply generated`
+
+Which i include in the script i use to change my wallpapers randomly.
 
 ## Why
 Why use this instead of other base16 managers, or even pywal?
