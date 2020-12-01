@@ -51,7 +51,7 @@ For reference, here's a couple configuration files from my [dots](https://github
 - [zathura](https://github.com/Misterio77/dotfiles/blob/master/home/.config/zathura/zathurarc)
 - [dunst](https://github.com/Misterio77/dotfiles/blob/master/home/.config/dunst/dunstrc)
 - [polybar](https://github.com/Misterio77/dotfiles/blob/master/home/.config/polybar/config.ini)
-- [alacritty](https://github.com/Misterio77/dotfiles/tree/master/home/.config/alacritty/alacritty.yml) (rewrite mode)
+- [alacritty](https://github.com/Misterio77/dotfiles/tree/master/home/.config/alacritty/alacritty.yml) 
 - [rofi](https://github.com/Misterio77/dotfiles/blob/master/home/.config/rofi/themes/styles/colors.rasi) (rewrite mode)
 
 
