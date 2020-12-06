@@ -122,7 +122,7 @@ fn light_color(colors: &[Rgb], verbose: bool) -> Result<Rgb> {
 fn dark_color(colors: &[Rgb], verbose: bool) -> Result<Rgb> {
     let mut passes = 1;
     // Try to find a nice darkish color with at least a bit of color
-    let mut dark = color_pass(colors, Some(0.012), Some(0.1), Some(0.18), Some(0.8));
+    let mut dark = color_pass(colors, Some(0.012), Some(0.1), Some(0.18), Some(0.9));
 
     // Try again, but now we will accept colors with any saturations, as long long as they're dark but not very dark
     if dark == None {
@@ -249,12 +249,12 @@ pub fn generate(
                 fg = Rgb::from(hsl);
             }
             // Background should be dark and have:
-            // luma <= 0.03 && saturation <= 0.6
+            // luma <= 0.02 && saturation <= 0.6
             let (saturation, luma) = grab_sat_luma(dark);
-            if luma > 0.03 {
+            if luma > 0.02 {
                 let yxy: Yxy = Yxy::from(bg);
                 let (x, y, _) = yxy.into_components();
-                let yxy: Yxy = Yxy::from_components((x, y, 0.03));
+                let yxy: Yxy = Yxy::from_components((x, y, 0.02));
                 bg = Rgb::from(yxy);
             }
             if saturation > 0.6 {
