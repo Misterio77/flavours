@@ -1,6 +1,7 @@
 use anyhow::{anyhow, Context, Result};
 use std::fs::read_to_string;
 use std::path::Path;
+use calm_io::stdoutln;
 
 use crate::find::find;
 use crate::scheme::Scheme;
@@ -15,7 +16,7 @@ fn true_color(hex_color: &str, background: bool) -> Result<String> {
 
 pub fn print_color(color: &str) -> Result<()> {
     const RESETCOLOR: &str = "\x1b[0m";
-    println!(
+    match stdoutln!(
         "{} #{} {}  {}#{}{}",
         true_color(&color, true)?,
         color,
@@ -23,7 +24,13 @@ pub fn print_color(color: &str) -> Result<()> {
         true_color(&color, false)?,
         color,
         RESETCOLOR
-    );
+        ) {
+        Ok(_) => Ok(()),
+        Err(e) => match e.kind() {
+            std::io::ErrorKind::BrokenPipe => Ok(()),
+            _ => Err(e)
+        },
+    }?;
     Ok(())
 }
 
@@ -54,7 +61,13 @@ pub fn info(patterns: Vec<&str>, base_dir: &Path, raw: bool) -> Result<()> {
         if first {
             first = false;
         } else {
-            println!();
+            match stdoutln!() {
+                Ok(_) => Ok(()),
+                Err(e) => match e.kind() {
+                    std::io::ErrorKind::BrokenPipe => Ok(()),
+                    _ => Err(e)
+                },
+            }?;
         }
         let scheme_slug = scheme_file
             .file_stem()
@@ -66,11 +79,31 @@ pub fn info(patterns: Vec<&str>, base_dir: &Path, raw: bool) -> Result<()> {
 
         let scheme = Scheme::from_str(&scheme_contents, scheme_slug)?;
 
-        println!("{} ({})", scheme.name, scheme.slug);
-        println!("by {}", scheme.author);
+        match stdoutln!("{} ({})", scheme.name, scheme.slug) {
+            Ok(_) => Ok(()),
+            Err(e) => match e.kind() {
+                std::io::ErrorKind::BrokenPipe => Ok(()),
+                _ => Err(e)
+            },
+        }?;
+
+        match stdoutln!("by {}", scheme.author) {
+            Ok(_) => Ok(()),
+            Err(e) => match e.kind() {
+                std::io::ErrorKind::BrokenPipe => Ok(()),
+                _ => Err(e)
+            },
+        }?;
+
         if raw {
             for color in scheme.colors.iter() {
-                println!("#{}", color);
+                match stdoutln!("#{}", color) {
+                    Ok(_) => Ok(()),
+                    Err(e) => match e.kind() {
+                        std::io::ErrorKind::BrokenPipe => Ok(()),
+                        _ => Err(e)
+                    },
+                }?;
             }
         } else {
             for color in scheme.colors.iter() {
