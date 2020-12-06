@@ -44,22 +44,52 @@ You can use flavours and base16 templates to automatically inject schemes into a
 
 #### Setup
 Choose a [template](https://github.com/chriskempson/base16#template-repositories) for each app you want themed (or create your own).
-On these config files, place a start and end comment to tell flavours where to replace lines (defaults are `# Start flavours` and `# End flavours`).
 
-On flavours configuration (`~/.config/flavours/config.toml` on Linux), create a `[[item]]` section for each app. Specify a `file` and a `template` (optionally a `subtemplate`, a `hook` to execute, whether to use `rewrite` mode, or change the `start` and `end` lines), and vóila. You're now ready to apply schemes.
+On these config files, place a start and end comment to tell flavours where to **replace** lines (defaults are `# Start flavours` and `# End flavours`). These usually should be located where you set color options on your app configuration. If the specific app supports including colors from another file, or if the template provides the entire file, you can forgo the comments altogether and use the `rewrite=true` on flavours config.
+
+For reference, here's a couple configuration files from my [dots](https://github.com/Misterio77/dotfiles):
+- [zathura](https://github.com/Misterio77/dotfiles/blob/master/home/.config/zathura/zathurarc)
+- [dunst](https://github.com/Misterio77/dotfiles/blob/master/home/.config/dunst/dunstrc)
+- [polybar](https://github.com/Misterio77/dotfiles/blob/master/home/.config/polybar/config.ini)
+- [alacritty](https://github.com/Misterio77/dotfiles/tree/master/home/.config/alacritty/alacritty.yml) 
+- [rofi](https://github.com/Misterio77/dotfiles/blob/master/home/.config/rofi/themes/styles/colors.rasi) (rewrite mode)
+
+
+On flavours configuration (`~/.config/flavours/config.toml` on Linux):
+- Create a `[[item]]` section for each app, each section can have the following entries:
+  - Specify the `file` to write (required)
+  - A `template` (required)
+  - A `subtemplate` (for when the template has one other than "default")
+  - A `hook` to execute (do keep in mind this currently **doesn't** go through your shell, so if you want to use bash syntax, do it like this: `hook='bash -c "my cool && bash stuff"'`)
+  - Whether to use `rewrite` mode (if you do, you don't need the start and end comments)
+  - Or change the `start` and `end` lines (useful for config files which comments are not started with `#`)
+
+Vóila. You're now ready to apply schemes.
 
 #### Applying
 `flavours apply` is the command you'll probably be using all the time. So it's built to be as useful as possible.
 
-If more than one scheme is specified or matched (with glob), flavours will choose one randomly.
-You can:
+The syntax is `flavours apply [PATTERN]`, where PATTERN can be a scheme name, multiple scheme name, a glob (such as `*light`) expression, or can be ommited.
+If more than one scheme is specified or matched, flavours will choose one randomly (`flavours apply *light` will pick one random scheme ending with light, and apply it).
+
+You can, for instance:
 - Specify a scheme: `flavours apply pasque`
-- Specify multiple: `flavours apply pasque paraiso atlas`
+- Specify multiple schemes: `flavours apply pasque paraiso atlas`
 - Use glob: `flavours apply "gruvbox*"`
 - Omit: `flavours apply` (is the same as running `flavours apply "*"`)
 
 #### Other commands
-You can also use `flavours current` to see the last scheme you applied, `flavours list` to list all available schemes (`-l` or `--lines` to print each in one line).
+You can also use `flavours current` to see the last scheme you applied, `flavours list` to list all available schemes (`-l` or `--lines` to print each in one line, you can also use PATTERN like on apply to list only specific scheme(s)), `flavours info` to show info (including truecolor colored output, `r` or `--raw` to disable) about some scheme(s) (also using the PATTERN syntax).
+
+Lastly, we have `flavours generate`, it can generate a scheme based on an image (usually your wallpaper), with the following syntax: `flavours generate <dark/light> /path/to/image/file`. By default, the scheme will be saved with the slug (the scheme name referenced in all other commands) `generated` (you can change it with `-s` or `--slug`, or output to stdout instead with `--stdout`).
+
+In my setup, i use feh to apply wallpapers, and i can get the current wallpaper with the command `cat .fehbg | tail -1 | cut -d "'" -f2`.
+
+So my flavours command to generate and apply a dark scheme matching my wallpaper would be:
+
+`flavours generate dark $(cat .fehbg | tail -1 | cut -d "'" -f2) && flavours apply generated`
+
+Which i include in the script i use to change my wallpapers randomly.
 
 ## Why
 Why use this instead of other base16 managers, or even pywal?
