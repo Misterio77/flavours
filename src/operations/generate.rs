@@ -161,11 +161,9 @@ pub fn generate(
     to_stdout: bool,
 ) -> Result<()> {
     let img_buffer = image::open(image_path)?;
-    let img_pixels = img_buffer
-        .as_flat_samples_u8()
-        .ok_or_else(|| anyhow!("Couldn't read provided file. Is it a valid image?"))?;
+    let img_pixels = img_buffer.to_rgba8().into_raw();
     let generated_colors =
-        color_thief::get_palette(img_pixels.as_slice(), color_thief::ColorFormat::Rgb, 1, 15)?;
+        color_thief::get_palette(img_pixels.as_slice(), color_thief::ColorFormat::Rgba, 1, 15)?;
 
     let mut colors: Vec<Rgb> = Vec::new();
 
