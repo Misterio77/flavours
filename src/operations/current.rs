@@ -9,12 +9,12 @@ fn get_current_scheme(dir: &Path) -> Result<String> {
     // File that stores last used scheme
     let file_path = &dir.join("lastscheme");
     // Try to open it
-    let scheme = read_to_string(file_path)
+    let scheme: String = read_to_string(file_path)
         .with_context(|| "Failed to read last scheme file. Try applying first.")?
         .split_whitespace()
         .collect();
 
-    if scheme == "" {
+    if scheme.is_empty() {
         Err(anyhow!(
             "Failed to read last scheme from file. Try applying first."
         ))

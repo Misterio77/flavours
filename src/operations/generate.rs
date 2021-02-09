@@ -1,11 +1,10 @@
-use anyhow::{anyhow, Context, Result};
+use anyhow::{anyhow, Result};
 use palette::rgb::Rgb;
 use palette::{Hsl, Yxy};
-use std::fs::{create_dir_all, write};
+use std::collections::VecDeque;
 use std::path::Path;
 
 use crate::operations::info;
-use crate::scheme::Scheme;
 
 pub enum Mode {
     Light,
@@ -152,46 +151,8 @@ fn dark_color(colors: &[Rgb], verbose: bool) -> Result<Rgb> {
     dark.ok_or_else(|| anyhow!("Failed to find colors on image"))
 }
 
-pub fn generate(
-    image_path: &Path,
-    mut scheme: Scheme,
-    mode: Mode,
-    base_dir: &Path,
-    verbose: bool,
-    to_stdout: bool,
-) -> Result<()> {
-    let img_buffer = image::open(image_path)?;
-    let img_pixels = img_buffer.to_rgba8().into_raw();
-    let generated_colors =
-        color_thief::get_palette(img_pixels.as_slice(), color_thief::ColorFormat::Rgba, 1, 15)?;
-
-    let mut colors: Vec<Rgb> = Vec::new();
-
-    for color in generated_colors {
-        let color: Rgb = Rgb::new(
-            color.r as f32 / 255.0,
-            color.g as f32 / 255.0,
-            color.b as f32 / 255.0,
-        );
-        colors.push(color);
-        if verbose {
-            info::print_color(&to_hex(color)?)?;
-            //let (saturation, luma) = grab_sat_luma(color);
-            //println!("luma {} | saturation {}", luma, saturation);
-        }
-    }
-    colors.dedup();
-
-    let light = light_color(&colors, verbose)?;
-    let dark = dark_color(&colors, verbose)?;
-
-    if verbose {
-        info::print_color(&to_hex(light)?)?;
-        info::print_color(&to_hex(dark)?)?;
-        println!()
-    }
-
-    let (background, foreground) = match mode {
+fn fix_colors(dark: Rgb, light: Rgb, mode: &Mode) -> (Rgb, Rgb) {
+    match mode {
         Mode::Light => {
             let mut fg = dark;
             let mut bg = light;
@@ -263,72 +224,103 @@ pub fn generate(
             }
             (bg, fg)
         }
+    }
+}
+
+pub fn generate(image_path: &Path, mode: Mode, verbose: bool) -> Result<VecDeque<String>> {
+    let img_buffer = image::open(image_path)?;
+    let img_pixels = img_buffer.to_rgba8().into_raw();
+
+    // Use color thief to get a palette
+    let palette =
+        color_thief::get_palette(img_pixels.as_slice(), color_thief::ColorFormat::Rgba, 1, 15)?;
+
+    let mut generated_colors = {
+        let mut colors: Vec<Rgb> = Vec::new();
+        // For each color in palette, convert to Rgb
+        for color in palette {
+            let color: Rgb = Rgb::new(
+                color.r as f32 / 255.0,
+                color.g as f32 / 255.0,
+                color.b as f32 / 255.0,
+            );
+            colors.push(color);
+            if verbose {
+                info::print_color(&to_hex(color)?)?;
+            }
+        }
+        // Remove duplicates
+        colors.dedup();
+
+        colors
     };
 
-    let override_color = match mode {
+    // Get dominant light color
+    let light = light_color(&generated_colors, verbose)?;
+    // Get dominant dark color
+    let dark = dark_color(&generated_colors, verbose)?;
+
+    // If verbose, print them
+    if verbose {
+        info::print_color(&to_hex(light)?)?;
+        info::print_color(&to_hex(dark)?)?;
+        println!()
+    }
+
+    // Make a few adjustments to the dominant colors
+    let (background, foreground) = fix_colors(dark, light, &mode);
+
+    // If light, white. If dark, black.
+    // We'll use this to make the color spectrum
+    let override_color = match &mode {
         Mode::Light => Rgb::from_components((0.0, 0.0, 0.0)),
         Mode::Dark => Rgb::from_components((1.0, 1.0, 1.0)),
     };
 
-    scheme.colors.push_back(to_hex(background)?);
-    scheme
-        .colors
-        .push_back(to_hex(sum_colors(background, foreground, 0.2))?);
-    scheme
-        .colors
-        .push_back(to_hex(sum_colors(background, foreground, 0.4))?);
-    scheme
-        .colors
-        .push_back(to_hex(sum_colors(background, foreground, 0.6))?);
-    scheme
-        .colors
-        .push_back(to_hex(sum_colors(background, foreground, 0.8))?);
-    scheme.colors.push_back(to_hex(foreground)?);
-    scheme
-        .colors
-        .push_back(to_hex(sum_colors(foreground, override_color, 0.15))?);
-    scheme
-        .colors
-        .push_back(to_hex(sum_colors(foreground, override_color, 0.3))?);
+    // Add the main colors to the vector
+    let mut colors = VecDeque::new();
+    colors.push_back(to_hex(background)?);
+    colors.push_back(to_hex(sum_colors(background, foreground, 0.2))?);
+    colors.push_back(to_hex(sum_colors(background, foreground, 0.4))?);
+    colors.push_back(to_hex(sum_colors(background, foreground, 0.6))?);
+    colors.push_back(to_hex(sum_colors(background, foreground, 0.8))?);
+    colors.push_back(to_hex(foreground)?);
+    colors.push_back(to_hex(sum_colors(foreground, override_color, 0.15))?);
+    colors.push_back(to_hex(sum_colors(foreground, override_color, 0.3))?);
 
+    // Now for the trim colors
     for _ in 0..8 {
-        let mut color = colors
+        let mut color = generated_colors
             .pop()
             .ok_or_else(|| anyhow!("Couldn't get accent colors from image"))?;
 
+        // Change luma to something a bit more constant
         color = {
+            // Get convert to yxy and get components
             let yxy: Yxy = Yxy::from(color);
             let (x, y, luma) = yxy.into_components();
+
+            // Get our intended luma
             let luma = match mode {
                 Mode::Light => luma.min(0.12).max(0.1),
                 Mode::Dark => luma.max(0.19),
             };
+
+            // Build yxy again and convert back to rgb
             let yxy: Yxy = Yxy::from_components((x, y, luma));
             Rgb::from(yxy)
         };
-        scheme.colors.push_back(to_hex(color)?);
+        // Add to the colors vector
+        colors.push_back(to_hex(color)?);
     }
 
+    // If verbose, print our generated colors
     if verbose {
         println!();
-        for color in &scheme.colors {
+        for color in &colors {
             info::print_color(&color)?;
         }
     }
 
-    let scheme_string = scheme.to_string()?;
-    if to_stdout {
-        print!("{}", scheme_string);
-    } else {
-        let path = base_dir.join("base16").join("schemes").join("generated");
-        if !path.exists() {
-            create_dir_all(&path)
-                .with_context(|| format!("Couldn't create directory {:?}", &path))?;
-        }
-        let file_path = &path.join(format!("{}.yaml", scheme.slug));
-        write(file_path, scheme_string)
-            .with_context(|| format!("Couldn't write scheme file at {:?}", path))?;
-    }
-
-    Ok(())
+    Ok(colors)
 }

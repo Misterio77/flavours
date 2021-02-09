@@ -19,7 +19,7 @@ pub fn build_cli() -> App<'static> {
         )
         .arg(
             Arg::new("config")
-            .about("Specify a configuration file (Defaults to ~/.config/flavours/config.toml)")
+            .about("Specify a configuration file (Defaults to ~/.config/flavours/config.toml on Linux)")
             .long("config")
             .short('c')
             .value_name("FILE")
@@ -28,7 +28,7 @@ pub fn build_cli() -> App<'static> {
         )
         .arg(
             Arg::new("directory")
-            .about("Specify a data directory (Defaults to ~/.local/share/flavours)")
+            .about("Specify a data directory (Defaults to ~/.local/share/flavours on Linux)")
             .long("directory")
             .short('d')
             .value_name("DIRECTORY")

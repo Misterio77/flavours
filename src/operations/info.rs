@@ -1,7 +1,7 @@
 use anyhow::{anyhow, Context, Result};
+use calm_io::stdoutln;
 use std::fs::read_to_string;
 use std::path::Path;
-use calm_io::stdoutln;
 
 use crate::find::find;
 use crate::scheme::Scheme;
@@ -24,11 +24,11 @@ pub fn print_color(color: &str) -> Result<()> {
         true_color(&color, false)?,
         color,
         RESETCOLOR
-        ) {
+    ) {
         Ok(_) => Ok(()),
         Err(e) => match e.kind() {
             std::io::ErrorKind::BrokenPipe => Ok(()),
-            _ => Err(e)
+            _ => Err(e),
         },
     }?;
     Ok(())
@@ -65,7 +65,7 @@ pub fn info(patterns: Vec<&str>, base_dir: &Path, raw: bool) -> Result<()> {
                 Ok(_) => Ok(()),
                 Err(e) => match e.kind() {
                     std::io::ErrorKind::BrokenPipe => Ok(()),
-                    _ => Err(e)
+                    _ => Err(e),
                 },
             }?;
         }
@@ -83,7 +83,7 @@ pub fn info(patterns: Vec<&str>, base_dir: &Path, raw: bool) -> Result<()> {
             Ok(_) => Ok(()),
             Err(e) => match e.kind() {
                 std::io::ErrorKind::BrokenPipe => Ok(()),
-                _ => Err(e)
+                _ => Err(e),
             },
         }?;
 
@@ -91,7 +91,7 @@ pub fn info(patterns: Vec<&str>, base_dir: &Path, raw: bool) -> Result<()> {
             Ok(_) => Ok(()),
             Err(e) => match e.kind() {
                 std::io::ErrorKind::BrokenPipe => Ok(()),
-                _ => Err(e)
+                _ => Err(e),
             },
         }?;
 
@@ -101,7 +101,7 @@ pub fn info(patterns: Vec<&str>, base_dir: &Path, raw: bool) -> Result<()> {
                     Ok(_) => Ok(()),
                     Err(e) => match e.kind() {
                         std::io::ErrorKind::BrokenPipe => Ok(()),
-                        _ => Err(e)
+                        _ => Err(e),
                     },
                 }?;
             }

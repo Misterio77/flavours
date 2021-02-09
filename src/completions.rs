@@ -9,31 +9,32 @@ use clap_generate::{
 
 pub fn completions(shell: Option<&str>) -> Result<()> {
     match shell {
-        Some("bash") => Ok(generate::<Bash, _>(
+        Some("bash") => generate::<Bash, _>(
             &mut build_cli(),
             "flavours",
             &mut stdout(),
-        )),
-        Some("elvish") => Ok(generate::<Elvish, _>(
+        ),
+        Some("elvish") => generate::<Elvish, _>(
             &mut build_cli(),
             "flavours",
             &mut stdout(),
-        )),
-        Some("fish") => Ok(generate::<Fish, _>(
+        ),
+        Some("fish") => generate::<Fish, _>(
             &mut build_cli(),
             "flavours",
             &mut stdout(),
-        )),
-        Some("powershell") => Ok(generate::<PowerShell, _>(
+        ),
+        Some("powershell") => generate::<PowerShell, _>(
             &mut build_cli(),
             "flavours",
             &mut stdout(),
-        )),
-        Some("zsh") => Ok(generate::<Zsh, _>(
+        ),
+        Some("zsh") => generate::<Zsh, _>(
             &mut build_cli(),
             "flavours",
             &mut stdout(),
-        )),
-        _ => Ok(()),
-    }
+        ),
+        _ => {},
+    };
+    Ok(())
 }

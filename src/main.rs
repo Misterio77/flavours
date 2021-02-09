@@ -11,6 +11,7 @@ mod scheme;
 
 use operations::{apply, current, generate, info, list, update};
 use scheme::Scheme;
+use std::fs::{create_dir_all, write};
 
 fn main() -> Result<()> {
     let matches = cli::build_cli().get_matches();
@@ -96,19 +97,9 @@ fn main() -> Result<()> {
         }
 
         Some(("generate", sub_matches)) => {
-            let mut scheme = Scheme::default();
-            scheme.slug = String::from(match sub_matches.value_of("slug") {
-                Some(content) => content,
-                None => "generated",
-            });
-            scheme.name = String::from(match sub_matches.value_of("name") {
-                Some(content) => content,
-                None => "Generated",
-            });
-            scheme.author = String::from(match sub_matches.value_of("author") {
-                Some(content) => content,
-                None => "Flavours",
-            });
+            let slug = sub_matches.value_of("slug").unwrap_or("generated").into();
+            let name = sub_matches.value_of("name").unwrap_or("Generated").into();
+            let author = sub_matches.value_of("author").unwrap_or("Flavours").into();
 
             let image = match sub_matches.value_of("file") {
                 Some(content) => Path::new(content)
@@ -125,7 +116,30 @@ fn main() -> Result<()> {
 
             let to_stdout = sub_matches.is_present("stdout");
 
-            generate::generate(&image, scheme, mode, &flavours_dir, verbose, to_stdout)
+            let colors = generate::generate(&image, mode, verbose)?;
+            let scheme = Scheme {
+                slug,
+                name,
+                author,
+                colors,
+            };
+
+            if to_stdout {
+                print!("{}", scheme.to_string()?);
+            } else {
+                let path = flavours_dir
+                    .join("base16")
+                    .join("schemes")
+                    .join("generated");
+                if !path.exists() {
+                    create_dir_all(&path)
+                        .with_context(|| format!("Couldn't create directory {:?}", &path))?;
+                }
+                let file_path = &path.join(format!("{}.yaml", scheme.slug));
+                write(file_path, scheme.to_string()?)
+                    .with_context(|| format!("Couldn't write scheme file at {:?}", path))?;
+            }
+            Ok(())
         }
         _ => Err(anyhow!("No valid subcommand specified")),
     }

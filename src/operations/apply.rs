@@ -26,7 +26,7 @@ fn random(values: Vec<path::PathBuf>) -> Result<path::PathBuf> {
 /// * `command` - Command string to execute
 /// * `verbose` - Should we be verbose?
 fn run_hook(command: &str, verbose: bool) -> Result<()> {
-    if verbose && command != "" {
+    if verbose && !command.is_empty() {
         println!("running {}", command);
     }
     let command_vec = shell_words::split(command)?;
