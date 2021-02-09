@@ -1,6 +1,7 @@
 use anyhow::{anyhow, Context, Result};
-use dirs::{config_dir, data_dir};
+use dirs::{preference_dir, data_dir};
 use std::path::Path;
+use std::env;
 
 mod cli;
 mod completions;
@@ -26,25 +27,42 @@ fn main() -> Result<()> {
         // User supplied
         Some(argument) => Path::new(argument)
             .canonicalize()
-            .with_context(|| "Invalid data directory supplied")?,
-        // Use default path instead
-        None => data_dir()
-            .ok_or_else(|| anyhow!("Error getting default data directory"))?
-            .join("flavours"),
+            .with_context(|| "Invalid data directory supplied on argument")?,
+        // If not supplied
+        None => {
+            // Try to get from env var
+            match env::var("FLAVOURS_DATA_DIRECTORY") {
+                Ok(path) => Path::new(&path)
+                    .canonicalize()
+                    .with_context(|| "Invalid data directory supplied on env var")?,
+                // Use default instead
+                Err(_) => data_dir()
+                    .ok_or_else(|| anyhow!("Error getting default data directory"))?
+                    .join("flavours"),
+            }
+        }
     };
 
     // Flavours config file
     let flavours_config = match matches.value_of("config") {
         // User supplied
-        // Make it canonical, then PathBuf (owned path)
-        Some(argument) => Path::new(argument)
+        Some(path) => Path::new(path)
             .canonicalize()
-            .with_context(|| "Invalid config file supplied")?,
-        // Use default file instead
-        None => config_dir()
-            .ok_or_else(|| anyhow!("Error getting default config directory"))?
-            .join("flavours")
-            .join("config.toml"),
+            .with_context(|| "Invalid config file supplied on argument")?,
+        // If not supplied
+        None => {
+            // Try to get from env var
+            match env::var("FLAVOURS_CONFIG_FILE") {
+                Ok(path) => Path::new(&path)
+                    .canonicalize()
+                    .with_context(|| "Invalid config file supplied on env var")?,
+                // Use default instead
+                Err(_) => preference_dir()
+                    .ok_or_else(|| anyhow!("Error getting default config directory"))?
+                    .join("flavours")
+                    .join("config.toml"),
+            }
+        }
     };
 
     // Should we be verbose?
