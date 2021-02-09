@@ -302,9 +302,7 @@ pub fn apply(
             .context("Couldn't replace placeholders. Check if all colors on the specified scheme file are valid (don't include a leading '#').")?;
 
         //File to write
-        let file = path::Path::new(&shellexpand::full(&item.file)?.to_string())
-            .canonicalize()
-            .with_context(|| format!("Invalid file to write: {}.", item.file))?;
+        let file = shellexpand::full(&item.file)?.to_string();
 
         //Rewrite file with built template
         if rewrite {
