@@ -37,7 +37,7 @@ Let me know if you want to package flavours for your favorite distro.
 Just install cargo and run `cargo install flavours` (don't forget to include `~/.cargo/bin` on your PATH).
 
 #### Post-install
-After installing, you should probably use `flavours update all` to grab all published schemes and templates from the base16 repos. If you want, you can manually tweak the templates, schemes or even the repo lists (everything's located in `~/.local/share/flavours` on Linux).
+After installing, you should probably use `flavours update all` to grab all published schemes and templates from the base16 repos. If you want, you can manually tweak the templates, schemes or even the repo lists (everything's located in `~/.local/share/flavours` on Linux, can be changed using the `FLAVOURS_DATA_DIRECTORY` global variable).
 
 ### Usage
 You can use flavours and base16 templates to automatically inject schemes into any application config file that supports colors codes.
@@ -55,7 +55,7 @@ For reference, here's a couple configuration files from my [dots](https://github
 - [rofi](https://github.com/Misterio77/dotfiles/blob/master/home/.config/rofi/themes/styles/colors.rasi) (rewrite mode)
 
 
-On flavours configuration (`~/.config/flavours/config.toml` on Linux):
+On flavours configuration (`~/.config/flavours/config.toml` on Linux, can be changed using the `FLAVOURS_CONFIG_FILE` global variable):
 - Create a `[[item]]` section for each app, each section can have the following entries:
   - Specify the `file` to write (required)
   - A `template` (required)
