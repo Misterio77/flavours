@@ -55,7 +55,7 @@ For reference, here's a couple configuration files from my [dots](https://github
 - [alacritty](https://github.com/Misterio77/dotfiles/blob/sway/home/.config/alacritty/alacritty.yml)
 - [qutebrowser](https://github.com/Misterio77/dotfiles/blob/sway/home/.config/qutebrowser/config.py)
 - [zathura](https://github.com/Misterio77/dotfiles/blob/sway/home/.config/zathura/zathurarc)
-- [sway](https://github.com/Misterio77/dotfiles/blob/sway/home/.config/dunst/dunstrc)
+- [sway](https://github.com/Misterio77/dotfiles/blob/sway/home/.config/sway/config)
 - [waybar](https://github.com/Misterio77/dotfiles/blob/sway/home/.config/waybar/colors.css) (rewrite mode)
 - [rofi](https://github.com/Misterio77/dotfiles/blob/sway/home/.config/rofi/themes/colors.rasi) (rewrite mode)
 
