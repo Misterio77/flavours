@@ -20,8 +20,8 @@ The base16 specification consists of both schemes (with 16 colors) and templates
 Once your configuration files are set, you can theme your entire desktop with just *one* command. No more hassle changing themes when you get bored.
 Why have one color if you can have all the colors?
 
-I use it to theme kitty terminal, i3wm, rofi, polybar, gtk, discord and spotify. Here's how it looks in action:
-![Usage](http://u.cubeupload.com/Misterio77x/flavours202009191033.gif)
+Here's how it looks in action (sway, waybar, alacritty):
+![Usage](https://u.cubeupload.com/Misterio77x/ezgifcomgifmaker.gif)
 
 ## How
 
@@ -30,6 +30,8 @@ I use it to theme kitty terminal, i3wm, rofi, polybar, gtk, discord and spotify.
 #### Packages
 - [AUR Package](https://aur.archlinux.org/packages/flavours/) for Arch (and derivatives):
 `yay -S flavours`
+- [nixpkg](https://github.com/NixOS/nixpkgs/blob/master/pkgs/applications/misc/flavours/default.nix#L17) for NixOS:
+`nix-env -iA nixos.flavours`
 
 Let me know if you want to package flavours for your favorite distro.
 
@@ -37,25 +39,27 @@ Let me know if you want to package flavours for your favorite distro.
 Just install cargo and run `cargo install flavours` (don't forget to include `~/.cargo/bin` on your PATH).
 
 #### Post-install
-After installing, you should probably use `flavours update all` to grab all published schemes and templates from the base16 repos. If you want, you can manually tweak the templates, schemes or even the repo lists (everything's located in `~/.local/share/flavours` on Linux).
+After installing, you should probably use `flavours update all` to grab all published schemes and templates from the base16 repos. If you want, you can manually tweak the templates, schemes or even the repo lists (everything's located in `~/.local/share/flavours` on Linux, and can be changed with `-d`/`--directory` cli option or `FLAVOURS_DATA_DIRECTORY` environment variable).
 
 ### Usage
 You can use flavours and base16 templates to automatically inject schemes into any application config file that supports colors codes.
 
+[Dave Snider](https://www.youtube.com/channel/UC7uO9V1Frl_wPd9d1qOm_RQ) did a great [3 episode series about flavours](https://youtu.be/1HPo4VvI6dA) (and theming in general). If you're into guide videos, i strongly recommend you take a look.
+
 #### Setup
 Choose a [template](https://github.com/chriskempson/base16#template-repositories) for each app you want themed (or create your own).
 
-On these config files, place a start and end comment to tell flavours where to **replace** lines (defaults are `# Start flavours` and `# End flavours`). These usually should be located where you set color options on your app configuration. If the specific app supports including colors from another file, or if the template provides the entire file, you can forgo the comments altogether and use the `rewrite=true` on flavours config.
+On each of your apps config files, place a start and end comment to tell flavours where to **replace** lines (defaults are `# Start flavours` and `# End flavours`). These usually should be located where you set color options on your app configuration. If the specific app supports including colors from another file, or if the template provides the entire file, you can forgo the comments altogether and use the `rewrite=true` on flavours config.
 
 For reference, here's a couple configuration files from my [dots](https://github.com/Misterio77/dotfiles):
-- [zathura](https://github.com/Misterio77/dotfiles/blob/master/home/.config/zathura/zathurarc)
-- [dunst](https://github.com/Misterio77/dotfiles/blob/master/home/.config/dunst/dunstrc)
-- [polybar](https://github.com/Misterio77/dotfiles/blob/master/home/.config/polybar/config.ini)
-- [alacritty](https://github.com/Misterio77/dotfiles/tree/master/home/.config/alacritty/alacritty.yml) 
-- [rofi](https://github.com/Misterio77/dotfiles/blob/master/home/.config/rofi/themes/styles/colors.rasi) (rewrite mode)
+- [alacritty](https://github.com/Misterio77/dotfiles/blob/sway/home/.config/alacritty/alacritty.yml)
+- [qutebrowser](https://github.com/Misterio77/dotfiles/blob/sway/home/.config/qutebrowser/config.py)
+- [zathura](https://github.com/Misterio77/dotfiles/blob/sway/home/.config/zathura/zathurarc)
+- [sway](https://github.com/Misterio77/dotfiles/blob/sway/home/.config/dunst/dunstrc)
+- [waybar](https://github.com/Misterio77/dotfiles/blob/sway/home/.config/waybar/colors.css) (rewrite mode)
+- [rofi](https://github.com/Misterio77/dotfiles/blob/sway/home/.config/rofi/themes/colors.rasi) (rewrite mode)
 
-
-On flavours configuration (`~/.config/flavours/config.toml` on Linux):
+On flavours configuration (`~/.config/flavours/config.toml` on Linux, can be changed with `-c`/`--config` flag or `FLAVOURS_CONFIG_FILE` environment variable):
 - Create a `[[item]]` section for each app, each section can have the following entries:
   - Specify the `file` to write (required)
   - A `template` (required)
@@ -79,15 +83,15 @@ You can, for instance:
 - Omit: `flavours apply` (is the same as running `flavours apply "*"`)
 
 #### Other commands
-You can also use `flavours current` to see the last scheme you applied, `flavours list` to list all available schemes (`-l` or `--lines` to print each in one line, you can also use PATTERN like on apply to list only specific scheme(s)), `flavours info` to show info (including truecolor colored output, `r` or `--raw` to disable) about some scheme(s) (also using the PATTERN syntax).
+You can also use `flavours current` to see the last scheme you applied, `flavours list` to list all available schemes (you can also use PATTERN like on apply to list only specific scheme(s)), `flavours info` to show info (including truecolor colored output) about some scheme(s) (also supports the PATTERN syntax).
 
 Lastly, we have `flavours generate`, it can generate a scheme based on an image (usually your wallpaper), with the following syntax: `flavours generate <dark/light> /path/to/image/file`. By default, the scheme will be saved with the slug (the scheme name referenced in all other commands) `generated` (you can change it with `-s` or `--slug`, or output to stdout instead with `--stdout`).
 
-In my setup, i use feh to apply wallpapers, and i can get the current wallpaper with the command `cat .fehbg | tail -1 | cut -d "'" -f2`.
+In my setup, i use swaybg to apply wallpapers, and i can get my current wallpaper with `cat .bg`.
 
 So my flavours command to generate and apply a dark scheme matching my wallpaper would be:
 
-`flavours generate dark $(cat .fehbg | tail -1 | cut -d "'" -f2) && flavours apply generated`
+`flavours generate dark $(cat .bg) && flavours apply generated`
 
 Which i include in the script i use to change my wallpapers randomly.
 
