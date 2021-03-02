@@ -20,10 +20,10 @@ Register-ArgumentCompleter -Native -CommandName 'flavours' -ScriptBlock {
 
     $completions = @(switch ($command) {
         'flavours' {
-            [CompletionResult]::new('-c', 'c', [CompletionResultType]::ParameterName, 'Specify a configuration file (Defaults to ~/.config/flavours/config.toml)')
-            [CompletionResult]::new('--config', 'config', [CompletionResultType]::ParameterName, 'Specify a configuration file (Defaults to ~/.config/flavours/config.toml)')
-            [CompletionResult]::new('-d', 'd', [CompletionResultType]::ParameterName, 'Specify a data directory (Defaults to ~/.local/share/flavours)')
-            [CompletionResult]::new('--directory', 'directory', [CompletionResultType]::ParameterName, 'Specify a data directory (Defaults to ~/.local/share/flavours)')
+            [CompletionResult]::new('-c', 'c', [CompletionResultType]::ParameterName, 'Specify a configuration file (Defaults to ~/.config/flavours/config.toml on Linux)')
+            [CompletionResult]::new('--config', 'config', [CompletionResultType]::ParameterName, 'Specify a configuration file (Defaults to ~/.config/flavours/config.toml on Linux)')
+            [CompletionResult]::new('-d', 'd', [CompletionResultType]::ParameterName, 'Specify a data directory (Defaults to ~/.local/share/flavours on Linux)')
+            [CompletionResult]::new('--directory', 'directory', [CompletionResultType]::ParameterName, 'Specify a data directory (Defaults to ~/.local/share/flavours on Linux)')
             [CompletionResult]::new('--completions', 'completions', [CompletionResultType]::ParameterName, 'Generates completion for given shell, outputs to stdout')
             [CompletionResult]::new('-v', 'v', [CompletionResultType]::ParameterName, 'Be more verbose')
             [CompletionResult]::new('--verbose', 'verbose', [CompletionResultType]::ParameterName, 'Be more verbose')
@@ -71,6 +71,8 @@ Register-ArgumentCompleter -Native -CommandName 'flavours' -ScriptBlock {
             break
         }
         'flavours;apply' {
+            [CompletionResult]::new('-l', 'l', [CompletionResultType]::ParameterName, 'Skip running heavier hooks (entries marked ''light=false'')')
+            [CompletionResult]::new('--light', 'light', [CompletionResultType]::ParameterName, 'Skip running heavier hooks (entries marked ''light=false'')')
             [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Prints help information')
             [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Prints help information')
             break

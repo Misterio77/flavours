@@ -165,6 +165,12 @@ pub fn build_cli() -> App<'static> {
                     .setting(ArgSettings::MultipleValues)
                     .multiple(true)
                 )
+                .arg(
+                    Arg::new("light")
+                    .about("Skip running heavier hooks (entries marked 'light=false')")
+                    .long("light")
+                    .short('l')
+                )
         )
         .subcommand(
             App::new("update")

@@ -15,10 +15,10 @@ edit:completion:arg-completer[flavours] = [@words]{
     }
     completions = [
         &'flavours'= {
-            cand -c 'Specify a configuration file (Defaults to ~/.config/flavours/config.toml)'
-            cand --config 'Specify a configuration file (Defaults to ~/.config/flavours/config.toml)'
-            cand -d 'Specify a data directory (Defaults to ~/.local/share/flavours)'
-            cand --directory 'Specify a data directory (Defaults to ~/.local/share/flavours)'
+            cand -c 'Specify a configuration file (Defaults to ~/.config/flavours/config.toml on Linux)'
+            cand --config 'Specify a configuration file (Defaults to ~/.config/flavours/config.toml on Linux)'
+            cand -d 'Specify a data directory (Defaults to ~/.local/share/flavours on Linux)'
+            cand --directory 'Specify a data directory (Defaults to ~/.local/share/flavours on Linux)'
             cand --completions 'Generates completion for given shell, outputs to stdout'
             cand -v 'Be more verbose'
             cand --verbose 'Be more verbose'
@@ -61,6 +61,8 @@ edit:completion:arg-completer[flavours] = [@words]{
             cand --help 'Prints help information'
         }
         &'flavours;apply'= {
+            cand -l 'Skip running heavier hooks (entries marked ''light=false'')'
+            cand --light 'Skip running heavier hooks (entries marked ''light=false'')'
             cand -h 'Prints help information'
             cand --help 'Prints help information'
         }

@@ -74,7 +74,7 @@ _flavours() {
             ;;
         
         flavours__apply)
-            opts=" -h  --help  <pattern>... "
+            opts=" -l -h  --light --help  <pattern>... "
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0

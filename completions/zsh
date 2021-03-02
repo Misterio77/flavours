@@ -15,10 +15,10 @@ _flavours() {
 
     local context curcontext="$curcontext" state line
     _arguments "${_arguments_options[@]}" \
-'-c+[Specify a configuration file (Defaults to ~/.config/flavours/config.toml)]: :_files' \
-'--config=[Specify a configuration file (Defaults to ~/.config/flavours/config.toml)]: :_files' \
-'-d+[Specify a data directory (Defaults to ~/.local/share/flavours)]: :_files -/' \
-'--directory=[Specify a data directory (Defaults to ~/.local/share/flavours)]: :_files -/' \
+'-c+[Specify a configuration file (Defaults to ~/.config/flavours/config.toml on Linux)]: :_files' \
+'--config=[Specify a configuration file (Defaults to ~/.config/flavours/config.toml on Linux)]: :_files' \
+'-d+[Specify a data directory (Defaults to ~/.local/share/flavours on Linux)]: :_files -/' \
+'--directory=[Specify a data directory (Defaults to ~/.local/share/flavours on Linux)]: :_files -/' \
 '--completions=[Generates completion for given shell, outputs to stdout]: :(bash elvish fish powershell zsh)' \
 '-v[Be more verbose]' \
 '--verbose[Be more verbose]' \
@@ -76,6 +76,8 @@ _arguments "${_arguments_options[@]}" \
 ;;
 (apply)
 _arguments "${_arguments_options[@]}" \
+'-l[Skip running heavier hooks (entries marked '\''light=false'\'')]' \
+'--light[Skip running heavier hooks (entries marked '\''light=false'\'')]' \
 '-h[Prints help information]' \
 '--help[Prints help information]' \
 '*::pattern -- Scheme to be applied, supports glob. If more than one is specified (or if glob pattern matched more than one), chooses one randomly. If ommited, defaults to * (all installed schemes).:($(flavours list))' \

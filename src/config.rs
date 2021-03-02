@@ -15,6 +15,7 @@ pub struct ConfigItem {
     pub subtemplate: Option<String>,
     pub hook: Option<String>,
     pub rewrite: Option<bool>,
+    pub light: Option<bool>,
     pub start: Option<String>,
     pub end: Option<String>,
 }

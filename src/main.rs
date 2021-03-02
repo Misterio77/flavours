@@ -1,7 +1,7 @@
 use anyhow::{anyhow, Context, Result};
-use dirs::{preference_dir, data_dir};
-use std::path::Path;
+use dirs::{data_dir, preference_dir};
 use std::env;
+use std::path::Path;
 
 mod cli;
 mod completions;
@@ -13,7 +13,6 @@ mod scheme;
 use operations::{apply, current, generate, info, list, update};
 use scheme::Scheme;
 use std::fs::{create_dir_all, write};
-
 fn main() -> Result<()> {
     let matches = cli::build_cli().get_matches();
 
@@ -84,7 +83,8 @@ fn main() -> Result<()> {
                 //Defaults to wildcard
                 None => vec!["*"],
             };
-            apply::apply(patterns, &flavours_dir, &flavours_config, verbose)
+            let light = sub_matches.is_present("light");
+            apply::apply(patterns, &flavours_dir, &flavours_config, light, verbose)
         }
 
         Some(("list", sub_matches)) => {

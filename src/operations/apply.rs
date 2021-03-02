@@ -179,11 +179,13 @@ fn build_template(template_base: String, scheme: &Scheme) -> Result<String> {
 /// * `patterns` - Which patterns the user specified
 /// * `base_dir` - Flavours base directory
 /// * `config_path` - Flavours configuration path
+/// * `light` - Don't run hooks marked as non-lightweight
 /// * `verbose` - Should we be verbose?
 pub fn apply(
     patterns: Vec<&str>,
     base_dir: &path::Path,
     config_path: &path::Path,
+    light_mode: bool,
     verbose: bool,
 ) -> Result<()> {
     //Find schemes that match given patterns
@@ -265,6 +267,11 @@ pub fn apply(
             Some(value) => String::from(value),
             None => String::from(""),
         };
+        //Is the hook lightweight?
+        let light = match &item.light {
+            Some(value) => *value,
+            None => true,
+        };
         //Rewrite or replace
         let rewrite = match &item.rewrite {
             Some(value) => *value,
@@ -324,7 +331,12 @@ pub fn apply(
                 println!("Wrote {}/{} on {:?}", template, subtemplate, file);
             }
         }
-        hooks.push(thread::spawn(move || run_hook(&hook, verbose)));
+        // Only add hook to queue if either:
+        // - Not running on lightweight mode
+        // - Hook is set as lightweight
+        if !light_mode || light {
+            hooks.push(thread::spawn(move || run_hook(&hook, verbose)));
+        }
     }
 
     let last_scheme_file = &base_dir.join("lastscheme");
