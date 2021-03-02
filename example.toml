@@ -11,6 +11,7 @@
 # start = '# Start flavours' (if not rewriting, where to start replacing)
 # end = '# End flavours' (if not rewriting, where to stop replacing)
 # hook = '' (command to execute after injecting)
+# light = true (whether this hook should be executed even when flavours apply is run with lightweight flag)
 #
 # Example for i3
 #
@@ -20,4 +21,5 @@
 # subtemplate = 'colors'
 # hook = 'i3-msg reload'
 # rewrite = false
+# light = false
 

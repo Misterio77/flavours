@@ -65,6 +65,7 @@ On flavours configuration (`~/.config/flavours/config.toml` on Linux, can be cha
   - A `template` (required)
   - A `subtemplate` (for when the template has one other than "default")
   - A `hook` to execute (do keep in mind this currently **doesn't** go through your shell, so if you want to use bash syntax, do it like this: `hook='bash -c "my cool && bash stuff"'`)
+  - Optionally, specify whether the hook is considered (by your usage) to be `light` or not. `flavours apply --light` will skip running heavy hooks explicitly marked with `light=false`
   - Whether to use `rewrite` mode (if you do, you don't need the start and end comments)
   - Or change the `start` and `end` lines (useful for config files which comments are not started with `#`)
 
