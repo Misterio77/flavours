@@ -1,25 +1,55 @@
 # Configuration for flavours
 # https://github.com/Misterio77/flavours
 #
-# Example config and default values
-#
-# [[item]]
-# file = '~/.config/example' (file to inject to, supports tilde and env var expansion. required)
-# template = 'example' (template to use. required)
-# subtemplate = 'default' (subtemplate to use)
-# rewrite = false (should we rewrite the entire file?)
-# start = '# Start flavours' (if not rewriting, where to start replacing)
-# end = '# End flavours' (if not rewriting, where to stop replacing)
-# hook = '' (command to execute after injecting)
-# light = true (whether this hook should be executed even when flavours apply is run with lightweight flag)
-#
-# Example for i3
-#
-# [[item]]
-# file = '~/.config/i3/config'
-# template = 'i3'
-# subtemplate = 'colors'
-# hook = 'i3-msg reload'
-# rewrite = false
-# light = false
+# This file should contain a [[item]] section for each application you want themed
+# You can also set a shell (outside items) on which to run hooks
+# Check flavours repository for more information and examples
 
+
+# Explanation and default values for keys:
+
+# # Through which shell command hooks will run. The command will be replaced in '{}'
+# shell = "sh -c '{}'"
+#
+# [[item]]
+# # File to inject to, supports tilde and env var expansion. required
+# file = "~/.config/example"
+# # Template to use. required
+# template = "example"
+#
+# # Subtemplate to use
+# subtemplate = "default"
+# # If not rewriting, on which line (usually a comment) to start replacing
+# start = "# Start flavours"
+# # If not rewriting, on which line (usually a comment) to stop replacing
+# end = "# End flavours"
+# # Should we rewrite the entire file, instead of using the above delimiters?
+# rewrite = false
+# # Command to execute after injecting (goes through shell)
+# hook = ""
+# # Whether this hook should be executed when flavours is ran with lightweight flag
+# light = true
+
+
+# Example file. For sway, waybar and (beautiful)discord. Runs hooks through bash:
+
+# shell = "bash -c '{}'"
+#
+# [[item]]
+# file = "~/.config/sway/config"
+# template = "sway"
+# subtemplate = "colors"
+# hook = "swaymsg reload"
+# light = false
+#
+# [[item]]
+# file = "~/.config/waybar/colors.css"
+# template = "waybar"
+# rewrite = true
+# 
+# [[item]]
+# file = "~/.config/beautifuldiscord/style.css"
+# template = "styles"
+# subtemplate = "css-variables"
+# start= "/* Start flavours */"
+# end = "/* End flavours */"

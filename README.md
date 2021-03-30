@@ -49,25 +49,58 @@ You can use flavours and base16 templates to automatically inject schemes into a
 #### Setup
 Choose a [template](https://github.com/chriskempson/base16#template-repositories) for each app you want themed (or create your own).
 
-On each of your apps config files, place a start and end comment to tell flavours where to **replace** lines (defaults are `# Start flavours` and `# End flavours`). These usually should be located where you set color options on your app configuration. If the specific app supports including colors from another file, or if the template provides the entire file, you can forgo the comments altogether and use the `rewrite=true` on flavours config.
+On each of your apps config files, place a start and end comment to tell flavours where to **replace** lines (defaults are `# Start flavours` and `# End flavours`, can be changed individually on each app). These usually should be located where you set color options on your app configuration. If the specific app supports including colors from another file, or if the template provides the entire file, you can forgo the comments altogether and use the `rewrite=true` on flavours config.
 
 For reference, here's a couple configuration files from my [dots](https://github.com/Misterio77/dotfiles):
+- [flavours](https://github.com/Misterio77/dotfiles/blob/sway/home/.config/flavours/config.toml) itself
 - [alacritty](https://github.com/Misterio77/dotfiles/blob/sway/home/.config/alacritty/alacritty.yml)
 - [qutebrowser](https://github.com/Misterio77/dotfiles/blob/sway/home/.config/qutebrowser/config.py)
 - [zathura](https://github.com/Misterio77/dotfiles/blob/sway/home/.config/zathura/zathurarc)
 - [sway](https://github.com/Misterio77/dotfiles/blob/sway/home/.config/sway/config)
-- [waybar](https://github.com/Misterio77/dotfiles/blob/sway/home/.config/waybar/colors.css) (rewrite mode)
-- [rofi](https://github.com/Misterio77/dotfiles/blob/sway/home/.config/rofi/themes/colors.rasi) (rewrite mode)
+- [waybar](https://github.com/Misterio77/dotfiles/blob/sway/home/.config/waybar/colors.css)
+- [rofi](https://github.com/Misterio77/dotfiles/blob/sway/home/.config/rofi/themes/colors.rasi)
 
 On flavours configuration (`~/.config/flavours/config.toml` on Linux, can be changed with `-c`/`--config` flag or `FLAVOURS_CONFIG_FILE` environment variable):
+- Optionally, set a `shell` through which your hook commands should be executed. Defaults to `sh -c '{}'`. You can make the hooks directly (pre-0.4 behaviour) by setting it to just `{}`.
 - Create a `[[item]]` section for each app, each section can have the following entries:
   - Specify the `file` to write (required)
   - A `template` (required)
   - A `subtemplate` (for when the template has one other than "default")
-  - A `hook` to execute (do keep in mind this currently **doesn't** go through your shell, so if you want to use bash syntax, do it like this: `hook='bash -c "my cool && bash stuff"'`)
-  - Optionally, specify whether the hook is considered (by your usage) to be `light` or not. `flavours apply --light` will skip running heavy hooks explicitly marked with `light=false`
-  - Whether to use `rewrite` mode (if you do, you don't need the start and end comments)
-  - Or change the `start` and `end` lines (useful for config files which comments are not started with `#`)
+  - A `hook` to execute
+  - Specify whether the hook is considered (by your usage) to be `light` or not. `flavours apply --light` will skip running hooks marked with `light=false`. Defaults to `true`.
+  - Whether to use `rewrite` mode (if you do, you don't need the start and end comments). Defaults to `false`.
+  - Or change the `start` and `end` lines (useful for config files which comments are not started with `#`). Defaults to `# Start flavours` and `# End flavours` (case-insensitive).
+
+Here's an example:
+```toml
+# Commands go through bash
+shell = "bash -c '{}'"
+
+# Sway supports the default '#' comments, so it can be ommited
+# 'rewrite' is also ommited, as it defaults to false
+[[item]]
+file = "~/.config/sway/config"
+template = "sway"
+subtemplate = "colors"
+hook = "swaymsg reload"
+# Swaymsg reload temporarily freezes input, so it's marked as not-light
+light = false
+
+# This one uses waybar 'default' subtemplate, so it can be ommited
+[[item]]
+file = "~/.config/waybar/colors.css"
+template = "waybar"
+# Waybar uses a separate color file, so we can safely rewrite the whole file
+rewrite = true
+
+[[item]]
+file = "~/.config/beautifuldiscord/style.css"
+template = "styles"
+subtemplate = "css-variables"
+# What if the configuration doesn't support '#' comments? Just change them!
+start= "/* Start flavours */"
+end = "/* End flavours */"
+```
 
 Vóila. You're now ready to apply schemes.
 

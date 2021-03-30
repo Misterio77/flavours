@@ -25,26 +25,27 @@ fn random(values: Vec<path::PathBuf>) -> Result<path::PathBuf> {
 ///
 /// * `command` - Command string to execute
 /// * `verbose` - Should we be verbose?
-fn run_hook(command: &str, verbose: bool) -> Result<()> {
-    if verbose && !command.is_empty() {
-        println!("running {}", command);
-    }
-    let command_vec = shell_words::split(command)?;
+fn run_hook(command: Option<String>, shell: &str, verbose: bool) -> Result<()> {
+    if let Some(command) = command {
+        let full_command = shell.replace("{}", &command);
+        if verbose {
+            println!("running {}", full_command);
+        }
+        let command_vec = shell_words::split(&full_command)?;
 
-    if !command_vec.is_empty() {
         if command_vec.len() == 1 {
             process::Command::new(&command_vec[0])
                 .stdout(process::Stdio::null())
                 .stderr(process::Stdio::null())
                 .status()
-                .with_context(|| format!("Couldn't run hook '{}'", command))?;
+                .with_context(|| format!("Couldn't run hook '{}'", full_command))?;
         } else {
             process::Command::new(&command_vec[0])
                 .args(&command_vec[1..])
                 .stdout(process::Stdio::null())
                 .stderr(process::Stdio::null())
                 .status()
-                .with_context(|| format!("Couldn't run hook '{}'", command))?;
+                .with_context(|| format!("Couldn't run hook '{}'", full_command))?;
         }
     }
 
@@ -249,6 +250,13 @@ pub fn apply(
 
     let config = Config::from_str(&config_contents)?;
 
+    // If shell is present, check if it contains the placeholder
+    let shell = config.shell.unwrap_or_else(|| "sh -c '{}'".into());
+
+    if !shell.contains("{}") {
+        return Err(anyhow!("The configured shell does not contain the required command placeholder '{}'. Check the default file or github for config examples."));
+    }
+
     let mut hooks = Vec::new();
 
     //Iterate configurated entries (templates)
@@ -261,11 +269,6 @@ pub fn apply(
         let subtemplate = match &item.subtemplate {
             Some(value) => String::from(value),
             None => String::from("default"),
-        };
-        //Hook command
-        let hook = match &item.hook {
-            Some(value) => String::from(value),
-            None => String::from(""),
         };
         //Is the hook lightweight?
         let light = match &item.light {
@@ -331,11 +334,14 @@ pub fn apply(
                 println!("Wrote {}/{} on {:?}", template, subtemplate, file);
             }
         }
+
+        let command = item.hook.clone();
+        let shell = shell.clone();
         // Only add hook to queue if either:
         // - Not running on lightweight mode
         // - Hook is set as lightweight
         if !light_mode || light {
-            hooks.push(thread::spawn(move || run_hook(&hook, verbose)));
+            hooks.push(thread::spawn(move || run_hook(command, &shell, verbose)));
         }
     }
 
