@@ -65,8 +65,8 @@ On flavours configuration (`~/.config/flavours/config.toml` on Linux, can be cha
 - Create a `[[item]]` section for each app, each section can have the following entries:
   - Specify the `file` to write (required)
   - A `template` (required)
-  - A `subtemplate` (for when the template has one other than "default")
-  - A `hook` to execute
+  - A `hook` to execute. Defaults to none.
+  - A `subtemplate`. Defaults to `default`.
   - Specify whether the hook is considered (by your usage) to be `light` or not. `flavours apply --light` will skip running hooks marked with `light=false`. Defaults to `true`.
   - Whether to use `rewrite` mode (if you do, you don't need the start and end comments). Defaults to `false`.
   - Or change the `start` and `end` lines (useful for config files which comments are not started with `#`). Defaults to `# Start flavours` and `# End flavours` (case-insensitive).
