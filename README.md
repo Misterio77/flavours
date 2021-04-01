@@ -61,7 +61,7 @@ For reference, here's a couple configuration files from my [dots](https://github
 - [rofi](https://github.com/Misterio77/dotfiles/blob/sway/home/.config/rofi/themes/colors.rasi)
 
 On flavours configuration (`~/.config/flavours/config.toml` on Linux, can be changed with `-c`/`--config` flag or `FLAVOURS_CONFIG_FILE` environment variable):
-- Optionally, set a `shell` through which your hook commands should be executed. Defaults to `sh -c '{}'`. You can make the hooks directly (pre-0.4 behaviour) by setting it to just `{}`.
+- Optionally, set a `shell` through which your hook commands should be executed. Defaults to `sh -c '{}'`. You can make the hooks run directly (pre-0.4 behaviour) by setting it to just `{}`.
 - Create a `[[item]]` section for each app, each section can have the following entries:
   - Specify the `file` to write (required)
   - A `template` (required)
