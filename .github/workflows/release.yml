@@ -63,7 +63,7 @@ jobs:
           cp $GITHUB_WORKSPACE/example.toml config.toml
           cp $GITHUB_WORKSPACE/README.md README.md
           cp $GITHUB_WORKSPACE/LICENSE LICENSE
-          tar czvf flavours-${{ steps.extract_tag.outputs.tag }}-${{ matrix.prefix }}.tar.gz flavours completions README.md LICENSE
+          tar czvf flavours-${{ steps.extract_tag.outputs.tag }}-${{ matrix.prefix }}.tar.gz flavours completions config.toml README.md LICENSE
           shasum -a 256 flavours-${{ steps.extract_tag.outputs.tag }}-${{ matrix.prefix }}.tar.gz > flavours-${{ steps.extract_tag.outputs.tag }}-${{ matrix.prefix }}.sha256
       
       - name: Releasing assets
