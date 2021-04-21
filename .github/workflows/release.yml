@@ -1,0 +1,75 @@
+name: Release
+
+on: 
+  push:
+    tags:
+      - "v*.*.*"
+
+jobs:
+
+  build:
+    name: Build ${{ matrix.prefix }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - prefix: x86_64-linux
+            target: x86_64-unknown-linux-gnu
+            cross: false
+          - prefix: i686-linux
+            target: i686-unknown-linux-gnu
+            cross: true
+          - prefix: aarch64-linux
+            target: aarch64-unknown-linux-gnu
+            cross: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+            toolchain: stable
+            profile: minimal
+            override: true
+            target: ${{ matrix.target }}
+
+      - name: Cache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+
+      - name: Run cargo build
+        uses: actions-rs/cargo@v1
+        with:
+          use-cross: ${{ matrix.cross }}
+          command: build
+          args: --release --locked --target ${{ matrix.target }}
+
+      - name: Extract git tag
+        shell: bash
+        run: echo "##[set-output name=tag;]$(echo ${GITHUB_REF#refs/tags/})"
+        id: extract_tag
+      
+      - name: Packaging assets
+        shell: bash
+        run: |
+          cd target/${{ matrix.target }}/release
+          cp -r $GITHUB_WORKSPACE/completions completions
+          cp $GITHUB_WORKSPACE/example.toml config.toml
+          cp $GITHUB_WORKSPACE/README.md README.md
+          cp $GITHUB_WORKSPACE/LICENSE LICENSE
+          tar czvf flavours-${{ steps.extract_tag.outputs.tag }}-${{ matrix.prefix }}.tar.gz flavours completions config.toml README.md LICENSE
+          shasum -a 256 flavours-${{ steps.extract_tag.outputs.tag }}-${{ matrix.prefix }}.tar.gz > flavours-${{ steps.extract_tag.outputs.tag }}-${{ matrix.prefix }}.sha256
+      
+      - name: Releasing assets
+        uses: softprops/action-gh-release@v1
+        with:
+          files: target/${{ matrix.target }}/release/flavours-*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
