@@ -94,7 +94,7 @@ fn main() -> Result<()> {
                 .ok_or_else(|| anyhow!("You must specify a scheme file"))?;
             let template_file = sub_matches
                 .value_of("template")
-                .ok_or_else(|| anyhow!("You must specify a scheme file"))?;
+                .ok_or_else(|| anyhow!("You must specify a template file"))?;
             build::build(Path::new(scheme_file), Path::new(template_file))
         }
 
