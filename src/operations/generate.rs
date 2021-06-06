@@ -105,10 +105,7 @@ fn light_color(colors: &[Rgb], verbose: bool) -> Result<Rgb> {
     // Ok, we didn't find anything usable. So let's just grab the most dominant color (we'll lighten it later)
     if light == None {
         passes += 1;
-        light = match colors.first() {
-            Some(color) => Some(*color),
-            None => None,
-        };
+        light = colors.first().copied();
     }
 
     if verbose {
@@ -138,10 +135,7 @@ fn dark_color(colors: &[Rgb], verbose: bool) -> Result<Rgb> {
     // Ok, we didn't find anything usable. So let's just grab the most dominant color (we'll darken it later)
     if dark == None {
         passes += 1;
-        dark = match colors.first() {
-            Some(color) => Some(*color),
-            None => None,
-        };
+        dark = colors.first().copied()
     }
 
     if verbose {

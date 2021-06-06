@@ -10,7 +10,7 @@ mod find;
 mod operations;
 mod scheme;
 
-use operations::{apply, current, generate, info, list, update};
+use operations::{apply, build, current, generate, info, list, update};
 use scheme::Scheme;
 use std::fs::{create_dir_all, write};
 fn main() -> Result<()> {
@@ -85,6 +85,17 @@ fn main() -> Result<()> {
             };
             let light = sub_matches.is_present("light");
             apply::apply(patterns, &flavours_dir, &flavours_config, light, verbose)
+        }
+
+        Some(("build", sub_matches)) => {
+            // Get file paths
+            let scheme_file = sub_matches
+                .value_of("scheme")
+                .ok_or_else(|| anyhow!("You must specify a scheme file"))?;
+            let template_file = sub_matches
+                .value_of("template")
+                .ok_or_else(|| anyhow!("You must specify a scheme file"))?;
+            build::build(Path::new(scheme_file), Path::new(template_file))
         }
 
         Some(("list", sub_matches)) => {

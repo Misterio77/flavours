@@ -187,4 +187,24 @@ pub fn build_cli() -> App<'static> {
                     .possible_values(&["lists", "schemes", "templates", "all"])
                 )
         )
+        .subcommand(
+            App::new("build")
+                .about("Builds a template with given scheme, outputs to stdout")
+                .setting(AppSettings::UnifiedHelpMessage)
+                .setting(AppSettings::DeriveDisplayOrder)
+                .setting(AppSettings::DisableHelpSubcommand)
+                .setting(AppSettings::DisableVersion)
+                .setting(AppSettings::ColoredHelp)
+                .arg(
+                    Arg::new("scheme")
+                    .about("Path to scheme file.")
+                    .required(true)
+                    .value_hint(ValueHint::FilePath)
+                )
+                .arg(
+                    Arg::new("template")
+                    .about("Path to template file.")
+                    .value_hint(ValueHint::FilePath)
+                )
+        )
 }
