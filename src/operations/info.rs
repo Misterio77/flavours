@@ -79,7 +79,12 @@ pub fn info(patterns: Vec<&str>, base_dir: &Path, raw: bool) -> Result<()> {
 
         let scheme = Scheme::from_str(&scheme_contents, scheme_slug)?;
 
-        match stdoutln!("{} ({})", scheme.name, scheme.slug) {
+        match stdoutln!(
+            "{} ({}) @ {}",
+            scheme.name,
+            scheme.slug,
+            scheme_file.to_string_lossy()
+        ) {
             Ok(_) => Ok(()),
             Err(e) => match e.kind() {
                 std::io::ErrorKind::BrokenPipe => Ok(()),

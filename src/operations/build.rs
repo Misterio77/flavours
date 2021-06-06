@@ -89,14 +89,11 @@ pub fn build(scheme_file: &path::Path, template_file: &path::Path) -> Result<()>
     let scheme_contents = &fs::read_to_string(&scheme_file)
         .with_context(|| format!("Couldn't read scheme file at {:?}.", scheme_file))?;
 
-    let scheme = Scheme::from_str(
-        scheme_contents,
-        scheme_file
-            .file_stem()
-            .ok_or_else(|| anyhow!("The scheme path must contain a valid filename"))?
-            .to_str()
-            .ok_or_else(|| anyhow!("The scheme file is not valid UTF8"))?,
-    )?;
+    let slug = scheme_file
+        .file_stem()
+        .ok_or_else(|| anyhow!("The scheme path must contain a valid filename"))?
+        .to_string_lossy();
+    let scheme = Scheme::from_str(scheme_contents, &slug)?;
     //Template content
     let template_content = fs::read_to_string(template_file)
         .with_context(|| format!("Couldn't read template file at {:?}.", template_file))?;
