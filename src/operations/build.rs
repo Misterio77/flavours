@@ -18,7 +18,7 @@ pub fn build_template(template_base: String, scheme: &Scheme) -> Result<String> 
         .replace("{{scheme-slug}}", &scheme.slug);
 
     for (name, color) in scheme.colors.iter().enumerate() {
-        let hex = String::from(color);
+        let hex = String::from(color).replace("#", "");
         let rgb = hex::decode(&hex)?;
         built_template = built_template
             .replace(
@@ -100,7 +100,7 @@ pub fn build(scheme_file: &path::Path, template_file: &path::Path) -> Result<()>
 
     //Template with correct colors
     let built_template = build_template(template_content, &scheme)
-        .context("Couldn't replace placeholders. Check if all colors on the specified scheme file are valid (don't include a leading '#').")?;
+        .context("Couldn't replace placeholders. Check if all colors on the specified scheme file are valid.")?;
 
     println!("{}", built_template);
     Ok(())

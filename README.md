@@ -119,6 +119,8 @@ You can, for instance:
 #### Other commands
 You can also use `flavours current` to see the last scheme you applied, `flavours list` to list all available schemes (you can also use PATTERN like on apply to list only specific scheme(s)), `flavours info` to show info (including truecolor colored output) about some scheme(s) (also supports the PATTERN syntax).
 
+You can also use flavours as a simple [base16 builder](https://github.com/chriskempson/base16/blob/master/builder.md). Just use the build command: `flavours build <path_to_scheme> <path_to_template>` (you can easily get a scheme path by using `flavours info theme_name | head -1 | cut -d '@' -f2`). This works great for automating static styles, and anything else you can come up with (i use it on my [personal website](https://misterio.me)).
+
 Lastly, we have `flavours generate`, it can generate a scheme based on an image (usually your wallpaper), with the following syntax: `flavours generate <dark/light> /path/to/image/file`. By default, the scheme will be saved with the slug (the scheme name referenced in all other commands) `generated` (you can change it with `-s` or `--slug`, or output to stdout instead with `--stdout`).
 
 In my setup, i use swaybg to apply wallpapers, and i can get my current wallpaper with `cat .bg`.
