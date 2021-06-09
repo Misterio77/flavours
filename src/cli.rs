@@ -204,6 +204,7 @@ pub fn build_cli() -> App<'static> {
                 .arg(
                     Arg::new("template")
                     .about("Path to template file.")
+                    .required(true)
                     .value_hint(ValueHint::FilePath)
                 )
         )
