@@ -9,7 +9,12 @@ use clap_generate::{
 
 pub fn completions(shell: Option<&str>) -> Result<()> {
     match shell {
-        Some("bash") => generate::<Bash, _>(&mut build_cli(), "flavours", &mut io::stdout()),
+        Some("bash") => {
+            let mut buffer = Vec::new();
+            generate::<Bash, _>(&mut build_cli(), "flavours", &mut buffer);
+            let buffer = String::from_utf8(buffer)?;
+            println!("{}", buffer.replace("-W \"placeholder\" --", "-f"));
+        },
         Some("elvish") => generate::<Elvish, _>(&mut build_cli(), "flavours", &mut io::stdout()),
         Some("powershell") => {
             generate::<PowerShell, _>(&mut build_cli(), "flavours", &mut io::stdout())
