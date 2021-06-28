@@ -78,6 +78,7 @@ _arguments "${_arguments_options[@]}" \
 _arguments "${_arguments_options[@]}" \
 '-l[Skip running heavier hooks (entries marked '\''light=false'\'')]' \
 '--light[Skip running heavier hooks (entries marked '\''light=false'\'')]' \
+'--stdin[Reads scheme from stdin instead of from flavours directory.]' \
 '-h[Prints help information]' \
 '--help[Prints help information]' \
 '*::pattern -- Scheme to be applied, supports glob. If more than one is specified (or if glob pattern matched more than one), chooses one randomly. If ommited, defaults to * (all installed schemes).:($(flavours list))' \
@@ -88,6 +89,14 @@ _arguments "${_arguments_options[@]}" \
 '-h[Prints help information]' \
 '--help[Prints help information]' \
 ':operation -- Update sources lists from repositories or (re)download schemes/templates specified in the lists. Default repositories for lists, and the lists themselves, can be manually changed.:(lists schemes templates all)' \
+&& ret=0
+;;
+(build)
+_arguments "${_arguments_options[@]}" \
+'-h[Prints help information]' \
+'--help[Prints help information]' \
+':scheme -- Path to scheme file.:_files' \
+':template -- Path to template file.:_files' \
 && ret=0
 ;;
         esac
@@ -104,6 +113,7 @@ _flavours_commands() {
 "generate:Generates a scheme based on an image" \
 "apply:Applies scheme, according to user configuration" \
 "update:Downloads schemes, templates, or updates their lists (from repos specified in sources.yml)" \
+"build:Builds a template with given scheme, outputs to stdout" \
     )
     _describe -t commands 'flavours commands' commands "$@"
 }
@@ -113,6 +123,13 @@ _flavours__apply_commands() {
         
     )
     _describe -t commands 'flavours apply commands' commands "$@"
+}
+(( $+functions[_flavours__build_commands] )) ||
+_flavours__build_commands() {
+    local commands; commands=(
+        
+    )
+    _describe -t commands 'flavours build commands' commands "$@"
 }
 (( $+functions[_flavours__current_commands] )) ||
 _flavours__current_commands() {

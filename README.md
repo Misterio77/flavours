@@ -17,7 +17,7 @@ This is a CLI program that both builds and manages Base16 schemes and templates.
 
 The base16 specification consists of both schemes (with 16 colors) and templates. There'll probably be templates for most applications you use, but you can easily make one for literally any app that supports any sort of color customization.
 
-Once your configuration files are set, you can theme your entire desktop with just *one* command. No more hassle changing themes when you get bored.
+Once your configuration files are set, you can theme your entire desktop with just *one* command. No more hassle manually changing themes when you get bored.
 Why have one color if you can have all the colors?
 
 Here's how it looks in action (sway, waybar, alacritty):

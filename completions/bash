@@ -16,6 +16,9 @@ _flavours() {
             apply)
                 cmd+="__apply"
                 ;;
+            build)
+                cmd+="__build"
+                ;;
             current)
                 cmd+="__current"
                 ;;
@@ -38,7 +41,7 @@ _flavours() {
 
     case "${cmd}" in
         flavours)
-            opts=" -v -c -d -h -V  --verbose --config --directory --completions --help --version  current list info generate apply update"
+            opts=" -v -c -d -h -V  --verbose --config --directory --completions --help --version  current list info generate apply update build"
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 1 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0
@@ -74,7 +77,22 @@ _flavours() {
             ;;
         
         flavours__apply)
-            opts=" -l -h  --light --help  <pattern>... "
+            opts=" -l -h  --light --stdin --help  <pattern>... "
+            if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
+                COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+                return 0
+            fi
+            case "${prev}" in
+                
+                *)
+                    COMPREPLY=()
+                    ;;
+            esac
+            COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
+            return 0
+            ;;
+        flavours__build)
+            opts=" -h  --help  <scheme> <template> "
             if [[ ${cur} == -* || ${COMP_CWORD} -eq 2 ]] ; then
                 COMPREPLY=( $(compgen -W "${opts}" -- "${cur}") )
                 return 0

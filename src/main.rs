@@ -3,15 +3,10 @@ use dirs::{data_dir, preference_dir};
 use std::env;
 use std::path::Path;
 
-mod cli;
-mod completions;
-mod config;
-mod find;
-mod operations;
-mod scheme;
+use flavours::operations::{apply, build, current, generate, info, list, update};
+use flavours::scheme::Scheme;
+use flavours::{completions, cli};
 
-use operations::{apply, build, current, generate, info, list, update};
-use scheme::Scheme;
 use std::fs::{create_dir_all, write};
 fn main() -> Result<()> {
     let matches = cli::build_cli().get_matches();
@@ -84,7 +79,8 @@ fn main() -> Result<()> {
                 None => vec!["*"],
             };
             let light = sub_matches.is_present("light");
-            apply::apply(patterns, &flavours_dir, &flavours_config, light, verbose)
+            let from_stdin = sub_matches.is_present("stdin");
+            apply::apply(patterns, &flavours_dir, &flavours_config, light, from_stdin, verbose)
         }
 
         Some(("build", sub_matches)) => {

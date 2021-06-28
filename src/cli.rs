@@ -66,6 +66,7 @@ pub fn build_cli() -> App<'static> {
                     .setting(ArgSettings::MultipleValues)
                     .value_hint(ValueHint::Other)
                     .multiple(true)
+                    .possible_values(&["placeholder"])
                 )
                 .arg(
                     Arg::new("lines")
@@ -88,6 +89,7 @@ pub fn build_cli() -> App<'static> {
                     .setting(ArgSettings::MultipleValues)
                     .value_hint(ValueHint::Other)
                     .multiple(true)
+                    .possible_values(&["placeholder"])
                 )
                 .arg(
                     Arg::new("raw")
@@ -125,6 +127,7 @@ pub fn build_cli() -> App<'static> {
                     .value_name("slug")
                     .takes_value(true)
                     .value_hint(ValueHint::Other)
+                    .possible_values(&["placeholder"])
                 )
                 .arg(
                     Arg::new("name")
@@ -164,12 +167,18 @@ pub fn build_cli() -> App<'static> {
                     .value_hint(ValueHint::Other)
                     .setting(ArgSettings::MultipleValues)
                     .multiple(true)
+                    .possible_values(&["placeholder"])
                 )
                 .arg(
                     Arg::new("light")
                     .about("Skip running heavier hooks (entries marked 'light=false')")
                     .long("light")
                     .short('l')
+                )
+                .arg(
+                    Arg::new("stdin")
+                    .about("Reads scheme from stdin instead of from flavours directory.")
+                    .long("stdin")
                 )
         )
         .subcommand(

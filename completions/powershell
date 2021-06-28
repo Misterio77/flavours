@@ -37,6 +37,7 @@ Register-ArgumentCompleter -Native -CommandName 'flavours' -ScriptBlock {
             [CompletionResult]::new('generate', 'generate', [CompletionResultType]::ParameterValue, 'Generates a scheme based on an image')
             [CompletionResult]::new('apply', 'apply', [CompletionResultType]::ParameterValue, 'Applies scheme, according to user configuration')
             [CompletionResult]::new('update', 'update', [CompletionResultType]::ParameterValue, 'Downloads schemes, templates, or updates their lists (from repos specified in sources.yml)')
+            [CompletionResult]::new('build', 'build', [CompletionResultType]::ParameterValue, 'Builds a template with given scheme, outputs to stdout')
             break
         }
         'flavours;current' {
@@ -73,11 +74,17 @@ Register-ArgumentCompleter -Native -CommandName 'flavours' -ScriptBlock {
         'flavours;apply' {
             [CompletionResult]::new('-l', 'l', [CompletionResultType]::ParameterName, 'Skip running heavier hooks (entries marked ''light=false'')')
             [CompletionResult]::new('--light', 'light', [CompletionResultType]::ParameterName, 'Skip running heavier hooks (entries marked ''light=false'')')
+            [CompletionResult]::new('--stdin', 'stdin', [CompletionResultType]::ParameterName, 'Reads scheme from stdin instead of from flavours directory.')
             [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Prints help information')
             [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Prints help information')
             break
         }
         'flavours;update' {
+            [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Prints help information')
+            [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Prints help information')
+            break
+        }
+        'flavours;build' {
             [CompletionResult]::new('-h', 'h', [CompletionResultType]::ParameterName, 'Prints help information')
             [CompletionResult]::new('--help', 'help', [CompletionResultType]::ParameterName, 'Prints help information')
             break

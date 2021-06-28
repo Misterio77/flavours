@@ -1,5 +1,6 @@
 use anyhow::{anyhow, Context, Result};
 use rand::seq::SliceRandom;
+use std::io::{self, Read};
 use std::fs;
 use std::path;
 use std::process;
@@ -106,40 +107,49 @@ fn replace_delimiter(
 /// * `base_dir` - Flavours base directory
 /// * `config_path` - Flavours configuration path
 /// * `light` - Don't run hooks marked as non-lightweight
+/// * `from_stdin` - Read scheme from stdin?
 /// * `verbose` - Should we be verbose?
 pub fn apply(
     patterns: Vec<&str>,
     base_dir: &path::Path,
     config_path: &path::Path,
     light_mode: bool,
+    from_stdin: bool,
     verbose: bool,
 ) -> Result<()> {
-    //Find schemes that match given patterns
-    let mut schemes = Vec::new();
-    for pattern in patterns {
-        let found_schemes = find(pattern, &base_dir.join("base16").join("schemes"))?;
+    let (scheme_contents, scheme_slug) = if from_stdin {
+        let mut buffer = String::new();
+        let stdin = io::stdin();
+        let mut handle = stdin.lock();
+        handle.read_to_string(&mut buffer)?;
+        (buffer, String::from("generated"))
+    } else {
+        //Find schemes that match given patterns
+        let mut schemes = Vec::new();
+        for pattern in patterns {
+            let found_schemes = find(pattern, &base_dir.join("base16").join("schemes"))?;
 
-        for found_scheme in found_schemes {
-            schemes.push(found_scheme);
+            for found_scheme in found_schemes {
+                schemes.push(found_scheme);
+            }
         }
-    }
-    //Sort and remove duplicates
-    schemes.sort();
-    schemes.dedup();
+        //Sort and remove duplicates
+        schemes.sort();
+        schemes.dedup();
 
-    //Get random scheme
-    let scheme_file = random(schemes)?;
-    let scheme_slug = scheme_file
-        .file_stem()
-        .ok_or_else(|| anyhow!("Couldn't get scheme name."))?
-        .to_str()
-        .ok_or_else(|| anyhow!("Couldn't convert scheme file name."))?;
+        //Get random scheme
+        let scheme_file = random(schemes)?;
+        let scheme_slug: String = scheme_file
+            .file_stem()
+            .ok_or_else(|| anyhow!("Couldn't get scheme name."))?
+            .to_str()
+            .ok_or_else(|| anyhow!("Couldn't convert scheme file name."))?.into();
 
-    //Read chosen scheme
-    let scheme_contents = &fs::read_to_string(&scheme_file)
-        .with_context(|| format!("Couldn't read scheme file at {:?}.", scheme_file))?;
+        //Read chosen scheme
+        (fs::read_to_string(&scheme_file).with_context(|| format!("Couldn't read scheme file at {:?}.", scheme_file))?, scheme_slug)
+    };
 
-    let scheme = Scheme::from_str(scheme_contents, scheme_slug)?;
+    let scheme = Scheme::from_str(&scheme_contents, &scheme_slug)?;
 
     if verbose {
         println!(

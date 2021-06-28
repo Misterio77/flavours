@@ -32,6 +32,7 @@ edit:completion:arg-completer[flavours] = [@words]{
             cand generate 'Generates a scheme based on an image'
             cand apply 'Applies scheme, according to user configuration'
             cand update 'Downloads schemes, templates, or updates their lists (from repos specified in sources.yml)'
+            cand build 'Builds a template with given scheme, outputs to stdout'
         }
         &'flavours;current'= {
             cand -h 'Prints help information'
@@ -63,10 +64,15 @@ edit:completion:arg-completer[flavours] = [@words]{
         &'flavours;apply'= {
             cand -l 'Skip running heavier hooks (entries marked ''light=false'')'
             cand --light 'Skip running heavier hooks (entries marked ''light=false'')'
+            cand --stdin 'Reads scheme from stdin instead of from flavours directory.'
             cand -h 'Prints help information'
             cand --help 'Prints help information'
         }
         &'flavours;update'= {
+            cand -h 'Prints help information'
+            cand --help 'Prints help information'
+        }
+        &'flavours;build'= {
             cand -h 'Prints help information'
             cand --help 'Prints help information'
         }
