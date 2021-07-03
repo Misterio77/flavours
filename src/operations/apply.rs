@@ -1,7 +1,7 @@
 use anyhow::{anyhow, Context, Result};
 use rand::seq::SliceRandom;
-use std::io::{self, Read};
 use std::fs;
+use std::io::{self, Read};
 use std::path;
 use std::process;
 use std::str;
@@ -143,10 +143,15 @@ pub fn apply(
             .file_stem()
             .ok_or_else(|| anyhow!("Couldn't get scheme name."))?
             .to_str()
-            .ok_or_else(|| anyhow!("Couldn't convert scheme file name."))?.into();
+            .ok_or_else(|| anyhow!("Couldn't convert scheme file name."))?
+            .into();
 
         //Read chosen scheme
-        (fs::read_to_string(&scheme_file).with_context(|| format!("Couldn't read scheme file at {:?}.", scheme_file))?, scheme_slug)
+        (
+            fs::read_to_string(&scheme_file)
+                .with_context(|| format!("Couldn't read scheme file at {:?}.", scheme_file))?,
+            scheme_slug,
+        )
     };
 
     let scheme = Scheme::from_str(&scheme_contents, &scheme_slug)?;
@@ -251,6 +256,7 @@ pub fn apply(
 
         //Rewrite file with built template
         if rewrite {
+            std::path::Path::new(&file).parent().and_then(|p| fs::create_dir_all(p).ok());
             fs::write(&file, built_template)
                 .with_context(|| format!("Couldn't write to file {:?}.", file))?;
 
