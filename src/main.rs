@@ -5,7 +5,7 @@ use std::path::Path;
 
 use flavours::operations::{apply, build, current, generate, info, list, update};
 use flavours::scheme::Scheme;
-use flavours::{completions, cli};
+use flavours::{cli, completions};
 
 use std::fs::{create_dir_all, write};
 fn main() -> Result<()> {
@@ -80,7 +80,14 @@ fn main() -> Result<()> {
             };
             let light = sub_matches.is_present("light");
             let from_stdin = sub_matches.is_present("stdin");
-            apply::apply(patterns, &flavours_dir, &flavours_config, light, from_stdin, verbose)
+            apply::apply(
+                patterns,
+                &flavours_dir,
+                &flavours_config,
+                light,
+                from_stdin,
+                verbose,
+            )
         }
 
         Some(("build", sub_matches)) => {
