@@ -1,7 +1,7 @@
 # Configuration for flavours
 # https://github.com/Misterio77/flavours
 #
-# This file should contain a [[item]] section for each application you want themed
+# This file should contain a [[items]] section for each application you want themed
 # You can also set a shell (outside items) on which to run hooks
 # Check flavours repository for more information and examples
 
@@ -11,7 +11,7 @@
 # # Through which shell command hooks will run. The command will be replaced in '{}'
 # shell = "sh -c '{}'"
 #
-# [[item]]
+# [[items]]
 # # File to inject to, supports tilde and env var expansion. required
 # file = "~/.config/example"
 # # Template to use. required
@@ -35,19 +35,19 @@
 
 # shell = "bash -c '{}'"
 #
-# [[item]]
+# [[items]]
 # file = "~/.config/sway/config"
 # template = "sway"
 # subtemplate = "colors"
 # hook = "swaymsg reload"
 # light = false
 #
-# [[item]]
+# [[items]]
 # file = "~/.config/waybar/colors.css"
 # template = "waybar"
 # rewrite = true
 # 
-# [[item]]
+# [[items]]
 # file = "~/.config/beautifuldiscord/style.css"
 # template = "styles"
 # subtemplate = "css-variables"

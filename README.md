@@ -62,7 +62,7 @@ For reference, here's a couple configuration files from my [dots](https://github
 
 On flavours configuration (`~/.config/flavours/config.toml` on Linux, can be changed with `-c`/`--config` flag or `FLAVOURS_CONFIG_FILE` environment variable):
 - Optionally, set a `shell` through which your hook commands should be executed. Defaults to `sh -c '{}'`. You can make the hooks run directly (pre-0.4 behaviour) by setting it to just `{}`.
-- Create a `[[item]]` section for each app, each section can have the following entries:
+- Create a `[[items]]` section for each app, each section can have the following entries:
   - Specify the `file` to write (required)
   - A `template` (required)
   - A `hook` to execute. Defaults to none.
@@ -78,7 +78,7 @@ shell = "bash -c '{}'"
 
 # Sway supports the default '#' comments, so it can be ommited
 # 'rewrite' is also ommited, as it defaults to false
-[[item]]
+[[items]]
 file = "~/.config/sway/config"
 template = "sway"
 subtemplate = "colors"
@@ -87,13 +87,13 @@ hook = "swaymsg reload"
 light = false
 
 # This one uses waybar 'default' subtemplate, so it can be ommited
-[[item]]
+[[items]]
 file = "~/.config/waybar/colors.css"
 template = "waybar"
 # Waybar uses a separate color file, so we can safely rewrite the whole file
 rewrite = true
 
-[[item]]
+[[items]]
 file = "~/.config/beautifuldiscord/style.css"
 template = "styles"
 subtemplate = "css-variables"
