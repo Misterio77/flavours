@@ -6,6 +6,7 @@ use serde::Deserialize;
 pub struct Config {
     pub shell: Option<String>,
     pub item: Option<Vec<ConfigItem>>,
+    pub items: Option<Vec<ConfigItem>>,
 }
 
 /// Structure for configuration apply items

@@ -7,5 +7,7 @@
 
 
 #Added by cargo
-
 /target
+
+# Ignore direnv data
+.direnv

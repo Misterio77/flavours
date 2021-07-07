@@ -200,7 +200,14 @@ pub fn apply(
     let mut hooks = Vec::new();
 
     //Iterate configurated entries (templates)
-    let items = config.item.ok_or_else(|| anyhow!("Couldn't get items from config file. Check the default file or github for config examples."))?;
+    let items_legacy = config.item.unwrap_or_default();
+    let mut items = config.items.unwrap_or_default();
+    items.extend(items_legacy.into_iter()) ;
+
+    if items.is_empty() {
+        return Err(anyhow!("Couldn't get items from config file. Check the default file or github for config examples."));
+    }
+
 
     for item in items.iter() {
         //Template name
