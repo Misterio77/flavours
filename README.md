@@ -11,6 +11,7 @@ A manager/builder for [Base16](https://github.com/chriskempson/base16). Written 
 
 [![Packaging status](https://repology.org/badge/vertical-allrepos/flavours.svg)](https://repology.org/project/flavours/versions)
 
+**Notice**: This README refers to the latest (possibly unreleased) `master` version. Some docs might differ from the version you're using. Maybe you're looking for the [0.5.0 version](https://github.com/Misterio77/flavours/tree/v0.5.0)?
 
 ## What
 This is a CLI program that both builds and manages Base16 schemes and templates.
