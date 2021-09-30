@@ -23,57 +23,57 @@ pub fn build_template(template_base: String, scheme: &Scheme) -> Result<String> 
         built_template = built_template
             .replace(
                 //hex
-                &format!("{{{{base0{:X}-hex}}}}", name),
+                &format!("{{{{base{:02X}-hex}}}}", name),
                 &hex,
             )
             .replace(
                 //hex-r
-                &format!("{{{{base0{:X}-hex-r}}}}", name),
+                &format!("{{{{base{:02X}-hex-r}}}}", name),
                 &hex[0..2],
             )
             .replace(
                 //hex-g
-                &format!("{{{{base0{:X}-hex-g}}}}", name),
+                &format!("{{{{base{:02X}-hex-g}}}}", name),
                 &hex[2..4],
             )
             .replace(
                 //hex-b
-                &format!("{{{{base0{:X}-hex-b}}}}", name),
+                &format!("{{{{base{:02X}-hex-b}}}}", name),
                 &hex[4..6],
             )
             .replace(
                 //hex-bgr
-                &format!("{{{{base0{:X}-hex-bgr}}}}", name),
+                &format!("{{{{base{:02X}-hex-bgr}}}}", name),
                 &format!("{}{}{}", &hex[4..6], &hex[2..4], &hex[0..2]),
             )
             .replace(
                 //rgb-r
-                &format!("{{{{base0{:X}-rgb-r}}}}", name),
+                &format!("{{{{base{:02X}-rgb-r}}}}", name),
                 &format!("{}", rgb[0]),
             )
             .replace(
                 //rgb-g
-                &format!("{{{{base0{:X}-rgb-g}}}}", name),
+                &format!("{{{{base{:02X}-rgb-g}}}}", name),
                 &format!("{}", rgb[1]),
             )
             .replace(
                 //rgb-b
-                &format!("{{{{base0{:X}-rgb-b}}}}", name),
+                &format!("{{{{base{:02X}-rgb-b}}}}", name),
                 &format!("{}", rgb[2]),
             )
             .replace(
                 //dec-r
-                &format!("{{{{base0{:X}-dec-r}}}}", name),
+                &format!("{{{{base{:02X}-dec-r}}}}", name),
                 &format!("{:.2}", (rgb[0] as f64) / (255_f64)),
             )
             .replace(
                 //dec-g
-                &format!("{{{{base0{:X}-dec-g}}}}", name),
+                &format!("{{{{base{:02X}-dec-g}}}}", name),
                 &format!("{:.2}", (rgb[1] as f64) / (255_f64)),
             )
             .replace(
                 //dec-b
-                &format!("{{{{base0{:X}-dec-b}}}}", name),
+                &format!("{{{{base{:02X}-dec-b}}}}", name),
                 &format!("{:.2}", (rgb[2] as f64) / (255_f64)),
             )
     }

@@ -24,8 +24,8 @@ pub struct ConfigItem {
 
 impl Config {
     /// Parse a TOML str into a Config struct
-    pub fn from_str(contents: &str) -> Result<Config> {
-        toml::from_str(&contents)
+    pub fn read(contents: &str) -> Result<Config> {
+        toml::from_str(contents)
             .context("Couldn't parse configuration file. Check if it's syntatically correct")
     }
 }

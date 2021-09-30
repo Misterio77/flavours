@@ -18,10 +18,10 @@ pub fn print_color(color: &str) -> Result<()> {
     const RESETCOLOR: &str = "\x1b[0m";
     match stdoutln!(
         "{} #{} {}  {}#{}{}",
-        true_color(&color, true)?,
+        true_color(color, true)?,
         color,
         RESETCOLOR,
-        true_color(&color, false)?,
+        true_color(color, false)?,
         color,
         RESETCOLOR
     ) {

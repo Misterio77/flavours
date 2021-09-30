@@ -34,6 +34,14 @@ struct SchemeFile {
     base0D: String,
     base0E: String,
     base0F: String,
+    base10: Option<String>,
+    base11: Option<String>,
+    base12: Option<String>,
+    base13: Option<String>,
+    base14: Option<String>,
+    base15: Option<String>,
+    base16: Option<String>,
+    base17: Option<String>,
 }
 
 impl Scheme {
@@ -49,7 +57,7 @@ impl Scheme {
         scheme.slug = String::from(slug);
         scheme.name = scheme_file.scheme;
         scheme.author = scheme_file.author;
-        scheme.colors.push_back(scheme_file.base00);
+        scheme.colors.push_back(scheme_file.base00.clone());
         scheme.colors.push_back(scheme_file.base01);
         scheme.colors.push_back(scheme_file.base02);
         scheme.colors.push_back(scheme_file.base03);
@@ -57,14 +65,22 @@ impl Scheme {
         scheme.colors.push_back(scheme_file.base05);
         scheme.colors.push_back(scheme_file.base06);
         scheme.colors.push_back(scheme_file.base07);
-        scheme.colors.push_back(scheme_file.base08);
+        scheme.colors.push_back(scheme_file.base08.clone());
         scheme.colors.push_back(scheme_file.base09);
-        scheme.colors.push_back(scheme_file.base0A);
-        scheme.colors.push_back(scheme_file.base0B);
-        scheme.colors.push_back(scheme_file.base0C);
-        scheme.colors.push_back(scheme_file.base0D);
-        scheme.colors.push_back(scheme_file.base0E);
+        scheme.colors.push_back(scheme_file.base0A.clone());
+        scheme.colors.push_back(scheme_file.base0B.clone());
+        scheme.colors.push_back(scheme_file.base0C.clone());
+        scheme.colors.push_back(scheme_file.base0D.clone());
+        scheme.colors.push_back(scheme_file.base0E.clone());
         scheme.colors.push_back(scheme_file.base0F);
+        scheme.colors.push_back(scheme_file.base10.unwrap_or(scheme_file.base00.clone()));
+        scheme.colors.push_back(scheme_file.base11.unwrap_or(scheme_file.base00));
+        scheme.colors.push_back(scheme_file.base12.unwrap_or(scheme_file.base08));
+        scheme.colors.push_back(scheme_file.base13.unwrap_or(scheme_file.base0A));
+        scheme.colors.push_back(scheme_file.base14.unwrap_or(scheme_file.base0B));
+        scheme.colors.push_back(scheme_file.base15.unwrap_or(scheme_file.base0C));
+        scheme.colors.push_back(scheme_file.base16.unwrap_or(scheme_file.base0D));
+        scheme.colors.push_back(scheme_file.base17.unwrap_or(scheme_file.base0E));
 
         Ok(scheme)
     }

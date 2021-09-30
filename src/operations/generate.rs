@@ -312,7 +312,7 @@ pub fn generate(image_path: &Path, mode: Mode, verbose: bool) -> Result<VecDeque
     if verbose {
         println!();
         for color in &colors {
-            info::print_color(&color)?;
+            info::print_color(color)?;
         }
     }
 
