@@ -11,7 +11,7 @@ A manager/builder for [Base16](https://github.com/chriskempson/base16). Written 
 
 [![Packaging status](https://repology.org/badge/vertical-allrepos/flavours.svg)](https://repology.org/project/flavours/versions)
 
-Looking for something similar to use with NixOS/home-manager? Check out [`nix-colors`](https://github.com/misterio77nix-colors)
+Looking for something similar to use with NixOS/home-manager? Check out [`nix-colors`](https://github.com/misterio77/nix-colors)
 
 ## What
 This is a CLI program that both builds and manages Base16 schemes and templates.
