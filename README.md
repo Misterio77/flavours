@@ -13,8 +13,6 @@ A manager/builder for [Base16](https://github.com/chriskempson/base16). Written 
 
 Looking for something similar to use with NixOS/home-manager? Check out [`nix-colors`](https://github.com/misterio77nix-colors)
 
-**Notice**: This README refers to the latest (possibly unreleased) `master` version. Some docs might differ from the version you're using. Maybe you're looking for the [0.5.1 version](https://github.com/Misterio77/flavours/tree/v0.5.1)?
-
 ## What
 This is a CLI program that both builds and manages Base16 schemes and templates.
 
@@ -39,7 +37,7 @@ Here's how it looks in action (sway, waybar, alacritty):
 Let me know if you want to package flavours for your favorite distro.
 
 #### Cargo
-Just install cargo and run `cargo install flavours` (don't forget to include `~/.cargo/bin` on your PATH).
+Just install cargo and run `cargo install --locked flavours` (don't forget to include `~/.cargo/bin` on your PATH).
 
 #### Post-install
 After installing, you should probably use `flavours update all` to grab all published schemes and templates from the base16 repos. If you want, you can manually tweak the templates, schemes or even the repo lists (everything's located in `~/.local/share/flavours` on Linux, and can be changed with `-d`/`--directory` cli option or `FLAVOURS_DATA_DIRECTORY` environment variable).
