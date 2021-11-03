@@ -194,7 +194,9 @@ pub fn apply(
     let shell = config.shell.unwrap_or_else(|| "sh -c '{}'".into());
 
     if !shell.contains("{}") {
-        return Err(anyhow!("The configured shell does not contain the required command placeholder '{}'. Check the default file or github for config examples."));
+        // Hide {} in this error message from the formatting machinery in anyhow macro
+        let msg = "The configured shell does not contain the required command placeholder '{}'. Check the default file or github for config examples.";
+        return Err(anyhow!(msg));
     }
 
     let mut hooks = Vec::new();
