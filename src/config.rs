@@ -1,5 +1,6 @@
 use anyhow::{Context, Result};
 use serde::Deserialize;
+use std::path::Path;
 
 /// Structure for configuration
 #[derive(Deserialize, Debug)]
@@ -24,8 +25,8 @@ pub struct ConfigItem {
 
 impl Config {
     /// Parse a TOML str into a Config struct
-    pub fn read(contents: &str) -> Result<Config> {
+    pub fn read(contents: &str, path: &Path) -> Result<Config> {
         toml::from_str(contents)
-            .context("Couldn't parse configuration file. Check if it's syntatically correct")
+            .context(format!("Couldn't parse flavours configuration file ({:?}). Check if it's syntatically correct", path))
     }
 }

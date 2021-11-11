@@ -188,7 +188,7 @@ pub fn apply(
     let config_contents = fs::read_to_string(config_path)
         .with_context(|| format!("Couldn't read configuration file {:?}.", config_path))?;
 
-    let config = Config::read(&config_contents)?;
+    let config = Config::read(&config_contents, config_path)?;
 
     // If shell is present, check if it contains the placeholder
     let shell = config.shell.unwrap_or_else(|| "sh -c '{}'".into());
