@@ -59,7 +59,7 @@ For the flavours configuration file, `config.toml`:
   - A `template` (required).
   - A `subtemplate`. Defaults to `default`.
   - A `hook` to execute. Defaults to `none`.
-  - Specified as `light` or not. Defaults to `true`.  `flavours apply --light` will skip running hooks marked with `light=false`.
+  - Specified as `light`, for lightweight changes that are quick to execute. Defaults to `true`. `flavours apply --light` will skip running hooks marked with `light=false`.
   - Whether to `rewrite` the entire file instead of replacing lines. Defaults to `false`, but it is recommended to set this to true for apps that can have an entire file defining colors through import or some other means.
   - If rewrite=false, specify the `start` and `end` lines for replacing text. This is useful for config files where comments do not begin with `#`. Defaults to `# Start flavours` and `# End flavours` (case-insensitive).
 
@@ -75,7 +75,7 @@ file = "~/.config/sway/config"
 template = "sway"
 subtemplate = "colors"
 hook = "swaymsg reload"
-# Swaymsg reload temporarily freezes input, so it's marked as not-light
+# Swaymsg reload temporarily freezes input, so it's marked as not light
 light = false
 
 # This one uses waybar 'default' subtemplate, so it can be ommited
