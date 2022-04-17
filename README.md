@@ -37,13 +37,13 @@ Here's how it looks in action (sway, waybar, alacritty):
 Let me know if you want to package flavours for your favorite distro.
 
 #### Cargo
-Just install cargo and run `cargo install --locked flavours` (don't forget to include `~/.cargo/bin` on your PATH).
+Just install cargo and run `cargo install --locked flavours` (don't forget to include `~/.cargo/bin` in your PATH).
 
 #### Post-install
-After installing, you should probably use `flavours update all` to grab all published schemes and templates from the Base16 repos. If you want, you can manually tweak the templates, schemes or even the repo lists. By default, these files are located in `~/.local/share/flavours` on Linux, but this can be changed with `-d`/`--directory` flag or `FLAVOURS_DATA_DIRECTORY` environment variable.
+After installing, you should probably use `flavours update all` to grab all published schemes and templates from the Base16 repos. If you want, you can manually tweak the templates, schemes, or even the repo lists. By default, these files are located in `~/.local/share/flavours` on Linux, but this can be changed with `-d`/`--directory` flag or `FLAVOURS_DATA_DIRECTORY` environment variable.
 
 ### Usage
-You can use flavours and Base16 templates to automatically inject schemes into any application config file that supports colors codes.
+You can use flavours and Base16 templates to automatically inject schemes into any application config file that supports color codes.
 
 [Dave Snider](https://www.youtube.com/channel/UC7uO9V1Frl_wPd9d1qOm_RQ) did a great [3 episode series about flavours](https://youtu.be/1HPo4VvI6dA) (and theming in general). If you're into guide videos, I strongly recommend you take a look.
 
@@ -94,7 +94,7 @@ start= "/* Start flavours */"
 end = "/* End flavours */"
 ```
 
-For files where `rewrite=false` (or omitted), tell flavours where to replace lines by placing a start and end comment in the app's config file where colors are set. Default start and end comments are `# Start flavours` and `# End flavours`.
+For files where `rewrite=false` (or omitted), tell flavours where to replace lines by placing a _start_ and _end_ comment in the app's config file where colors are set. Default _start_ and _end_ comments are `# Start flavours` and `# End flavours`.
 
 For reference, here's a couple configuration files from my [dots](https://github.com/Misterio77/dotfiles):
 - [flavours](https://github.com/Misterio77/dotfiles/blob/sway/home/.config/flavours/config.toml) itself
@@ -116,8 +116,8 @@ If more than one scheme is specified or matched, flavours will choose one random
 You can, for instance:
 - Specify a scheme: `flavours apply pasque`
 - Specify multiple schemes: `flavours apply pasque paraiso atlas`
-- Use glob: `flavours apply "gruvbox*"`
-- Omit: `flavours apply` (is the same as running `flavours apply "*"`)
+- Use globs: `flavours apply "gruvbox*"`
+- Omit the pattern: `flavours apply` (is the same as running `flavours apply "*"`)
 
 #### Other commands
 Other commands include:
@@ -131,7 +131,7 @@ Other commands include:
 You can also use flavours as a simple [Base16 builder](https://github.com/chriskempson/base16/blob/master/builder.md). You can easily get a scheme path by using `flavours info theme_name | head -1 | cut -d '@' -f2`). This works great for automating static styles, and anything else you can come up with (I use it on my [personal website](https://misterio.me)).
 
 #### Generate
-Lastly, we have `flavours generate` to generate a scheme based on an image such as a wallpaper. By default, the scheme will be saved with the slug `generated`, but you can change it with `-s` or `--slug` or output to stdout instead with `--stdout`.
+Lastly, we have `flavours generate`, which can generate a scheme based on an image such as a wallpaper. By default, the scheme will be saved with the slug `generated`, but you can change it with `-s` or `--slug` or output to stdout instead with `--stdout`.
 
 In my setup, I use swaybg to apply wallpapers, and I can get my current wallpaper with `cat .bg`. My flavours command to generate and apply a dark scheme matching my wallpaper would be `flavours generate dark $(cat .bg) && flavours apply generated`, which I include in the script I use to change my wallpapers randomly.
 
