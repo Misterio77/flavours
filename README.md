@@ -13,6 +13,8 @@ A manager/builder for [Base16](https://github.com/chriskempson/base16). Written 
 
 Looking for something similar to use with NixOS/home-manager? Check out [`nix-colors`](https://github.com/misterio77/nix-colors)
 
+**NOTICE**: This README refers to the (possibly unreleased) latest `main` commit. You might be looking for the [0.5.2 version](https://github.com/Misterio77/flavours/blob/v0.5.2/README.md).
+
 ## What
 This is a CLI program that both builds and manages Base16 schemes and templates.
 
