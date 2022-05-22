@@ -37,20 +37,20 @@ Here's how it looks in action (sway, waybar, alacritty):
 Let me know if you want to package flavours for your favorite distro.
 
 #### Cargo
-Just install cargo and run `cargo install --locked flavours` (don't forget to include `~/.cargo/bin` on your PATH).
+Just install cargo and run `cargo install --locked flavours` (don't forget to include `~/.cargo/bin` in your PATH).
 
 #### Post-install
-After installing, you should probably use `flavours update all` to grab all published schemes and templates from the base16 repos. If you want, you can manually tweak the templates, schemes or even the repo lists (everything's located in `~/.local/share/flavours` on Linux, and can be changed with `-d`/`--directory` cli option or `FLAVOURS_DATA_DIRECTORY` environment variable).
+After installing, you should probably use `flavours update all` to grab all published schemes and templates from the base16 repos. If you want, you can manually tweak the templates, schemes, or even the repo lists (everything's located in `~/.local/share/flavours` on Linux, and can be changed with `-d`/`--directory` cli option or `FLAVOURS_DATA_DIRECTORY` environment variable).
 
 ### Usage
-You can use flavours and base16 templates to automatically inject schemes into any application config file that supports colors codes.
+You can use flavours and base16 templates to automatically inject schemes into any application config file that supports color codes.
 
 [Dave Snider](https://www.youtube.com/channel/UC7uO9V1Frl_wPd9d1qOm_RQ) did a great [3 episode series about flavours](https://youtu.be/1HPo4VvI6dA) (and theming in general). If you're into guide videos, i strongly recommend you take a look.
 
 #### Setup
 Choose a [template](https://github.com/chriskempson/base16#template-repositories) for each app you want themed (or create your own).
 
-On each of your apps config files, place a start and end comment to tell flavours where to **replace** lines (defaults are `# Start flavours` and `# End flavours`, can be changed individually on each app). These usually should be located where you set color options on your app configuration. If the specific app supports including colors from another file, or if the template provides the entire file, you can forgo the comments altogether and use the `rewrite=true` on flavours config.
+In each of your apps' config files, place a _start_ and _end_ comment to tell flavours where to **replace** lines (defaults are `# Start flavours` and `# End flavours`; they can be changed individually in each app). These usually should be located where you set color options in your app's configuration. If an app supports using colors from an optional file, or if a template provides an entire config file, you can forgo the comments altogether and use the `rewrite=true` on flavours config.
 
 For reference, here's a couple configuration files from my [dots](https://github.com/Misterio77/dotfiles):
 - [flavours](https://github.com/Misterio77/dotfiles/blob/sway/home/.config/flavours/config.toml) itself
@@ -61,7 +61,7 @@ For reference, here's a couple configuration files from my [dots](https://github
 - [waybar](https://github.com/Misterio77/dotfiles/blob/sway/home/.config/waybar/colors.css)
 - [rofi](https://github.com/Misterio77/dotfiles/blob/sway/home/.config/rofi/themes/colors.rasi)
 
-On flavours configuration (`~/.config/flavours/config.toml` on Linux, can be changed with `-c`/`--config` flag or `FLAVOURS_CONFIG_FILE` environment variable):
+Flavours configuration (`~/.config/flavours/config.toml` on Linux, can be changed with `-c`/`--config` flag or `FLAVOURS_CONFIG_FILE` environment variable):
 - Optionally, set a `shell` through which your hook commands should be executed. Defaults to `sh -c '{}'`. You can make the hooks run directly (pre-0.4 behaviour) by setting it to just `{}`.
 - Create a `[[items]]` section for each app, each section can have the following entries:
   - Specify the `file` to write (required)
@@ -69,8 +69,8 @@ On flavours configuration (`~/.config/flavours/config.toml` on Linux, can be cha
   - A `hook` to execute. Defaults to none.
   - A `subtemplate`. Defaults to `default`.
   - Specify whether the hook is considered (by your usage) to be `light` or not. `flavours apply --light` will skip running hooks marked with `light=false`. Defaults to `true`.
-  - Whether to use `rewrite` mode (if you do, you don't need the start and end comments). Defaults to `false`.
-  - Or change the `start` and `end` lines (useful for config files which comments are not started with `#`). Defaults to `# Start flavours` and `# End flavours` (case-insensitive).
+  - Whether to use `rewrite` mode (if you do, you don't need the _start_ and _end_ comments). Defaults to `false`.
+  - Or change the `start` and `end` lines (useful for config files where comments are not begun with `#`). Defaults to `# Start flavours` and `# End flavours` (case-insensitive).
 
 Here's an example:
 ```toml
@@ -114,30 +114,30 @@ If more than one scheme is specified or matched, flavours will choose one random
 You can, for instance:
 - Specify a scheme: `flavours apply pasque`
 - Specify multiple schemes: `flavours apply pasque paraiso atlas`
-- Use glob: `flavours apply "gruvbox*"`
-- Omit: `flavours apply` (is the same as running `flavours apply "*"`)
+- Use globs: `flavours apply "gruvbox*"`
+- Omit the name: `flavours apply` (is the same as running `flavours apply "*"`)
 
 #### Other commands
-You can also use `flavours current` to see the last scheme you applied, `flavours list` to list all available schemes (you can also use PATTERN like on apply to list only specific scheme(s)), `flavours info` to show info (including truecolor colored output) about some scheme(s) (also supports the PATTERN syntax).
+You can also use `flavours current` to see the last scheme you applied, `flavours list` to list all available schemes (you can also use PATTERN, like with _apply_, to list only specific schemes), `flavours info` to show info (with truecolor) about some scheme(s) (also supports the PATTERN syntax).
 
-You can also use flavours as a simple [base16 builder](https://github.com/chriskempson/base16/blob/master/builder.md). Just use the build command: `flavours build <path_to_scheme> <path_to_template>` (you can easily get a scheme path by using `flavours info theme_name | head -1 | cut -d '@' -f2`). This works great for automating static styles, and anything else you can come up with (i use it on my [personal website](https://misterio.me)).
+You can also use flavours as a simple [base16 builder](https://github.com/chriskempson/base16/blob/master/builder.md). Just use the `build` command: `flavours build <path_to_scheme> <path_to_template>` (you can easily get a scheme's path by using `flavours info theme_name | head -1 | cut -d '@' -f2`). This works great for automating static styles, and anything else you can come up with (I use it on my [personal website](https://misterio.me)).
 
-Lastly, we have `flavours generate`, it can generate a scheme based on an image (usually your wallpaper), with the following syntax: `flavours generate <dark/light> /path/to/image/file`. By default, the scheme will be saved with the slug (the scheme name referenced in all other commands) `generated` (you can change it with `-s` or `--slug`, or output to stdout instead with `--stdout`).
+Lastly, we have `flavours generate`, which can generate a scheme based on an image (usually your wallpaper) with the following syntax: `flavours generate <dark/light> /path/to/image/file`. By default, the scheme will be saved with the slug (the scheme name referenced in all other commands) `generated` (you can change it with `-s` or `--slug`, or output to stdout instead with `--stdout`).
 
-In my setup, i use swaybg to apply wallpapers, and i can get my current wallpaper with `cat .bg`.
+In my setup, I use `swaybg` to apply wallpapers. I can get my current wallpaper with `cat .bg`.
 
 So my flavours command to generate and apply a dark scheme matching my wallpaper would be:
 
 `flavours generate dark $(cat .bg) && flavours apply generated`
 
-Which i include in the script i use to change my wallpapers randomly.
+which I include in the script I use to change my wallpapers randomly.
 
 ## Why
 Why use this instead of other base16 managers, or even pywal?
 
 While these projects are great and certainly fit some people's workflow, they didn't quite fit mine.
 
-I decided to do my own project because i wanted a simple CLI program that can easily integrate with rofi, polybar, and everything else in my workflow. The main feature is being able to quickly and easily use a curated list of schemes, on all your apps. It's also objectively faster than _any_ other manager.
+I decided to do my own project because I wanted a simple CLI program that can easily integrate with rofi, polybar, and everything else in my workflow. The main feature is being able to quickly and easily use a curated list of schemes on all your apps. It's also objectively faster than _any_ other manager.
 
 ## When
 All features are implemented! I'm currently working on improving code quality and stabilizing the features, but everything should work as intended.
