@@ -3,7 +3,7 @@ use calm_io::stdoutln;
 use std::fs::read_to_string;
 use std::path::Path;
 
-use crate::find::find;
+use crate::find::find_schemes;
 use crate::scheme::Scheme;
 
 fn true_color(hex_color: &str, background: bool) -> Result<String> {
@@ -40,10 +40,10 @@ pub fn print_color(color: &str) -> Result<()> {
 /// * `base_dir` - flavours base data dir
 /// * `verbose` - Should we be verbose? (unused)
 /// * `color` - Should we print with colors?
-pub fn info(patterns: Vec<&str>, base_dir: &Path, raw: bool) -> Result<()> {
+pub fn info(patterns: Vec<&str>, base_dir: &Path, config_dir: &Path, raw: bool) -> Result<()> {
     let mut schemes = Vec::new();
     for pattern in patterns {
-        let found_schemes = find(pattern, &base_dir.join("base16").join("schemes"))?;
+        let found_schemes = find_schemes(pattern, base_dir, config_dir)?;
 
         for found_scheme in found_schemes {
             schemes.push(found_scheme);

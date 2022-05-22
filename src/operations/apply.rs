@@ -8,7 +8,7 @@ use std::str;
 use std::thread;
 
 use crate::config::Config;
-use crate::find::find;
+use crate::find::{find_schemes, find_template};
 use crate::operations::build::build_template;
 use crate::scheme::Scheme;
 
@@ -112,6 +112,7 @@ fn replace_delimiter(
 pub fn apply(
     patterns: Vec<&str>,
     base_dir: &path::Path,
+    config_dir: &path::Path,
     config_path: &path::Path,
     light_mode: bool,
     from_stdin: bool,
@@ -127,7 +128,7 @@ pub fn apply(
         //Find schemes that match given patterns
         let mut schemes = Vec::new();
         for pattern in patterns {
-            let found_schemes = find(pattern, &base_dir.join("base16").join("schemes"))?;
+            let found_schemes = find_schemes(pattern, base_dir, config_dir)?;
 
             for found_scheme in found_schemes {
                 schemes.push(found_scheme);
@@ -204,12 +205,11 @@ pub fn apply(
     //Iterate configurated entries (templates)
     let items_legacy = config.item.unwrap_or_default();
     let mut items = config.items.unwrap_or_default();
-    items.extend(items_legacy.into_iter()) ;
+    items.extend(items_legacy.into_iter());
 
     if items.is_empty() {
         return Err(anyhow!("Couldn't get items from config file. Check the default file or github for config examples."));
     }
-
 
     for item in items.iter() {
         //Template name
@@ -244,16 +244,16 @@ pub fn apply(
         .trim()
         .to_lowercase();
 
-        //(sub)template file path
-        let subtemplate_file = &base_dir
-            .join("base16")
-            .join("templates")
-            .join(&template)
-            .join("templates")
-            .join(format!("{}.mustache", subtemplate));
+        let subtemplate_file = find_template(template, &subtemplate, base_dir, config_dir)
+            .with_context(|| {
+                format!(
+                    "Failed to locate subtemplate file {}/{}",
+                    template, subtemplate,
+                )
+            })?;
 
         //Template content
-        let template_content = fs::read_to_string(subtemplate_file)
+        let template_content = fs::read_to_string(&subtemplate_file)
                        .with_context(||format!("Couldn't read template {}/{} at {:?}. Check if the correct template/subtemplate was specified, and run the update templates command if you didn't already.", template, subtemplate, subtemplate_file))?;
 
         //Template with correct colors
@@ -265,7 +265,9 @@ pub fn apply(
 
         //Rewrite file with built template
         if rewrite {
-            std::path::Path::new(&file).parent().and_then(|p| fs::create_dir_all(p).ok());
+            std::path::Path::new(&file)
+                .parent()
+                .and_then(|p| fs::create_dir_all(p).ok());
             fs::write(&file, built_template)
                 .with_context(|| format!("Couldn't write to file {:?}.", file))?;
 

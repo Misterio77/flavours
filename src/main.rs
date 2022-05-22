@@ -37,6 +37,10 @@ fn main() -> Result<()> {
         }
     };
 
+    let flavours_config_dir = preference_dir()
+        .ok_or_else(|| anyhow!("Error getting default config directory"))?
+        .join("flavours");
+
     // Flavours config file
     let flavours_config = match matches.value_of("config") {
         // User supplied
@@ -51,10 +55,7 @@ fn main() -> Result<()> {
                     .canonicalize()
                     .with_context(|| "Invalid config file supplied on env var")?,
                 // Use default instead
-                Err(_) => preference_dir()
-                    .ok_or_else(|| anyhow!("Error getting default config directory"))?
-                    .join("flavours")
-                    .join("config.toml"),
+                Err(_) => flavours_config_dir.join("config.toml"),
             }
         }
     };
@@ -83,6 +84,7 @@ fn main() -> Result<()> {
             apply::apply(
                 patterns,
                 &flavours_dir,
+                &flavours_config_dir,
                 &flavours_config,
                 light,
                 from_stdin,
@@ -108,7 +110,13 @@ fn main() -> Result<()> {
                 None => vec!["*"],
             };
             let lines = sub_matches.is_present("lines");
-            list::list(patterns, &flavours_dir, verbose, lines)
+            list::list(
+                patterns,
+                &flavours_dir,
+                &flavours_config_dir,
+                verbose,
+                lines,
+            )
         }
 
         Some(("update", sub_matches)) => {
@@ -125,7 +133,7 @@ fn main() -> Result<()> {
                 None => vec!["*"],
             };
             let raw = sub_matches.is_present("raw");
-            info::info(patterns, &flavours_dir, raw)
+            info::info(patterns, &flavours_dir, &flavours_config_dir, raw)
         }
 
         Some(("generate", sub_matches)) => {

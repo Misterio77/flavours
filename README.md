@@ -42,7 +42,9 @@ Let me know if you want to package flavours for your favorite distro.
 Just install cargo and run `cargo install --locked flavours` (don't forget to include `~/.cargo/bin` in your PATH).
 
 #### Post-install
-After installing, you should probably use `flavours update all` to grab all published schemes and templates from the Base16 repos. If you want, you can manually tweak the templates, schemes, or even the repo lists. By default, these files are located in `~/.local/share/flavours` on Linux, but this can be changed with `-d`/`--directory` flag or `FLAVOURS_DATA_DIRECTORY` environment variable.
+After installing, you should probably use `flavours update all` to grab all published schemes and templates from the Base16 repos. By default, these files are located in `~/.local/share/flavours` on Linux, but this can be changed with `-d`/`--directory` flag or `FLAVOURS_DATA_DIRECTORY` environment variable.
+
+If you want to make changes to schemes/templates or make your own, see [Custom templates and schemes](#custom-templates-and-schemes).
 
 ### Usage
 You can use flavours and Base16 templates to automatically inject schemes into any application config file that supports color codes.
@@ -108,6 +110,16 @@ For reference, here's a couple configuration files from my [dots](https://github
 - [rofi](https://github.com/Misterio77/dotfiles/blob/sway/home/.config/rofi/themes/colors.rasi)
 
 Vóila. You're now ready to apply schemes.
+
+#### Custom templates and schemes
+
+To help manage your custom templates/schemes or your tweaks to pre-existing ones, flavours will also look in the user's `$XDG_CONFIG_HOME/flavours` directory, typically `~/.config/flavours`, when looking for templates/schemes. The folder structure should be the same as at `~/.local/share/flavours/base16/`.
+
+Examples:
+* Custom scheme `myscheme`: `$XDG_CONFIG_HOME/flavours/schemes/myscheme/myscheme.yaml`
+* Custom template `mysoftware/mytemplate`: `$XDG_CONFIG_HOME/flavours/templates/mysoftware/templates/mytemplate.mustache`
+
+Note, in case of conflict, schemes/templates in `$XDG_CONFIG_HOME/flavours` have priority over the ones in `${FLAVOURS_DATA_DIRECTORY:-~/.local/share/flavours}`.
 
 #### Applying
 `flavours apply` is the command you'll probably be using all the time, so it's built to be as useful as possible.

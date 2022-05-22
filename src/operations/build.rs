@@ -18,7 +18,7 @@ pub fn build_template(template_base: String, scheme: &Scheme) -> Result<String> 
         .replace("{{scheme-slug}}", &scheme.slug);
 
     for (name, color) in scheme.colors.iter().enumerate() {
-        let hex = String::from(color).replace("#", "");
+        let hex = String::from(color).replace('#', "");
         let rgb = hex::decode(&hex)?;
         built_template = built_template
             .replace(
