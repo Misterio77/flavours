@@ -61,3 +61,24 @@ pub fn find_template(
         )
     }
 }
+
+/// Find sources file in either the config dir or the data dir.
+///
+/// * `base_dir` - flavours' base data dir
+/// * `config_dir` - flavours' config dir
+pub fn find_sources(base_dir: &Path, config_dir: &Path) -> Result<PathBuf> {
+    let sources_config_file = config_dir.join("sources.yaml");
+
+    let sources_data_file = base_dir.join("base16").join("sources.yaml");
+
+    if sources_config_file.is_file() {
+        Ok(sources_config_file)
+    } else if sources_data_file.is_file() {
+        Ok(sources_data_file)
+    } else {
+        panic!(
+            "Neither {:?} or {:?} exist",
+            sources_config_file, sources_data_file
+        )
+    }
+}

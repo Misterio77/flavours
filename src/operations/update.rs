@@ -1,11 +1,13 @@
 use std::env::set_var;
-use std::fs::{create_dir_all, remove_dir_all, write, File};
+use std::fs::{self, create_dir_all, remove_dir_all, write, File};
 use std::io::{BufRead, BufReader};
 use std::path::Path;
 use std::process::Command;
 use std::thread::spawn;
 
 use anyhow::{anyhow, Context, Result};
+
+use crate::config::Config;
 
 ///Parses yml line containing name and repository link
 ///
@@ -34,27 +36,41 @@ fn write_sources(s_repo: &str, t_repo: &str, file: &Path) -> Result<()> {
 ///
 ///# Arguments
 ///* `file` - Path to sources file
-fn get_sources(file: &Path) -> Result<(String, String)> {
+fn get_sources(config_dir: &Path, file: &Path) -> Result<(String, String)> {
+    let config_path = &config_dir.join("config.toml");
+    let config_contents = fs::read_to_string(config_path)
+        .with_context(|| format!("Couldn't read configuration file {:?}.", config_path))?;
+    let config = Config::read(&config_contents, config_path)?;
+
     // Default repos
     let default_s_repo = "https://github.com/chriskempson/base16-schemes-source.git";
     let default_t_repo = "https://github.com/chriskempson/base16-templates-source.git";
 
-    // Try to open file
-    let sources_file = match File::open(file) {
-        // Success
-        Ok(contents) => contents,
-        // Handle error once, so if file is not found it can be created
-        Err(_) => {
-            // Try to write default repos to file
-            write_sources(default_s_repo, default_t_repo, file)?;
-            // Try to open it again, returns errors if unsucessful again
-            File::open(file).with_context(|| format!("Couldn't access {:?}", file))?
-        }
-    };
-    // Variable to store repos, start with defaults (in case the file was read but didn't contain one or both repos
-    let mut s_repo = String::from(default_s_repo);
-    let mut t_repo = String::from(default_t_repo);
+    let mut s_repo = config.schemes_url.unwrap_or(String::from(default_s_repo));
+    let mut t_repo = config.templates_url.unwrap_or(String::from(default_t_repo));
 
+    if s_repo.eq(default_s_repo) || t_repo.eq(default_t_repo) {
+        let config_path = config_dir.join("sources.yaml");
+        let sources_file;
+
+        if config_path.exists() {
+            sources_file = File::open(config_path)?;
+            (s_repo, t_repo) = extract_repos(sources_file, s_repo, t_repo)?;
+        } else if file.exists() {
+            sources_file = File::open(file)?;
+            (s_repo, t_repo) = extract_repos(sources_file, s_repo, t_repo)?;
+        }
+    }
+
+    write_sources(&s_repo, &t_repo, file)?;
+    Ok((s_repo, t_repo))
+}
+
+fn extract_repos(
+    sources_file: File,
+    mut s_repo: String,
+    mut t_repo: String,
+) -> Result<(String, String)> {
     // Bufreader from file
     let reader = BufReader::new(sources_file);
     // Iterate lines
@@ -68,12 +84,7 @@ fn get_sources(file: &Path) -> Result<(String, String)> {
             t_repo = repo;
         }
     }
-
-    // Rewrite file using found repository, this is done to clean up errors on the file or insert default values
-    write_sources(&s_repo, &t_repo, file)?;
-
-    // Return repos
-    Ok((s_repo, t_repo))
+    return Ok((s_repo, t_repo));
 }
 ///Get name and repository vector from given list
 ///
@@ -196,14 +207,15 @@ fn git_clone(path: &Path, repo: String, verbose: bool, clone_type: CloneType) ->
     }
 }
 
-fn update_lists(dir: &Path, verbose: bool) -> Result<()> {
-    let sources_dir = &dir.join("sources");
+fn update_lists(config_dir: &Path, base_dir: &Path, verbose: bool) -> Result<()> {
+    let sources_dir = &base_dir.join("sources");
     if verbose {
         println!("Updating sources list from sources.yaml")
     }
 
     // Get schemes and templates repository from file
-    let (schemes_source, templates_source) = get_sources(&dir.join("sources.yaml"))?;
+    let (schemes_source, templates_source) =
+        get_sources(&config_dir, &base_dir.join("sources.yaml"))?;
     if verbose {
         println!("Schemes source: {}", schemes_source);
         println!("Templates source: {}", templates_source);
@@ -304,16 +316,17 @@ fn update_templates(dir: &Path, verbose: bool) -> Result<()> {
 ///# Arguments
 ///* `operation` - Which operation to do
 ///* `dir` - The base path to be used
+///* `config_path` - The config path
 ///* `verbose` - Boolean, be verbose if true
-pub fn update(operation: &str, dir: &Path, verbose: bool) -> Result<()> {
+pub fn update(operation: &str, dir: &Path, config_dir: &Path, verbose: bool) -> Result<()> {
     let base16_dir = &dir.join("base16");
     create_dir_all(base16_dir)?;
     match operation {
-        "lists" => update_lists(base16_dir, verbose),
+        "lists" => update_lists(config_dir, base16_dir, verbose),
         "schemes" => update_schemes(base16_dir, verbose),
         "templates" => update_templates(base16_dir, verbose),
         "all" => {
-            update_lists(base16_dir, verbose)?;
+            update_lists(config_dir, base16_dir, verbose)?;
             update_schemes(base16_dir, verbose)?;
             update_templates(base16_dir, verbose)
         }
