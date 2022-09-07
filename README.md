@@ -34,7 +34,7 @@ Here's how it looks in action (sway, waybar, alacritty):
 - [AUR Package](https://aur.archlinux.org/packages/flavours/) for Arch (and derivatives):
 `yay -S flavours`
 - [nixpkg](https://github.com/NixOS/nixpkgs/blob/master/pkgs/applications/misc/flavours/default.nix#L17) for NixOS:
-`nix-env -iA nixos.flavours`
+`nix-env -iA nixpkgs.flavours`
 
 Let me know if you want to package flavours for your favorite distro.
 
