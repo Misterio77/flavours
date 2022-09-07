@@ -42,19 +42,19 @@ Let me know if you want to package flavours for your favorite distro.
 Just install cargo and run `cargo install --locked flavours` (don't forget to include `~/.cargo/bin` in your PATH).
 
 #### Post-install
-After installing, you should probably use `flavours update all` to grab all published schemes and templates from the Base16 repos. By default, these files are located in `~/.local/share/flavours` on Linux, but this can be changed with `-d`/`--directory` flag or `FLAVOURS_DATA_DIRECTORY` environment variable.
+After installing, you should probably use `flavours update all` to grab all published schemes and templates from the Base16 repos. By default, these files are located in `~/.local/share/flavours` on Linux, and `~/Library/Application Support/flavours` on macOS. This can be changed with the `-d`/`--directory` flag or `FLAVOURS_DATA_DIRECTORY` environment variable.
 
 If you want to make changes to schemes/templates or make your own, see [Custom templates and schemes](#custom-templates-and-schemes).
 
 ### Usage
 You can use flavours and Base16 templates to automatically inject schemes into any application config file that supports color codes.
 
-[Dave Snider](https://www.youtube.com/channel/UC7uO9V1Frl_wPd9d1qOm_RQ) did a great [3 episode series about flavours](https://youtu.be/1HPo4VvI6dA) (and theming in general). If you're into guide videos, I strongly recommend you take a look.
+[Dave Snider](https://www.youtube.com/channel/UC7uO9V1Frl_wPd9d1qOm_RQ) did a great [3 episode series about flavours](https://www.youtube.com/playlist?list=PL8qZ9gACSwvOxJY7nnI9CUnyCe_c1bNYO) (and theming in general). If you're into guide videos, I strongly recommend you take a look.
 
 #### Setup
-Choose a [template](https://github.com/chriskempson/base16#template-repositories) for each app you want themed (or create your own).
+Choose a [template](https://github.com/chriskempson/base16-templates-source/blob/master/list.yaml) for each app you want themed (or create your own).
 
-Add your apps to the flavours configuration, located at `~/.config/flavours/config.toml` on Linux, but this can be changed with `-c`/`--config` flag or `FLAVOURS_CONFIG_FILE` environment variable.
+Add your apps to the flavours configuration, located at `~/.config/flavours/config.toml` on Linux and macOS, but this can be changed with `-c`/`--config` flag or `FLAVOURS_CONFIG_FILE` environment variable.
 
 For the flavours configuration file, `config.toml`:
 - Optionally, set a `shell` through which your hook commands should be executed. Defaults to `sh -c '{}'`.
