@@ -1,6 +1,6 @@
 use std::env::set_var;
-use std::fs::{create_dir_all, remove_dir_all, write, File, read_to_string};
-use std::io::{BufRead, BufReader};
+use std::fs::{create_dir_all, remove_dir_all, write, File, read_to_string, OpenOptions};
+use std::io::{self, BufRead, BufReader, prelude::*};
 use std::path::Path;
 use std::process::Command;
 use std::thread::spawn;
@@ -8,6 +8,12 @@ use std::thread::spawn;
 use anyhow::{anyhow, Context, Result};
 use crate::config::Config;
 
+// nabbed from https://doc.rust-lang.org/rust-by-example/std_misc/file/read_lines.html
+fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
+where P: AsRef<Path>, {
+    let file = File::open(filename)?;
+    Ok(io::BufReader::new(file).lines())
+}
 
 ///Parses yml line containing name and repository link
 ///
@@ -36,25 +42,22 @@ fn write_sources(s_repo: &str, t_repo: &str, file: &Path) -> Result<()> {
 ///
 ///# Arguments
 ///* `file` - Path to sources file
-fn get_sources(file: &Path, config_path: &Path) -> Result<(String, String)> {
+fn get_sources(file: &Path, config: &Config) -> Result<(String, String)> {
     // Default repos
     let default_s_repo = "https://github.com/chriskempson/base16-schemes-source.git";
     let default_t_repo = "https://github.com/chriskempson/base16-templates-source.git";
+    
+    // config source indicators
+    let use_config_sources = config.schemes.is_some();
+    let use_config_templates = config.templates.is_some();
 
-    let config_contents = read_to_string(config_path)
-        .with_context(|| format!("Couldn't read configuration file {:?}.", config_path))?;
-
-    let config = Config::read(&config_contents, config_path)?;
-
-    // check if config sources exist
-    let schemes = match config.schemes {
-        Some(value) => String::from(value),
-        None => String::from("default"),
-    };
-
-    let templates = match config.templates {
-        Some(value) => String::from(value),
-        None => String::from("default"),
+    // use available config sources, otherwise use defaults
+    let (mut s_repo, mut t_repo) =
+        match (config.schemes.as_ref(), config.templates.as_ref()) {
+            (Some(s), Some(t)) => (String::from(s), String::from(t)),
+            (Some(s), None) => (String::from(s), String::from(default_t_repo)),
+            (None, Some(t)) => (String::from(default_s_repo), String::from(t)),
+            (None, None) => (String::from(default_s_repo), String::from(default_t_repo)),
     };
 
     // Try to open file
@@ -63,20 +66,12 @@ fn get_sources(file: &Path, config_path: &Path) -> Result<(String, String)> {
         Ok(contents) => contents,
         // Handle error once, so if file is not found it can be created
         Err(_) => {
-            // Try to write default repos to file
-            match (schemes.as_str(), templates.as_str()) {
-                ("default", "default") => write_sources(default_s_repo, default_t_repo, file)?,
-                (_, "default") => write_sources(&schemes, default_t_repo, file)?,
-                ("default", _) => write_sources(default_s_repo, &templates, file)?,
-                (_, _) => write_sources(&schemes, &templates, file)?,
-            };
+            // Try to write config sources if they exist, otherwise use defaults
+            write_sources(&s_repo, &t_repo, file)?;
             // Try to open it again, returns errors if unsucessful again
             File::open(file).with_context(|| format!("Couldn't access {:?}", file))?
         }
     };
-    // Variable to store repos, start with defaults (in case the file was read but didn't contain one or both repos
-    let mut s_repo = String::from(default_s_repo);
-    let mut t_repo = String::from(default_t_repo);
 
     // Bufreader from file
     let reader = BufReader::new(sources_file);
@@ -85,9 +80,10 @@ fn get_sources(file: &Path, config_path: &Path) -> Result<(String, String)> {
         // Get name and repo from line
         let (name, repo) = parse_yml_line(line?)?;
         // Store in correct variable
-        if name == "schemes" {
+        // Only use sources.yaml sources if sources not specified in config
+        if name == "schemes" && !use_config_sources {
             s_repo = repo;
-        } else if name == "templates" {
+        } else if name == "templates" && !use_config_templates {
             t_repo = repo;
         }
     }
@@ -229,10 +225,37 @@ fn update_lists(
         println!("Updating sources list from sources.yaml")
     }
 
+    // This section dealing with obtaining the config struct is copied directly from apply.rs
+    //Check if config file exists
+    if !config_path.exists() {
+        eprintln!("Config {:?} doesn't exist, creating", config_path);
+        let default_content = match read_to_string(Path::new("/etc/flavours.conf")) {
+            Ok(content) => content,
+            Err(_) => String::from(""),
+        };
+        let config_path_parent = config_path
+            .parent()
+            .with_context(|| format!("Couldn't get parent directory of {:?}", config_path))?;
+
+        create_dir_all(config_path_parent).with_context(|| {
+            format!(
+                "Couldn't create configuration file parent directory {:?}",
+                config_path_parent
+            )
+        })?;
+        write(config_path, default_content)
+            .with_context(|| format!("Couldn't create configuration file at {:?}", config_path))?;
+    }
+
+    let config_contents = read_to_string(config_path)
+        .with_context(|| format!("Couldn't read configuration file {:?}.", config_path))?;
+
+    let config = Config::read(&config_contents, config_path)?;
+
     // Get schemes and templates repository from file
     let (schemes_source, templates_source) = get_sources(
             &dir.join("sources.yaml"),
-            config_path
+            &config 
     )?;
     if verbose {
         println!("Schemes source: {}", schemes_source);
@@ -262,6 +285,65 @@ fn update_lists(
     // Execute and check exit code
     s_child.join().unwrap()?;
     t_child.join().unwrap()?;
+
+    // write additional config sources
+    let scheme_list = sources_dir.join("schemes").join("list.yaml");
+    let template_list = sources_dir.join("templates").join("list.yaml");
+
+    match config.extra_scheme {
+        Some(extra_schemes) => {
+            if let Ok(scheme_lines) = read_lines(&scheme_list) {
+                // add new lines
+                let mut lines: Vec<String> = scheme_lines.collect::<Result<_, _>>().unwrap();
+                for es in &extra_schemes {
+                    let text = format!("{}: {}", es.name, es.source);
+                    lines.push(text);
+                };
+
+                // sort everything
+                lines.sort();
+
+                // save file
+                let mut write_file = OpenOptions::new()
+                    .write(true)
+                    .open(&scheme_list)
+                    .unwrap();
+                for line in &lines {
+                    if let Err(e) = writeln!(write_file, "{}", line) {
+                        eprintln!("Couldn't write to file: {}", e);
+                };
+                };
+            };
+        },
+        _ => ()
+    };
+    match config.extra_template {
+        Some(extra_templates) => {
+            if let Ok(template_lines) = read_lines(&template_list) {
+                // add new lines
+                let mut lines: Vec<String> = template_lines.collect::<Result<_, _>>().unwrap();
+                for et in &extra_templates {
+                    let text = format!("{}: {}", et.name, et.source);
+                    lines.push(text);
+                };
+
+                // sort everything
+                lines.sort();
+
+                // save file
+                let mut write_file = OpenOptions::new()
+                    .write(true)
+                    .open(&template_list)
+                    .unwrap();
+                for line in &lines {
+                    if let Err(e) = writeln!(write_file, "{}", line) {
+                        eprintln!("Couldn't write to file: {}", e);
+                };
+                }
+            };
+        },
+        _ => ()
+    };
 
     Ok(())
 }

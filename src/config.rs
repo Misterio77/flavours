@@ -8,10 +8,17 @@ pub struct Config {
     pub shell: Option<String>,
     pub schemes: Option<String>,
     pub templates: Option<String>,
-    pub extra_schemes: Option<Vec<String>>,
-    pub extra_templates: Option<Vec<String>>,
+    pub extra_scheme: Option<Vec<ExtraSource>>,
+    pub extra_template: Option<Vec<ExtraSource>>,
     pub item: Option<Vec<ConfigItem>>,
     pub items: Option<Vec<ConfigItem>>,
+}
+
+/// Structure for configuration extra sources
+#[derive(Deserialize, Debug)]
+pub struct ExtraSource{
+    pub name: String,
+    pub source: String,
 }
 
 /// Structure for configuration apply items
