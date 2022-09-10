@@ -6,6 +6,10 @@ use std::path::Path;
 #[derive(Deserialize, Debug)]
 pub struct Config {
     pub shell: Option<String>,
+    pub schemes: Option<String>,
+    pub templates: Option<String>,
+    pub extra_schemes: Option<Vec<String>>,
+    pub extra_templates: Option<Vec<String>>,
     pub item: Option<Vec<ConfigItem>>,
     pub items: Option<Vec<ConfigItem>>,
 }

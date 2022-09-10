@@ -123,7 +123,12 @@ fn main() -> Result<()> {
             let operation = sub_matches
                 .value_of("operation")
                 .ok_or_else(|| anyhow!("Invalid operation"))?;
-            update::update(operation, &flavours_dir, verbose)
+            update::update(
+                operation,
+                &flavours_dir,
+                verbose,
+                &flavours_config
+            )
         }
 
         Some(("info", sub_matches)) => {
