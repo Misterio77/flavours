@@ -54,7 +54,7 @@ You can use flavours and Base16 templates to automatically inject schemes into a
 #### Setup
 Choose a [template](https://github.com/chriskempson/base16-templates-source/blob/master/list.yaml) for each app you want themed (or create your own).
 
-Add your apps to the flavours configuration, located at `~/.config/flavours/config.toml` on Linux and macOS, but this can be changed with `-c`/`--config` flag or `FLAVOURS_CONFIG_FILE` environment variable.
+Add your apps to the flavours configuration, located at `~/.config/flavours/config.toml` on Linux and macOS. This can be changed with `-c`/`--config` flag or `FLAVOURS_CONFIG_FILE` environment variable.
 
 For the flavours configuration file, `config.toml`:
 - Optionally, set a `shell` through which your hook commands should be executed. Defaults to `sh -c '{}'`.
