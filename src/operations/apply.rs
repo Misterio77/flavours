@@ -215,9 +215,13 @@ pub fn apply(
         //Template name
         let template = &item.template;
         //Subtemplate name
-        let subtemplate = match &item.subtemplate {
-            Some(value) => String::from(value),
-            None => String::from("default"),
+        let subtemplate_scheme = find_template(template, &scheme.name, base_dir, config_dir);
+        let subtemplate = match subtemplate_scheme {
+            Ok(_value) => scheme.name.clone(),
+            Err(_e) => match &item.subtemplate {
+                Some(value) => String::from(value),
+                None => String::from("default"),
+            }
         };
         //Is the hook lightweight?
         let light = match &item.light {

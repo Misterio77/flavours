@@ -1,4 +1,4 @@
-use anyhow::Result;
+use anyhow::{Result, anyhow};
 use glob::glob;
 use path::{Path, PathBuf};
 use std::path;
@@ -55,9 +55,11 @@ pub fn find_template(
     } else if template_data_file.is_file() {
         Ok(template_data_file)
     } else {
-        panic!(
-            "Neither {:?} or {:?} exist",
-            template_config_file, template_data_file
+        return Err(
+            anyhow!(
+                "Neither {:?} or {:?} exist",
+                template_config_file, template_data_file
+            )
         )
     }
 }
