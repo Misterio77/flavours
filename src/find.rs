@@ -27,6 +27,44 @@ pub fn find_schemes(pattern: &str, base_dir: &Path, config_dir: &Path) -> Result
     Ok(found)
 }
 
+/// Find templates matching pattern in either the config dir or the data dir.
+///
+/// * `pattern` - Which pattern to use
+/// * `base_dir` - flavours' base data dir
+/// * `config_dir` - flavours' config dir
+pub fn find_templates(pattern: &str, base_dir: &Path, config_dir: &Path) -> Result<Vec<PathBuf>> {
+    let config_scheme_dir = config_dir.join("templates");
+    let data_scheme_dir = base_dir.join("base16").join("templates");
+    let dir_vec = vec![config_scheme_dir, data_scheme_dir];
+    let dir_vec: Vec<&str> = dir_vec.iter().filter_map(|dir| dir.to_str()).collect();
+    let pattern = match pattern
+        // remove extension if it was included
+        .trim_end_matches(".mustache")
+        // split on '/' if present
+        .split_once('/')
+        // only replace '/' if there it was only one
+        // and was not '/templates/' already
+        .filter(|(_, post)| !post.contains('/') || post.starts_with("templates/"))
+    {
+        // automatically expand single '/' to '/templates/'
+        Some((template_pattern, subtemplate_pattern)) => {
+            let subtemplate_pattern = subtemplate_pattern.replace("templates/", "");
+            format!("{}/templates/{}.mustache", template_pattern, subtemplate_pattern)
+        }
+        // otherwise leave pattern untouched
+        None => pattern.to_string(),
+    };
+    let mut found = Vec::new();
+    for dir in dir_vec {
+        let pattern_glob = format!("{}/{}", dir, pattern);
+        let matches = glob(&pattern_glob)?;
+        for element in matches {
+            found.push(element?);
+        }
+    }
+    Ok(found)
+}
+
 /// Find template file in either the config dir or the data dir.
 ///
 /// * `template` - template
