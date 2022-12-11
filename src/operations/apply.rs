@@ -215,12 +215,15 @@ pub fn apply(
         //Template name
         let template = &item.template;
         //Subtemplate name
-        let subtemplate_scheme = find_template(template, &scheme.name, base_dir, config_dir);
-        let subtemplate = match subtemplate_scheme {
-            Ok(_value) => scheme.name.clone(),
-            Err(_e) => match &item.subtemplate {
-                Some(value) => String::from(value),
-                None => String::from("default"),
+        let mut subtemplate = match &item.subtemplate {
+            Some(value) => String::from(value),
+            None => String::from("default"),
+        };
+        if subtemplate == "{scheme}" {
+            let subtemplate_scheme = find_template(template, &scheme.name, base_dir, config_dir);
+            subtemplate = match subtemplate_scheme {
+                Ok(_value) => scheme.name.clone(),
+                Err(_e) => String::from("default"),
             }
         };
         //Is the hook lightweight?
