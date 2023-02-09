@@ -45,9 +45,7 @@ pub fn info(patterns: Vec<&str>, base_dir: &Path, config_dir: &Path, raw: bool) 
     for pattern in patterns {
         let found_schemes = find_schemes(pattern, base_dir, config_dir)?;
 
-        for found_scheme in found_schemes {
-            schemes.push(found_scheme);
-        }
+        schemes.extend_from_slice(&found_schemes)
     }
     schemes.sort();
     schemes.dedup();

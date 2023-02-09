@@ -140,7 +140,7 @@ pub fn apply(
 
         //Get random scheme
         let scheme_file = random(schemes)?;
-        let scheme_slug: String = scheme_file
+        let scheme_slug = scheme_file
             .file_stem()
             .ok_or_else(|| anyhow!("Couldn't get scheme name."))?
             .to_str()

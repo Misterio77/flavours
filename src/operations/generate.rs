@@ -13,7 +13,7 @@ pub enum Mode {
 
 fn to_hex(color: Rgb) -> Result<String> {
     let (r, g, b) = color.into_components();
-    let color_u8: Vec<u8> = vec![(r * 255.0) as u8, (g * 255.0) as u8, (b * 255.0) as u8];
+    let color_u8 = [(r * 255.0) as u8, (g * 255.0) as u8, (b * 255.0) as u8];
     let color_hex = hex::encode(color_u8);
     Ok(color_hex)
 }
@@ -45,20 +45,16 @@ fn color_pass(
     min_saturation: Option<f32>,
     max_saturation: Option<f32>,
 ) -> Option<Rgb> {
-    let mut chosen = None;
-    for color in colors {
-        let (saturation, luma) = grab_sat_luma(*color);
-        if (max_luma == None || luma <= max_luma.unwrap())
+    let predicate = |rgb: &Rgb| {
+        let (saturation, luma) = grab_sat_luma(*rgb);
+        
+        (max_luma == None || luma <= max_luma.unwrap())
             && (min_luma == None || luma >= min_luma.unwrap())
             && (max_saturation == None || saturation <= max_saturation.unwrap())
             && (min_saturation == None || saturation >= min_saturation.unwrap())
-        {
-            chosen = Some(*color);
-            break;
-        }
-    }
+    };
 
-    chosen
+    colors.iter().copied().find(predicate)
 }
 
 fn light_color(colors: &[Rgb], verbose: bool) -> Result<Rgb> {
@@ -230,7 +226,7 @@ pub fn generate(image_path: &Path, mode: Mode, verbose: bool) -> Result<VecDeque
         color_thief::get_palette(img_pixels.as_slice(), color_thief::ColorFormat::Rgba, 1, 15)?;
 
     let mut generated_colors = {
-        let mut colors: Vec<Rgb> = Vec::new();
+        let mut colors: Vec<Rgb> = Vec::with_capacity(palette.len());
         // For each color in palette, convert to Rgb
         for color in palette {
             let color: Rgb = Rgb::new(
