@@ -33,6 +33,8 @@ Here's how it looks in action (sway, waybar, alacritty):
 `yay -S flavours`
 - [nixpkg](https://github.com/NixOS/nixpkgs/blob/master/pkgs/applications/misc/flavours/default.nix#L17) for NixOS:
 `nix-env -iA nixos.flavours`
+- [Homebrew](https://formulae.brew.sh/formula/flavours) for macOS:
+`brew install flavours`
 
 Let me know if you want to package flavours for your favorite distro.
 
