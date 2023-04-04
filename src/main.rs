@@ -1,10 +1,15 @@
 use anyhow::{anyhow, Context, Result};
+use base16_color_scheme::{
+    scheme::{BaseIndex, RgbColor},
+    Scheme,
+};
 use dirs::{data_dir, preference_dir};
+use std::collections::BTreeMap;
+use std::convert::TryInto;
 use std::env;
 use std::path::Path;
 
 use flavours::operations::{apply, build, current, generate, info, list, update};
-use flavours::scheme::Scheme;
 use flavours::{cli, completions};
 
 use std::fs::{create_dir_all, write};
@@ -163,14 +168,22 @@ fn main() -> Result<()> {
 
             let colors = generate::generate(&image, mode, verbose)?;
             let scheme = Scheme {
+                scheme: name,
                 slug,
-                name,
                 author,
-                colors,
+                colors: colors
+                    .into_iter()
+                    .enumerate()
+                    .map(|(index, color)| {
+                        let mut rgb_color = [0u8; 3];
+                        hex::decode_to_slice(color, &mut rgb_color)?;
+                        Ok((BaseIndex(index.try_into()?), RgbColor(rgb_color)))
+                    })
+                    .collect::<Result<BTreeMap<_, _>>>()?,
             };
 
             if to_stdout {
-                print!("{}", scheme.to_string()?);
+                print!("{}", serde_yaml::to_string(&scheme)?);
             } else {
                 let path = flavours_dir
                     .join("base16")
@@ -180,8 +193,8 @@ fn main() -> Result<()> {
                     create_dir_all(&path)
                         .with_context(|| format!("Couldn't create directory {:?}", &path))?;
                 }
-                let file_path = &path.join(format!("{}.yaml", scheme.slug));
-                write(file_path, scheme.to_string()?)
+                let file_path = &path.join(format!("{}.yaml", &scheme.slug));
+                write(file_path, serde_yaml::to_string(&scheme)?)
                     .with_context(|| format!("Couldn't write scheme file at {:?}", path))?;
             }
             Ok(())

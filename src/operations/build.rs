@@ -1,8 +1,7 @@
 use anyhow::{anyhow, Context, Result};
+use base16_color_scheme::{Scheme, Template};
 use std::fs;
 use std::path;
-
-use crate::scheme::Scheme;
 
 /// Build a template
 ///
@@ -10,74 +9,9 @@ use crate::scheme::Scheme;
 ///
 /// * `template_base` - Template base string
 /// * `scheme` - Scheme structure
-pub fn build_template(template_base: String, scheme: &Scheme) -> Result<String> {
-    let mut built_template = template_base;
-    built_template = built_template
-        .replace("{{scheme-name}}", &scheme.name)
-        .replace("{{scheme-author}}", &scheme.author)
-        .replace("{{scheme-slug}}", &scheme.slug);
-
-    for (name, color) in scheme.colors.iter().enumerate() {
-        let hex = String::from(color).replace('#', "");
-        let rgb = hex::decode(&hex)?;
-        built_template = built_template
-            .replace(
-                //hex
-                &format!("{{{{base{:02X}-hex}}}}", name),
-                &hex,
-            )
-            .replace(
-                //hex-r
-                &format!("{{{{base{:02X}-hex-r}}}}", name),
-                &hex[0..2],
-            )
-            .replace(
-                //hex-g
-                &format!("{{{{base{:02X}-hex-g}}}}", name),
-                &hex[2..4],
-            )
-            .replace(
-                //hex-b
-                &format!("{{{{base{:02X}-hex-b}}}}", name),
-                &hex[4..6],
-            )
-            .replace(
-                //hex-bgr
-                &format!("{{{{base{:02X}-hex-bgr}}}}", name),
-                &format!("{}{}{}", &hex[4..6], &hex[2..4], &hex[0..2]),
-            )
-            .replace(
-                //rgb-r
-                &format!("{{{{base{:02X}-rgb-r}}}}", name),
-                &format!("{}", rgb[0]),
-            )
-            .replace(
-                //rgb-g
-                &format!("{{{{base{:02X}-rgb-g}}}}", name),
-                &format!("{}", rgb[1]),
-            )
-            .replace(
-                //rgb-b
-                &format!("{{{{base{:02X}-rgb-b}}}}", name),
-                &format!("{}", rgb[2]),
-            )
-            .replace(
-                //dec-r
-                &format!("{{{{base{:02X}-dec-r}}}}", name),
-                &format!("{:.2}", (rgb[0] as f64) / (255_f64)),
-            )
-            .replace(
-                //dec-g
-                &format!("{{{{base{:02X}-dec-g}}}}", name),
-                &format!("{:.2}", (rgb[1] as f64) / (255_f64)),
-            )
-            .replace(
-                //dec-b
-                &format!("{{{{base{:02X}-dec-b}}}}", name),
-                &format!("{:.2}", (rgb[2] as f64) / (255_f64)),
-            )
-    }
-    Ok(built_template)
+pub fn build_template(template_base: &str, scheme: &Scheme) -> Result<String> {
+    let template = Template::new(template_base)?;
+    Ok(template.render(scheme))
 }
 
 /// Build function
@@ -93,15 +27,16 @@ pub fn build(scheme_file: &path::Path, template_file: &path::Path) -> Result<()>
         .file_stem()
         .ok_or_else(|| anyhow!("The scheme path must contain a valid filename"))?
         .to_string_lossy();
-    let scheme = Scheme::from_str(scheme_contents, &slug)?;
+    let mut scheme: Scheme = serde_yaml::from_str(scheme_contents)?;
+    scheme.slug = slug.to_string();
+
     //Template content
     let template_content = fs::read_to_string(template_file)
         .with_context(|| format!("Couldn't read template file at {:?}.", template_file))?;
 
-    //Template with correct colors
-    let built_template = build_template(template_content, &scheme)
-        .context("Couldn't replace placeholders. Check if all colors on the specified scheme file are valid.")?;
+    let template = Template::new(template_content)?;
 
-    println!("{}", built_template);
+    //Template with correct colors
+    println!("{}", template.render(&scheme));
     Ok(())
 }
