@@ -11,6 +11,7 @@ categories = ["command-line-utilities"]
 repository = "https://github.com/Misterio77/flavours"
 
 [dependencies]
+base16_color_scheme = "0.3.0"
 anyhow = "1.0"
 calm_io = "0.1"
 clap = { version = "=3.0.0-beta.4", features = ["wrap_help", "suggestions", "color"] }

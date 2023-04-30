@@ -1,4 +1,5 @@
 use anyhow::{anyhow, Context, Result};
+use base16_color_scheme::Scheme;
 use rand::seq::SliceRandom;
 use std::fs;
 use std::io::{self, Read};
@@ -10,7 +11,6 @@ use std::thread;
 use crate::config::Config;
 use crate::find::{find_schemes, find_template};
 use crate::operations::build::build_template;
-use crate::scheme::Scheme;
 
 /// Picks a random path, from given vec
 /// * `values` - Vec with paths
@@ -155,12 +155,13 @@ pub fn apply(
         )
     };
 
-    let scheme = Scheme::from_str(&scheme_contents, &scheme_slug)?;
+    let mut scheme: Scheme = serde_yaml::from_str(&scheme_contents)?;
+    scheme.slug = scheme_slug;
 
     if verbose {
         println!(
             "Using scheme: {} ({}), by {}",
-            scheme.name, scheme.slug, scheme.author
+            scheme.scheme, scheme.slug, scheme.author
         );
         println!();
     }
@@ -257,7 +258,7 @@ pub fn apply(
                        .with_context(||format!("Couldn't read template {}/{} at {:?}. Check if the correct template/subtemplate was specified, and run the update templates command if you didn't already.", template, subtemplate, subtemplate_file))?;
 
         //Template with correct colors
-        let built_template = build_template(template_content, &scheme)
+        let built_template = build_template(&template_content, &scheme)
             .context("Couldn't replace placeholders. Check if all colors on the specified scheme file are valid (don't include a leading '#').")?;
 
         //File to write
@@ -298,7 +299,7 @@ pub fn apply(
     }
 
     let last_scheme_file = &base_dir.join("lastscheme");
-    fs::write(&last_scheme_file, &scheme.slug)
+    fs::write(&last_scheme_file, &scheme.scheme_slug())
         .with_context(|| "Couldn't update applied scheme name")?;
 
     while !hooks.is_empty() {
