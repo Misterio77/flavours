@@ -4,7 +4,7 @@
         "type": 1,
         "hidden": false,
         "description": "Build main branch",
-        "flake": "github:misterio77/flavours/main",
+        "flake": "github:misterio77/flavours/master",
         "checkinterval": 60,
         "schedulingshares": 10,
         "enableemail": false,
