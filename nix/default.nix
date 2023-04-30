@@ -17,7 +17,8 @@ rustPlatform.buildRustPackage {
   cargoLock.lockFile = ../Cargo.lock;
 
   meta = {
-    inherit (manifest) description homepage;
+    inherit (manifest) description;
+    homepage = manifest.repository;
     license = lib.licenses.mit;
     platforms = lib.platforms.all;
   };
