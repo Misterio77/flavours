@@ -19,9 +19,9 @@ where P: AsRef<Path>, {
 ///
 ///# Arguments
 ///* `line` - String containing both name and repository in format `name: repository`
-fn parse_yml_line(line: String) -> Result<(String, String)> {
+fn parse_yml_line(line: &str) -> Result<(&str, String)> {
     let parsed: Vec<&str> = line.split(':').collect();
-    let name = String::from(parsed[0]);
+    let name = parsed[0];
     let repo = parsed[1..].join(":").split_whitespace().collect();
     Ok((name, repo))
 }
@@ -33,8 +33,9 @@ fn parse_yml_line(line: String) -> Result<(String, String)> {
 ///* `t_repo` - String slice containing Schemes repository link
 ///* `file` - Path to sources file
 fn write_sources(s_repo: &str, t_repo: &str, file: &Path) -> Result<()> {
-    let text = format!("schemes: {}\ntemplates: {}", s_repo, t_repo);
-    write(file, text).with_context(|| format!("Couldn't write {:?}", file))?;
+    let mut file = File::create(file).with_context(|| format!("Couldn't open {:?}", file))?;
+    write!(file, "schemes: {}\ntemplates: {}", s_repo, t_repo).with_context(|| format!("Couldn't open {:?}", file))?;
+
     Ok(())
 }
 
@@ -77,8 +78,9 @@ fn get_sources(file: &Path, config: &Config) -> Result<(String, String)> {
     let reader = BufReader::new(sources_file);
     // Iterate lines
     for line in reader.lines() {
+        let line = line?;
         // Get name and repo from line
-        let (name, repo) = parse_yml_line(line?)?;
+        let (name, repo) = parse_yml_line(&line)?;
         // Store in correct variable
         // Only use sources.yaml sources if sources not specified in config
         if name == "schemes" && !use_config_sources {
@@ -110,10 +112,11 @@ fn get_repo_list(file: &Path) -> Result<Vec<(String, String)>> {
     let reader = BufReader::new(sources_file);
 
     for line in reader.lines() {
-        let (name, repo) = parse_yml_line(line?)?;
+        let line = line?;
+        let (name, repo) = parse_yml_line(&line)?;
         let first = name.chars().next();
         if first != Some('#') && first != None {
-            result.push((name, repo));
+            result.push((name.into(), repo));
         }
     }
 
@@ -229,7 +232,7 @@ fn update_lists(
     //Check if config file exists
     if !config_path.exists() {
         eprintln!("Config {:?} doesn't exist, creating", config_path);
-        let default_content = match read_to_string(Path::new("/etc/flavours.conf")) {
+        let default_content = match read_to_string("/etc/flavours.conf") {
             Ok(content) => content,
             Err(_) => String::from(""),
         };
@@ -358,11 +361,9 @@ fn update_schemes(dir: &Path, verbose: bool) -> Result<()> {
     let schemes = get_repo_list(scheme_list)?;
 
     // Children for multithreaded processing
-    let mut children = vec![];
+    let mut children = Vec::with_capacity(schemes.len());
 
-    for scheme in schemes {
-        // Making copies of the variables to avoid problems with borrowing
-        let (name, repo) = scheme;
+    for (name, repo) in schemes {
         // Current scheme directory
         let current_dir = schemes_dir.join(name);
         // Spawn new thread
