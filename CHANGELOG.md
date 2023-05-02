@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased]
+## [0.7.0](https://github.com/Misterio77/flavours/releases/tag/v0.7.0)
 
 ### Additions
 
