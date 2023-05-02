@@ -62,7 +62,7 @@ For the flavours configuration file, `config.toml`:
 - Create an `[[items]]` section for each app. Each section can have the following entries:
   - The `file` to write (required).
   - A `template` (required).
-  - A `subtemplate`. Defaults to `default`.
+  - A `subtemplate`. You can use the literal value `{scheme}` to select a subtemplate named the same way as a scheme, usefull if you have scheme dependent subtemplates. Defaults to `default` (also if a subtemplate named as the selected scheme isn't found).
   - A `hook` to execute. Defaults to none.
   - Specified as `light`, for lightweight changes that are quick to execute. Defaults to `true`. `flavours apply --light` will skip running hooks marked with `light=false`.
   - Whether to `rewrite` the entire file instead of replacing lines. Defaults to `false`, but it is recommended to set this to true for apps that can have an entire file defining colors through import or some other means.
