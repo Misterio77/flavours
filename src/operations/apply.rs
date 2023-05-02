@@ -78,7 +78,7 @@ fn replace_delimiter(
     for line in file_content.lines() {
         if found_start && !found_end {
             if !appended {
-                changed_content.push_str(built_template);
+                changed_content.push_str(&format!("{}\n", built_template));
                 appended = true;
             }
             if line.trim().to_lowercase().eq(&end) {
