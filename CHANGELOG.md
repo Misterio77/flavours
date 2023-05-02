@@ -4,8 +4,8 @@
 
 ### Fixes
 
-- Add missing newline when applying ([#78](https://github.com/misterio77/issues/78))
-- Set minimum supported rust version ([#44](https://github.com/misterio77/issues/44))
+- Add missing newline when applying ([#78](https://github.com/misterio77/flavours/issues/78))
+- Set minimum supported rust version ([#44](https://github.com/misterio77/flavours/issues/44))
 
 ## [0.7.0](https://github.com/Misterio77/flavours/releases/tag/v0.7.0)
 
