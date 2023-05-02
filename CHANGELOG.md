@@ -11,14 +11,14 @@
 
 ### Additions
 
-- Added a `-t`/`--template` flag for `flavours list`, to list templates. It supports all the usual `list` options (single line, globbing), and even works for subtemplates if you add a `/` (e.g. `flavours list '*/default'`) ([#67](https://github.com/Misterio77/pull/67)). Thanks, [@probably-neb](https://github.com/probably-neb)!
-- You can now use `{scheme}` as a `subtemplate`, this is useful when you have additional subtemplates to fix some issues specific schemes might have, it falls back to `default` if one is not found ([#66](https://github.com/Misterio77/pull/66)). Thanks, [@dive-deeper](https://github.com/dive-deeper)!
+- Added a `-t`/`--template` flag for `flavours list`, to list templates. It supports all the usual `list` options (single line, globbing), and even works for subtemplates if you add a `/` (e.g. `flavours list '*/default'`) ([#67](https://github.com/Misterio77/flavours/pull/67)). Thanks, [@probably-neb](https://github.com/probably-neb)!
+- You can now use `{scheme}` as a `subtemplate`, this is useful when you have additional subtemplates to fix some issues specific schemes might have, it falls back to `default` if one is not found ([#66](https://github.com/Misterio77/flavours/pull/66)). Thanks, [@dive-deeper](https://github.com/dive-deeper)!
 
 ### Fixes
 
 - Document Homebrew package ([#74](https://github.com/Misterio77/flavours/pull/74)). Thanks, [@awanwar](https://github.com/awanwar)!
-- Performance improvements ([#71](https://github.com/Misterio77/pull/71)). Thanks, [@vrmiguel](https://github.com/vrmiguel)!
-- We now use the awesome [base16_color_scheme](https://lib.rs/crates/base16_color_scheme) crate as our base16 primitives ([#76](https://github.com/Misterio77/pull/76)). Thanks, [@titaniumtraveler](https://github.com/titaniumtraveler)!
+- Performance improvements ([#71](https://github.com/Misterio77/flavours/pull/71)). Thanks, [@vrmiguel](https://github.com/vrmiguel)!
+- We now use the awesome [base16_color_scheme](https://lib.rs/crates/base16_color_scheme) crate as our base16 primitives ([#76](https://github.com/Misterio77/flavours/pull/76)). Thanks, [@titaniumtraveler](https://github.com/titaniumtraveler)!
 
 ## [0.6.0](https://github.com/Misterio77/flavours/releases/tag/v0.6.0)
 
