@@ -9,7 +9,7 @@ use std::convert::TryInto;
 use std::env;
 use std::path::Path;
 
-use flavours::operations::{apply, build, current, generate, info, list, update};
+use flavours::operations::{apply, build, current, generate, info, list, list_templates, update};
 use flavours::{cli, completions};
 
 use std::fs::{create_dir_all, write};
@@ -115,13 +115,24 @@ fn main() -> Result<()> {
                 None => vec!["*"],
             };
             let lines = sub_matches.is_present("lines");
-            list::list(
-                patterns,
-                &flavours_dir,
-                &flavours_config_dir,
-                verbose,
-                lines,
-            )
+
+            if sub_matches.is_present("templates") {
+                list_templates::list(
+                    patterns,
+                    &flavours_dir,
+                    &flavours_config_dir,
+                    verbose,
+                    lines,
+                )
+            } else {
+                list::list(
+                    patterns,
+                    &flavours_dir,
+                    &flavours_config_dir,
+                    verbose,
+                    lines,
+                )
+            }
         }
 
         Some(("update", sub_matches)) => {

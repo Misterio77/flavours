@@ -61,6 +61,12 @@ pub fn build_cli() -> App<'static> {
                 .setting(AppSettings::DisableVersionFlag)
                 .setting(AppSettings::ColoredHelp)
                 .arg(
+                    Arg::new("templates")
+                    .about("list available patterns")
+                    .long("templates")
+                    .short('t')
+                )
+                .arg(
                     Arg::new("pattern")
                     .about("Scheme name or glob pattern to match when listing scheme(s). If ommited, defaults to * (all installed schemes).")
                     .setting(ArgSettings::MultipleValues)
