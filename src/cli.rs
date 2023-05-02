@@ -62,7 +62,7 @@ pub fn build_cli() -> App<'static> {
                 .setting(AppSettings::ColoredHelp)
                 .arg(
                     Arg::new("templates")
-                    .about("list available patterns")
+                    .about("List templates instead of schemes")
                     .long("templates")
                     .short('t')
                 )
