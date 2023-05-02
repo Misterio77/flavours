@@ -221,9 +221,9 @@ pub fn apply(
             None => String::from("default"),
         };
         if subtemplate == "{scheme}" {
-            let subtemplate_scheme = find_template(template, &scheme.name, base_dir, config_dir);
+            let subtemplate_scheme = find_template(template, &scheme.scheme, base_dir, config_dir);
             subtemplate = match subtemplate_scheme {
-                Ok(_value) => scheme.name.clone(),
+                Ok(_value) => scheme.scheme.clone(),
                 Err(_e) => String::from("default"),
             }
         };
