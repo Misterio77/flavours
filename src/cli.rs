@@ -51,6 +51,12 @@ pub fn build_cli() -> App<'static> {
                 .setting(AppSettings::DisableHelpSubcommand)
                 .setting(AppSettings::DisableVersionFlag)
                 .setting(AppSettings::ColoredHelp)
+                .arg(
+                    Arg::new("luminosity")
+                    .about("Outputs scheme to stdout instead of writing it to a file.")
+                    .long("luminosity")
+                    .short('l')
+                )
         )
         .subcommand(
             App::new("list")

@@ -75,7 +75,10 @@ fn main() -> Result<()> {
 
     // Check which subcommand was used
     match matches.subcommand() {
-        Some(("current", _)) => current::current(&flavours_dir, verbose),
+        Some(("current", sub_matches)) => {
+            let luminosity = sub_matches.is_present("luminosity");
+            current::current(&flavours_dir, &flavours_config_dir, luminosity, verbose)
+        }
 
         Some(("apply", sub_matches)) => {
             //Get search patterns
@@ -139,12 +142,7 @@ fn main() -> Result<()> {
             let operation = sub_matches
                 .value_of("operation")
                 .ok_or_else(|| anyhow!("Invalid operation"))?;
-            update::update(
-                operation,
-                &flavours_dir,
-                verbose,
-                &flavours_config
-            )
+            update::update(operation, &flavours_dir, verbose, &flavours_config)
         }
 
         Some(("info", sub_matches)) => {
