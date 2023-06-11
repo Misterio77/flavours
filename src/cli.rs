@@ -52,8 +52,8 @@ pub fn build_cli() -> App<'static> {
                 .setting(AppSettings::DisableVersionFlag)
                 .setting(AppSettings::ColoredHelp)
                 .arg(
-                    Arg::new("luminosity")
-                    .about("Outputs scheme to stdout instead of writing it to a file.")
+                    Arg::new("luminance")
+                    .about("Instead of the name, returns if the current theme is a dark or light theme, calculated from the colors of the theme.")
                     .long("luminosity")
                     .short('l')
                 )

@@ -76,7 +76,7 @@ fn main() -> Result<()> {
     // Check which subcommand was used
     match matches.subcommand() {
         Some(("current", sub_matches)) => {
-            let luminosity = sub_matches.is_present("luminosity");
+            let luminosity = sub_matches.is_present("luminance");
             current::current(&flavours_dir, &flavours_config_dir, luminosity, verbose)
         }
 
