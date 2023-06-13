@@ -9,7 +9,7 @@ use crate::find::find_schemes;
 
 /// Get the name of the current scheme
 ///
-/// * `dir` - flavours data directory
+/// * `dir` - Flavours data directory
 fn get_current_scheme_name(dir: &Path) -> Result<String> {
     // File that stores last used scheme
     let file_path = &dir.join("lastscheme");
@@ -28,11 +28,18 @@ fn get_current_scheme_name(dir: &Path) -> Result<String> {
     }
 }
 
+/// Get read and parse the scheme based upon the name
+///
+/// In case `scheme_name` matches multiple themes, the first one is returned.
+///
+/// * `scheme_name` - Name of the scheme
+/// * `base_dir` - Flavours data directory
+/// * `config_path` - Flavours configuration path
 fn get_current_scheme(scheme_name: String, base_dir: &Path, config_dir: &Path) -> Result<Scheme> {
     let schemes = find_schemes(&scheme_name, base_dir, config_dir)?;
     let scheme_file: &PathBuf = schemes
         .first()
-        .with_context(|| "Could not find any schemes")?;
+        .with_context(|| format!("Could not find any schemes with the name {:?}", scheme_name))?;
 
     //Read chosen scheme
     let scheme_contents = fs::read_to_string(&scheme_file)
@@ -42,6 +49,8 @@ fn get_current_scheme(scheme_name: String, base_dir: &Path, config_dir: &Path) -
 }
 
 /// Luminosity of a theme
+///
+/// In other words, how bright is it; is it light or dark.
 #[derive(Debug)]
 enum Luminance {
     Dark,
@@ -57,9 +66,9 @@ impl fmt::Display for Luminance {
     }
 }
 
-/// Get the luminance of the current theme
+/// Get the luminance (brightness) of the current theme
 ///
-/// * ``
+/// * `scheme` - The scheme to calculated the luminance of.
 fn get_luminance(scheme: Scheme) -> Luminance {
     let rgb2luminance = |rgb: &RgbColor| {
         let [r, g, b] = rgb.0;
@@ -89,6 +98,7 @@ fn get_luminance(scheme: Scheme) -> Luminance {
 /// Current subcommand
 ///
 /// * `base_dir` - flavours data directory
+/// * `config_path` - Flavours configuration path
 /// * `luminosity` - Whether or not to return the luminosity of the current theme
 /// * `verbose` - Should we be verbose (unused atm)
 pub fn current(base_dir: &Path, config_dir: &Path, luminosity: bool, _verbose: bool) -> Result<()> {
