@@ -53,7 +53,7 @@ pub fn build_cli() -> App<'static> {
                 .setting(AppSettings::ColoredHelp)
                 .arg(
                     Arg::new("luminance")
-                    .about("Instead of the name, returns if the current theme is a dark or light theme, calculated from the colors of the theme.")
+                    .about("Instead of the name, returns if the current scheme is a dark or light scheme, calculated from the colors of the scheme.")
                     .long("luminosity")
                     .short('l')
                 )
