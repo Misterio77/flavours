@@ -51,6 +51,12 @@ pub fn build_cli() -> App<'static> {
                 .setting(AppSettings::DisableHelpSubcommand)
                 .setting(AppSettings::DisableVersionFlag)
                 .setting(AppSettings::ColoredHelp)
+                .arg(
+                    Arg::new("luminance")
+                    .about("Instead of the name, returns if the current scheme is a dark or light scheme, calculated from the colors of the scheme.")
+                    .long("luminosity")
+                    .short('l')
+                )
         )
         .subcommand(
             App::new("list")
